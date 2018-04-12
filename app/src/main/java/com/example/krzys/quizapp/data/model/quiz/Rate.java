@@ -1,34 +1,62 @@
-
 package com.example.krzys.quizapp.data.model.quiz;
+
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Rate {
+@Entity
+public class Rate implements Parcelable {
 
     @SerializedName("from")
     @Expose
-    private Long from;
+    private Integer from;
+    @PrimaryKey(autoGenerate = true)
     @SerializedName("to")
     @Expose
-    private Long to;
+    private Integer to;
     @SerializedName("content")
     @Expose
     private String content;
+    public final static Creator<Rate> CREATOR = new Creator<Rate>() {
 
-    public Long getFrom() {
+
+        @SuppressWarnings({"unchecked"})
+        public Rate createFromParcel(Parcel in) {
+            return new Rate(in);
+        }
+
+        public Rate[] newArray(int size) {
+            return (new Rate[size]);
+        }
+
+    };
+
+    protected Rate(Parcel in) {
+        this.from = ((Integer) in.readValue((Integer.class.getClassLoader())));
+        this.to = ((Integer) in.readValue((Integer.class.getClassLoader())));
+        this.content = ((String) in.readValue((String.class.getClassLoader())));
+    }
+
+    public Rate() {
+    }
+
+    public Integer getFrom() {
         return from;
     }
 
-    public void setFrom(Long from) {
+    public void setFrom(Integer from) {
         this.from = from;
     }
 
-    public Long getTo() {
+    public Integer getTo() {
         return to;
     }
 
-    public void setTo(Long to) {
+    public void setTo(Integer to) {
         this.to = to;
     }
 
@@ -38,6 +66,21 @@ public class Rate {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    @Override
+    public String toString() {
+        return "from: " + from + "; to: " + to + "; content: " + content;
+    }
+
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(from);
+        dest.writeValue(to);
+        dest.writeValue(content);
+    }
+
+    public int describeContents() {
+        return 0;
     }
 
 }

@@ -1,15 +1,26 @@
-
 package com.example.krzys.quizapp.data.model.quiz;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.TypeConverters;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.example.krzys.quizapp.data.db.converter.AnswerConverter;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Question {
+@Entity
+public class Question implements Parcelable {
 
+    @Embedded(prefix = "image_")
     @SerializedName("image")
     @Expose
     private Image image;
+    @TypeConverters(AnswerConverter.class)
     @SerializedName("answers")
     @Expose
     private List<Answer> answers = null;
@@ -24,7 +35,33 @@ public class Question {
     private String type;
     @SerializedName("order")
     @Expose
-    private Long order;
+    private Integer order;
+    public final static Creator<Question> CREATOR = new Creator<Question>() {
+
+
+        @SuppressWarnings({"unchecked"})
+        public Question createFromParcel(Parcel in) {
+            return new Question(in);
+        }
+
+        public Question[] newArray(int size) {
+            return (new Question[size]);
+        }
+
+    };
+
+    protected Question(Parcel in) {
+        this.image = ((Image) in.readValue((Image.class.getClassLoader())));
+        this.answers = new ArrayList<>();
+        in.readList(this.answers, (Answer.class.getClassLoader()));
+        this.text = ((String) in.readValue((String.class.getClassLoader())));
+        this.answer = ((String) in.readValue((String.class.getClassLoader())));
+        this.type = ((String) in.readValue((String.class.getClassLoader())));
+        this.order = ((Integer) in.readValue((Integer.class.getClassLoader())));
+    }
+
+    public Question() {
+    }
 
     public Image getImage() {
         return image;
@@ -66,12 +103,31 @@ public class Question {
         this.type = type;
     }
 
-    public Long getOrder() {
+    public Integer getOrder() {
         return order;
     }
 
-    public void setOrder(Long order) {
+    public void setOrder(Integer order) {
         this.order = order;
+    }
+
+    @Override
+    public String toString() {
+        return "image: " + image + "; answers: " + answers + "; text: " + text + "; answer: " +
+                answer + "; type: " + type + "; order: " + order;
+    }
+
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(image);
+        dest.writeList(answers);
+        dest.writeValue(text);
+        dest.writeValue(answer);
+        dest.writeValue(type);
+        dest.writeValue(order);
+    }
+
+    public int describeContents() {
+        return 0;
     }
 
 }

@@ -1,10 +1,15 @@
-
 package com.example.krzys.quizapp.data.model.quiz;
+
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Celebrity {
+@Entity
+public class Celebrity implements Parcelable {
 
     @SerializedName("result")
     @Expose
@@ -18,6 +23,7 @@ public class Celebrity {
     @SerializedName("imageUrl")
     @Expose
     private String imageUrl;
+    @PrimaryKey(autoGenerate = true)
     @SerializedName("show")
     @Expose
     private Long show;
@@ -36,6 +42,35 @@ public class Celebrity {
     @SerializedName("imageSource")
     @Expose
     private String imageSource;
+    public final static Creator<Celebrity> CREATOR = new Creator<Celebrity>() {
+
+
+        @SuppressWarnings({"unchecked"})
+        public Celebrity createFromParcel(Parcel in) {
+            return new Celebrity(in);
+        }
+
+        public Celebrity[] newArray(int size) {
+            return (new Celebrity[size]);
+        }
+
+    };
+
+    protected Celebrity(Parcel in) {
+        this.result = ((String) in.readValue((String.class.getClassLoader())));
+        this.imageAuthor = ((String) in.readValue((String.class.getClassLoader())));
+        this.imageHeight = ((String) in.readValue((String.class.getClassLoader())));
+        this.imageUrl = ((String) in.readValue((String.class.getClassLoader())));
+        this.show = ((Long) in.readValue((Long.class.getClassLoader())));
+        this.name = ((String) in.readValue((String.class.getClassLoader())));
+        this.imageTitle = ((String) in.readValue((String.class.getClassLoader())));
+        this.imageWidth = ((String) in.readValue((String.class.getClassLoader())));
+        this.content = ((String) in.readValue((String.class.getClassLoader())));
+        this.imageSource = ((String) in.readValue((String.class.getClassLoader())));
+    }
+
+    public Celebrity() {
+    }
 
     public String getResult() {
         return result;
@@ -115,6 +150,31 @@ public class Celebrity {
 
     public void setImageSource(String imageSource) {
         this.imageSource = imageSource;
+    }
+
+    @Override
+    public String toString() {
+        return "result: " + result + "; imageAuthor: " + imageAuthor + "; imageHeight: " +
+                imageHeight + "; imageUrl: " + imageUrl + "; show: " + show + "; name: " + name +
+                "; imageTitle: " + imageTitle + "; imageWidth: " + imageWidth + "; content: " +
+                content + "; imageSource: " + imageSource;
+    }
+
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(result);
+        dest.writeValue(imageAuthor);
+        dest.writeValue(imageHeight);
+        dest.writeValue(imageUrl);
+        dest.writeValue(show);
+        dest.writeValue(name);
+        dest.writeValue(imageTitle);
+        dest.writeValue(imageWidth);
+        dest.writeValue(content);
+        dest.writeValue(imageSource);
+    }
+
+    public int describeContents() {
+        return 0;
     }
 
 }

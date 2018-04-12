@@ -1,7 +1,7 @@
 package com.example.krzys.quizapp.data.retro;
 
 import com.example.krzys.quizapp.data.model.quiz.QuizData;
-import com.example.krzys.quizapp.data.model.quizzes.QuizListData;
+import com.example.krzys.quizapp.data.model.quizzes.QuizzesListData;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -14,10 +14,10 @@ public interface ApiEndpointInterface {
      *
      * @param fromId from which item to start fetching
      * @param count  how many items to fetch
-     * @return QuizListData item from which will be data retrieved
+     * @return QuizzesListData item from which will be data retrieved
      */
     @GET("quizzes/{id}/{count}")
-    Call<QuizListData> getQuizListData(@Path("id") int fromId, @Path("count") int count);
+    Call<QuizzesListData> getQuizListData(@Path("id") int fromId, @Path("count") int count);
 
     /**
      * Get details of Quiz
@@ -26,5 +26,5 @@ public interface ApiEndpointInterface {
      * @return QuizData with details of selected quiz
      */
     @GET("quiz/{id}/0")
-    Call<QuizData> getQuizData(@Path("id") int id);
+    Call<QuizData> getQuizData(@Path("id") long id);
 }

@@ -1,4 +1,4 @@
-package com.example.krzys.quizapp.data.database;
+package com.example.krzys.quizapp.data.db.converter;
 
 import android.arch.persistence.room.TypeConverter;
 

@@ -1,48 +1,52 @@
-package com.example.krzys.quizapp.data.model.quizzes;
+package com.example.krzys.quizapp.data.model.common;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.Parcelable.Creator;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 @Entity
-public class Tag implements Parcelable {
+public class Category implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     @SerializedName("uid")
     @Expose
     private Long uid;
+    @SerializedName("secondaryCid")
+    @Expose
+    private String secondaryCid;
     @SerializedName("name")
     @Expose
     private String name;
     @SerializedName("type")
     @Expose
     private String type;
-    public final static Parcelable.Creator<Tag> CREATOR = new Creator<Tag>() {
+    public final static Creator<Category> CREATOR = new Creator<Category>() {
 
 
         @SuppressWarnings({"unchecked"})
-        public Tag createFromParcel(Parcel in) {
-            return new Tag(in);
+        public Category createFromParcel(Parcel in) {
+            return new Category(in);
         }
 
-        public Tag[] newArray(int size) {
-            return (new Tag[size]);
+        public Category[] newArray(int size) {
+            return (new Category[size]);
         }
 
     };
 
-    protected Tag(Parcel in) {
+    protected Category(Parcel in) {
         this.uid = ((Long) in.readValue((Long.class.getClassLoader())));
+        this.secondaryCid = ((String) in.readValue((String.class.getClassLoader())));
         this.name = ((String) in.readValue((String.class.getClassLoader())));
         this.type = ((String) in.readValue((String.class.getClassLoader())));
     }
 
-    public Tag() {
+    public Category() {
     }
 
     public Long getUid() {
@@ -51,6 +55,14 @@ public class Tag implements Parcelable {
 
     public void setUid(Long uid) {
         this.uid = uid;
+    }
+
+    public String getSecondaryCid() {
+        return secondaryCid;
+    }
+
+    public void setSecondaryCid(String secondaryCid) {
+        this.secondaryCid = secondaryCid;
     }
 
     public String getName() {
@@ -71,11 +83,13 @@ public class Tag implements Parcelable {
 
     @Override
     public String toString() {
-        return "uid: " + uid + "; name: " + name + "; type: " + type;
+        return "uid: " + uid + "; secondaryCid: " + secondaryCid + "; name: " + name + "; type: "
+                + type;
     }
 
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeValue(uid);
+        dest.writeValue(secondaryCid);
         dest.writeValue(name);
         dest.writeValue(type);
     }

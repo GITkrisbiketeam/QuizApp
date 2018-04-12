@@ -1,14 +1,20 @@
-
 package com.example.krzys.quizapp.data.model.quiz;
+
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Image_ {
+@Entity
+public class Image_ implements Parcelable {
 
     @SerializedName("author")
     @Expose
     private String author;
+    @PrimaryKey(autoGenerate = true)
     @SerializedName("width")
     @Expose
     private String width;
@@ -24,6 +30,31 @@ public class Image_ {
     @SerializedName("height")
     @Expose
     private String height;
+    public final static Creator<Image_> CREATOR = new Creator<Image_>() {
+
+
+        @SuppressWarnings({"unchecked"})
+        public Image_ createFromParcel(Parcel in) {
+            return new Image_(in);
+        }
+
+        public Image_[] newArray(int size) {
+            return (new Image_[size]);
+        }
+
+    };
+
+    protected Image_(Parcel in) {
+        this.author = ((String) in.readValue((String.class.getClassLoader())));
+        this.width = ((String) in.readValue((String.class.getClassLoader())));
+        this.mediaId = ((String) in.readValue((String.class.getClassLoader())));
+        this.source = ((String) in.readValue((String.class.getClassLoader())));
+        this.url = ((String) in.readValue((String.class.getClassLoader())));
+        this.height = ((String) in.readValue((String.class.getClassLoader())));
+    }
+
+    public Image_() {
+    }
 
     public String getAuthor() {
         return author;
@@ -71,6 +102,25 @@ public class Image_ {
 
     public void setHeight(String height) {
         this.height = height;
+    }
+
+    @Override
+    public String toString() {
+        return "author: " + author + "; width: " + width + "; mediaId: " + mediaId + "; source: " +
+                source + "; url: " + url + "; height: " + height;
+    }
+
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(author);
+        dest.writeValue(width);
+        dest.writeValue(mediaId);
+        dest.writeValue(source);
+        dest.writeValue(url);
+        dest.writeValue(height);
+    }
+
+    public int describeContents() {
+        return 0;
     }
 
 }

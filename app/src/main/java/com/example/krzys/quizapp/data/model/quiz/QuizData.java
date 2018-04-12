@@ -1,18 +1,37 @@
-
 package com.example.krzys.quizapp.data.model.quiz;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.TypeConverters;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.example.krzys.quizapp.data.db.converter.CategoriesConverter;
+import com.example.krzys.quizapp.data.db.converter.LatestResultConverter;
+import com.example.krzys.quizapp.data.db.converter.QuestionConverter;
+import com.example.krzys.quizapp.data.db.converter.RateConverter;
+import com.example.krzys.quizapp.data.model.common.Category;
+import com.example.krzys.quizapp.data.model.common.Category_;
+import com.example.krzys.quizapp.data.model.common.MainPhoto;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class QuizData {
+@Entity
+public class QuizData implements Parcelable {
 
+    @Embedded(prefix = "celebrity_")
     @SerializedName("celebrity")
     @Expose
     private Celebrity celebrity;
+    @TypeConverters(RateConverter.class)
     @SerializedName("rates")
     @Expose
     private List<Rate> rates = null;
+    @TypeConverters(QuestionConverter.class)
     @SerializedName("questions")
     @Expose
     private List<Question> questions = null;
@@ -37,18 +56,22 @@ public class QuizData {
     @SerializedName("shareTitle")
     @Expose
     private String shareTitle;
+    @TypeConverters(CategoriesConverter.class)
     @SerializedName("categories")
     @Expose
     private List<Category> categories = null;
+    @PrimaryKey(autoGenerate = true)
     @SerializedName("id")
     @Expose
     private Long id;
     @SerializedName("scripts")
     @Expose
     private String scripts;
+    @Embedded(prefix = "mainPhoto_")
     @SerializedName("mainPhoto")
     @Expose
     private MainPhoto mainPhoto;
+    @Embedded(prefix = "category__")
     @SerializedName("category")
     @Expose
     private Category_ category;
@@ -58,6 +81,7 @@ public class QuizData {
     @SerializedName("created")
     @Expose
     private Long created;
+    @TypeConverters(LatestResultConverter.class)
     @SerializedName("latestResults")
     @Expose
     private List<LatestResult> latestResults = null;
@@ -69,19 +93,69 @@ public class QuizData {
     private Long resultCount;
     @SerializedName("cityAvg")
     @Expose
-    private Object cityAvg;
+    private String cityAvg;
     @SerializedName("cityTime")
     @Expose
-    private Object cityTime;
+    private String cityTime;
     @SerializedName("cityCount")
     @Expose
-    private Object cityCount;
+    private String cityCount;
     @SerializedName("userBattleDone")
     @Expose
     private Boolean userBattleDone;
+    @Embedded(prefix = "sponsoredResults_")
     @SerializedName("sponsoredResults")
     @Expose
     private SponsoredResults sponsoredResults;
+    public final static Creator<QuizData> CREATOR = new Creator<QuizData>() {
+
+
+        @SuppressWarnings({"unchecked"})
+        public QuizData createFromParcel(Parcel in) {
+            return new QuizData(in);
+        }
+
+        public QuizData[] newArray(int size) {
+            return (new QuizData[size]);
+        }
+
+    };
+
+    protected QuizData(Parcel in) {
+        this.celebrity = ((Celebrity) in.readValue((Celebrity.class.getClassLoader())));
+        this.rates = new ArrayList<>();
+        in.readList(this.rates, (Rate.class.getClassLoader()));
+        this.questions = new ArrayList<>();
+        in.readList(this.questions, (Question.class.getClassLoader()));
+        this.createdAt = ((String) in.readValue((String.class.getClassLoader())));
+        this.sponsored = ((Boolean) in.readValue((Boolean.class.getClassLoader())));
+        this.title = ((String) in.readValue((String.class.getClassLoader())));
+        this.type = ((String) in.readValue((String.class.getClassLoader())));
+        this.content = ((String) in.readValue((String.class.getClassLoader())));
+        this.buttonStart = ((String) in.readValue((String.class.getClassLoader())));
+        this.shareTitle = ((String) in.readValue((String.class.getClassLoader())));
+        this.categories = new ArrayList<>();
+        in.readList(this.categories, (Category.class.getClassLoader()));
+        this.id = ((Long) in.readValue((Long.class.getClassLoader())));
+        this.scripts = ((String) in.readValue((String.class.getClassLoader())));
+        this.mainPhoto = ((MainPhoto) in.readValue((MainPhoto.class.getClassLoader())));
+        this.category = ((Category_) in.readValue((Category_.class.getClassLoader())));
+        this.isBattle = ((Boolean) in.readValue((Boolean.class.getClassLoader())));
+        this.created = ((Long) in.readValue((Long.class.getClassLoader())));
+        this.latestResults = new ArrayList<>();
+        in.readList(this.latestResults, (LatestResult.class.getClassLoader()));
+        this.avgResult = ((Double) in.readValue((Double.class.getClassLoader())));
+        this.resultCount = ((Long) in.readValue((Long.class.getClassLoader())));
+        this.cityAvg = ((String) in.readValue((String.class.getClassLoader())));
+        this.cityTime = ((String) in.readValue((String.class.getClassLoader())));
+        this.cityCount = ((String) in.readValue((String.class.getClassLoader())));
+        this.userBattleDone = ((Boolean) in.readValue((Boolean.class.getClassLoader())));
+        this.sponsoredResults = ((SponsoredResults) in.readValue((SponsoredResults.class
+                .getClassLoader())));
+    }
+
+    public QuizData() {
+    }
 
     public Celebrity getCelebrity() {
         return celebrity;
@@ -243,27 +317,27 @@ public class QuizData {
         this.resultCount = resultCount;
     }
 
-    public Object getCityAvg() {
+    public String getCityAvg() {
         return cityAvg;
     }
 
-    public void setCityAvg(Object cityAvg) {
+    public void setCityAvg(String cityAvg) {
         this.cityAvg = cityAvg;
     }
 
-    public Object getCityTime() {
+    public String getCityTime() {
         return cityTime;
     }
 
-    public void setCityTime(Object cityTime) {
+    public void setCityTime(String cityTime) {
         this.cityTime = cityTime;
     }
 
-    public Object getCityCount() {
+    public String getCityCount() {
         return cityCount;
     }
 
-    public void setCityCount(Object cityCount) {
+    public void setCityCount(String cityCount) {
         this.cityCount = cityCount;
     }
 
@@ -281,6 +355,51 @@ public class QuizData {
 
     public void setSponsoredResults(SponsoredResults sponsoredResults) {
         this.sponsoredResults = sponsoredResults;
+    }
+
+    @Override
+    public String toString() {
+        return "celebrity: " + celebrity + "; rates: " + rates + "; questions: " + questions +
+                "; createdAt: " + createdAt + "; sponsored: " + sponsored + "; title: " + title +
+                "; type: " + type + "; content: " + content + "; buttonStart: " + buttonStart +
+                "; shareTitle: " + shareTitle + "; categories: " + categories + "; id: " + id +
+                "; scripts: " + scripts + "; mainPhoto: " + mainPhoto + "; category: " + category +
+                "; isBattle: " + isBattle + "; created: " + created + "; latestResults: " +
+                latestResults + "; avgResult: " + avgResult + "; resultCount: " + resultCount +
+                "; cityAvg: " + cityAvg + "; cityTime: " + cityTime + "; cityCount: " + cityCount +
+                "; userBattleDone: " + userBattleDone + "; sponsoredResults: " + sponsoredResults;
+    }
+
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(celebrity);
+        dest.writeList(rates);
+        dest.writeList(questions);
+        dest.writeValue(createdAt);
+        dest.writeValue(sponsored);
+        dest.writeValue(title);
+        dest.writeValue(type);
+        dest.writeValue(content);
+        dest.writeValue(buttonStart);
+        dest.writeValue(shareTitle);
+        dest.writeList(categories);
+        dest.writeValue(id);
+        dest.writeValue(scripts);
+        dest.writeValue(mainPhoto);
+        dest.writeValue(category);
+        dest.writeValue(isBattle);
+        dest.writeValue(created);
+        dest.writeList(latestResults);
+        dest.writeValue(avgResult);
+        dest.writeValue(resultCount);
+        dest.writeValue(cityAvg);
+        dest.writeValue(cityTime);
+        dest.writeValue(cityCount);
+        dest.writeValue(userBattleDone);
+        dest.writeValue(sponsoredResults);
+    }
+
+    public int describeContents() {
+        return 0;
     }
 
 }

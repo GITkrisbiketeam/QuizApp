@@ -5,14 +5,14 @@ import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class QuizListData {
+public class QuizzesListData {
 
     @SerializedName("count")
     @Expose
     private Integer count;
     @SerializedName("items")
     @Expose
-    private List<QuizItem> quizItem = null;
+    private List<QuizzesItem> quizzesItem = null;
 
     public Integer getCount() {
         return count;
@@ -22,12 +22,12 @@ public class QuizListData {
         this.count = count;
     }
 
-    public List<QuizItem> getItems() {
-        return quizItem;
+    public List<QuizzesItem> getItems() {
+        return quizzesItem;
     }
 
-    public void setItems(List<QuizItem> quizItem) {
-        this.quizItem = quizItem;
+    public void setItems(List<QuizzesItem> quizzesItem) {
+        this.quizzesItem = quizzesItem;
     }
 
 }
