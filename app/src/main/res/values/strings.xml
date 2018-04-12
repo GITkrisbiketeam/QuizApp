@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">QuizApp</string>
+    <string name="string_internet_connection_not_available">Brak połaczenia z internetem</string>
+    <string name="string_some_thing_wrong">Coś poszło nie tak</string>
+    <string name="quiz_image">Obrazek Quizu</string>
+    <string name="list_item_title">TextViewidsgi hsd hfois dhf oihdshfois doihaoh ohaoi hdih isdhf hsodh foio hsohd fiohdso hfois hd iofhds hfo</string>
+    <string name="list_item_type">TextView</string>
+</resources>
