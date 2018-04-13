@@ -22,7 +22,7 @@ public interface ApiEndpointInterface {
     /**
      * Get details of Quiz
      *
-     * @param id id of the quiz to retreive
+     * @param id id of the quiz to retrieve
      * @return QuizData with details of selected quiz
      */
     @GET("quiz/{id}/0")

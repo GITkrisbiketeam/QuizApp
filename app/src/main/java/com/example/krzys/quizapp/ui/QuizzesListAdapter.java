@@ -77,7 +77,7 @@ public class QuizzesListAdapter extends RecyclerView.Adapter<QuizzesListViewHold
         return mQuizzesItemsList.size();
     }
 
-    public void addQizzesItems(@NonNull List<QuizzesItem> quizzesItemsList) {
+    public void addQuizzesItems(@NonNull List<QuizzesItem> quizzesItemsList) {
         mQuizzesItemsList.clear();
         mQuizzesItemsList.addAll(quizzesItemsList);
         notifyDataSetChanged();

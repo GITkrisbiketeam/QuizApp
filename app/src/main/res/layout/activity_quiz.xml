@@ -72,6 +72,6 @@
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_quiz" />
+    <include layout="@layout/quiz_content" />
 
 </android.support.design.widget.CoordinatorLayout>

@@ -13,14 +13,14 @@ import java.util.List;
 public class CategoriesConverter implements Serializable {
 
     @TypeConverter
-    public String fromCategoriesList(List<Category> tags) {
-        if (tags == null) {
+    public String fromCategoriesList(List<Category> categories) {
+        if (categories == null) {
             return (null);
         }
         Gson gson = new Gson();
         Type type = new TypeToken<List<Category>>() {
         }.getType();
-        return gson.toJson(tags, type);
+        return gson.toJson(categories, type);
     }
 
     @TypeConverter

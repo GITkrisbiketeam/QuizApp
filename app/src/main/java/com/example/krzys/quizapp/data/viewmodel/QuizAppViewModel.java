@@ -28,6 +28,8 @@ public class QuizAppViewModel extends AndroidViewModel {
     private final QuizAppRepository mRepository;
     private final LiveData<List<QuizzesItem>> mAllQuizzesList;
 
+    private int mQuizActivityCurrentQuestion = -1;
+
     public QuizAppViewModel(Application application) {
         super(application);
         Log.d(TAG, "QuizAppViewModel");
@@ -104,4 +106,18 @@ public class QuizAppViewModel extends AndroidViewModel {
     }
 
     public void insert(QuizzesItem item) { mRepository.insert(item); }
+
+    public void updateQuizData(QuizData... quizData) {
+        mRepository.updateQuizData(quizData);
+    }
+
+    public int getQuizActivityCurrentQuestion() {
+        return mQuizActivityCurrentQuestion;
+    }
+
+    public void setQuizActivityCurrentQuestion(int quizActivityCurrentQuestion) {
+        mQuizActivityCurrentQuestion = quizActivityCurrentQuestion;
+    }
+
+
 }

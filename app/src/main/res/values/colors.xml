@@ -4,5 +4,5 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     
-    <color name="quizzes_list_divider">#FFDDDDDD</color>
+    <color name="quizzes_list_divider">#1F000000</color>
 </resources>

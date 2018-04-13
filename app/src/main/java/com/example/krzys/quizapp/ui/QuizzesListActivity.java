@@ -69,15 +69,15 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
 
         mQuizAppViewModel = ViewModelProviders.of(this).get(QuizAppViewModel.class);
 
-        mQuizAppViewModel.getAllQuizzesList().observe(QuizzesListActivity.this, quizItems -> {
-            Log.w(TAG, "QuizAppViewModel observer onChanged quizItems:" + quizItems);
-            if (quizItems != null) {
-                mQuizzesAdapter.addQizzesItems(quizItems);
+        mQuizAppViewModel.getAllQuizzesList().observe(QuizzesListActivity.this, quizzesItems -> {
+            Log.w(TAG, "QuizAppViewModel observer onChanged quizzesItems:" + quizzesItems);
+            if (quizzesItems != null) {
+                mQuizzesAdapter.addQuizzesItems(quizzesItems);
                 mSwipeRefreshLayout.setRefreshing(false);
-                Log.w(TAG, "QuizAppViewModel observer onChanged quizItems.size():" + quizItems.size());
+                Log.w(TAG, "QuizAppViewModel observer onChanged quizzesItems.size():" + quizzesItems.size());
 
-                if (quizItems.size() > 0) {
-                    Log.i(TAG, "QuizAppViewModel observer onChanged item:" + quizItems.get(0).getCreatedAt() + "" + " " + quizItems.get(0).getTitle());
+                if (quizzesItems.size() > 0) {
+                    Log.i(TAG, "QuizAppViewModel observer onChanged item:" + quizzesItems.get(0).getCreatedAt() + "" + " " + quizzesItems.get(0).getTitle());
                 }
                 // TODO: for logging only
                 /*for (QuizzesItem item : mQuizzesList) {

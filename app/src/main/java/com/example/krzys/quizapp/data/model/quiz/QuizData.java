@@ -10,6 +10,7 @@ import android.arch.persistence.room.TypeConverters;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.example.krzys.quizapp.data.db.converter.BooleanConverter;
 import com.example.krzys.quizapp.data.db.converter.CategoriesConverter;
 import com.example.krzys.quizapp.data.db.converter.LatestResultConverter;
 import com.example.krzys.quizapp.data.db.converter.QuestionConverter;
@@ -107,6 +108,11 @@ public class QuizData implements Parcelable {
     @SerializedName("sponsoredResults")
     @Expose
     private SponsoredResults sponsoredResults;
+
+
+    @TypeConverters(BooleanConverter.class)
+    private List<Boolean> myAnswers = null;
+
     public final static Creator<QuizData> CREATOR = new Creator<QuizData>() {
 
 
@@ -152,6 +158,8 @@ public class QuizData implements Parcelable {
         this.userBattleDone = ((Boolean) in.readValue((Boolean.class.getClassLoader())));
         this.sponsoredResults = ((SponsoredResults) in.readValue((SponsoredResults.class
                 .getClassLoader())));
+        this.myAnswers = new ArrayList<>();
+        in.readList(this.myAnswers, (Boolean.class.getClassLoader()));
     }
 
     public QuizData() {
@@ -357,6 +365,14 @@ public class QuizData implements Parcelable {
         this.sponsoredResults = sponsoredResults;
     }
 
+    public List<Boolean> getMyAnswers() {
+        return myAnswers;
+    }
+
+    public void setMyAnswers(List<Boolean> myAnswers) {
+        this.myAnswers = myAnswers;
+    }
+
     @Override
     public String toString() {
         return "celebrity: " + celebrity + "; rates: " + rates + "; questions: " + questions +
@@ -367,7 +383,8 @@ public class QuizData implements Parcelable {
                 "; isBattle: " + isBattle + "; created: " + created + "; latestResults: " +
                 latestResults + "; avgResult: " + avgResult + "; resultCount: " + resultCount +
                 "; cityAvg: " + cityAvg + "; cityTime: " + cityTime + "; cityCount: " + cityCount +
-                "; userBattleDone: " + userBattleDone + "; sponsoredResults: " + sponsoredResults;
+                "; userBattleDone: " + userBattleDone + "; sponsoredResults: " + sponsoredResults
+                + "; myAnswers: " + myAnswers;
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -396,6 +413,7 @@ public class QuizData implements Parcelable {
         dest.writeValue(cityCount);
         dest.writeValue(userBattleDone);
         dest.writeValue(sponsoredResults);
+        dest.writeList(myAnswers);
     }
 
     public int describeContents() {

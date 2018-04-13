@@ -13,25 +13,25 @@ import java.util.List;
 public class LatestResultConverter implements Serializable {
 
     @TypeConverter
-    public String fromTagsList(List<LatestResult> tags) {
-        if (tags == null) {
+    public String fromLatestResultsList(List<LatestResult> latestResults) {
+        if (latestResults == null) {
             return (null);
         }
         Gson gson = new Gson();
         Type type = new TypeToken<List<LatestResult>>() {
         }.getType();
-        return gson.toJson(tags, type);
+        return gson.toJson(latestResults, type);
     }
 
     @TypeConverter
-    public List<LatestResult> toTagsList(String tagsString) {
-        if (tagsString == null) {
+    public List<LatestResult> toLatestResultsList(String latestResultsString) {
+        if (latestResultsString == null) {
             return (null);
         }
         Gson gson = new Gson();
         Type type = new TypeToken<List<LatestResult>>() {
         }.getType();
-        return gson.fromJson(tagsString, type);
+        return gson.fromJson(latestResultsString, type);
     }
 
 }

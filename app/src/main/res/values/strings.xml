@@ -98,4 +98,11 @@
     <string name="action_settings">Settings</string>
     <string name="quizzes_menu_refresh">Odświerz</string>
     <string name="transition_name_shared_image">transitionNameForSharedImage</string>
+    <string name="question_text">This is Question?</string>
+    <string name="quiz_result_text">Brawo !!!</string>
+    <string name="quiz_result_score_title">Twój wynik to:</string>
+    <string name="quiz_result_score_unit">%</string>
+    <string name="quiz_result_avg_score_title">Średni wynik innych użytkowników to:</string>
+    <string name="quiz_result_redo_button_text">Powtórz ten quiz</string>
+    <string name="quiz_result_go_back_button_text">Powrót do listy quizów</string>
 </resources>

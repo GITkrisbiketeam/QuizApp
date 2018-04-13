@@ -28,6 +28,7 @@ public class QuizAppRepository {
 
     private final QuizzesItemDao mQuizzesItemDao;
     private final QuizDataDao mQuizDataDao;
+
     private final LiveData<List<QuizzesItem>> mAllQuizzesItems;
 
     public QuizAppRepository(Application application) {
@@ -50,6 +51,10 @@ public class QuizAppRepository {
 
     public void insert(QuizzesItem... items) {
         new InsertQuizzesItemAsyncTask(mQuizzesItemDao).execute(items);
+    }
+
+    public void updateQuizData(QuizData... quizData) {
+        new UpdateQuizDataAsyncTask(mQuizDataDao).execute(quizData);
     }
 
     public void getNewQuizzes() {
@@ -103,12 +108,12 @@ public class QuizAppRepository {
             public void onResponse(@NonNull Call<QuizData> call, @NonNull Response<QuizData>
                     response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.w(TAG, "getQuizData RetrofitClient onResponse response:" + response
+                    Log.w(TAG, "getQuizData RetrofitClient onResponse response: " + response
                             .toString());
                     //Got Successfully
                     QuizData quizData = response.body();
                     if (quizData != null) {
-                        Log.i(TAG, "getQuizData RetrofitClient quizData:" + quizData.toString());
+                        Log.i(TAG, "getQuizData RetrofitClient quizData: " + quizData.toString());
                         new InsertQuizDataAsyncTask(mQuizDataDao).execute(quizData);
                     }
 
@@ -151,7 +156,33 @@ public class QuizAppRepository {
 
         @Override
         protected Void doInBackground(final QuizData... items) {
-            mAsyncTaskDao.addQuiz(items);
+
+            QuizData oldData = mAsyncTaskDao.getQuizDataByIdImmediate(items[0].getId());
+            // restore my answers
+            if (oldData != null) {
+                items[0].setMyAnswers(oldData.getMyAnswers());
+            }
+            long id = mAsyncTaskDao.insertQuizData(items[0]);
+            // If Item already exists in DB then do update
+            if (id == -1) {
+                mAsyncTaskDao.updateQuizData(items[0]);
+            }
+            return null;
+        }
+
+    }
+
+    private static class UpdateQuizDataAsyncTask extends AsyncTask<QuizData, Void, Void> {
+
+        private final QuizDataDao mAsyncTaskDao;
+
+        UpdateQuizDataAsyncTask(QuizDataDao dao) {
+            mAsyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(final QuizData... items) {
+            mAsyncTaskDao.updateQuizData(items[0]);
             return null;
         }
 

@@ -13,25 +13,25 @@ import java.util.List;
 public class AnswerConverter implements Serializable {
 
     @TypeConverter
-    public String fromAnswersList(List<Answer> tags) {
-        if (tags == null) {
+    public String fromAnswersList(List<Answer> answers) {
+        if (answers == null) {
             return (null);
         }
         Gson gson = new Gson();
         Type type = new TypeToken<List<Answer>>() {
         }.getType();
-        return gson.toJson(tags, type);
+        return gson.toJson(answers, type);
     }
 
     @TypeConverter
-    public List<Answer> toAnswersList(String tagsString) {
-        if (tagsString == null) {
+    public List<Answer> toAnswersList(String answersString) {
+        if (answersString == null) {
             return (null);
         }
         Gson gson = new Gson();
         Type type = new TypeToken<List<Answer>>() {
         }.getType();
-        return gson.fromJson(tagsString, type);
+        return gson.fromJson(answersString, type);
     }
 
 }
