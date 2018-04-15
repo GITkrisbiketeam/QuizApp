@@ -24,32 +24,10 @@
         android:layout_marginTop="16dp"
         android:text="@string/quiz_result_score_title"
         android:textAppearance="?android:textAppearanceMedium"
-        app:layout_constraintEnd_toStartOf="@+id/result_score"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result_text" />
-
-    <TextView
-        android:id="@+id/result_score"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="100"
-        android:textAppearance="?android:textAppearanceMedium"
-        app:layout_constraintEnd_toStartOf="@+id/result_score_unit"
-        app:layout_constraintStart_toEndOf="@+id/result_score_title"
-        app:layout_constraintTop_toBottomOf="@+id/result_text" />
-
-    <TextView
-        android:id="@+id/result_score_unit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/quiz_result_score_unit"
-        android:textAppearance="?android:textAppearanceMedium"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/result_score"
         app:layout_constraintTop_toBottomOf="@+id/result_text" />
 
     <TextView
@@ -59,52 +37,34 @@
         android:layout_marginTop="16dp"
         android:text="@string/quiz_result_avg_score_title"
         android:textAppearance="?android:textAppearanceSmall"
-        app:layout_constraintEnd_toStartOf="@+id/result_avg_score"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/result_score_title" />
 
-    <TextView
-        android:id="@+id/result_avg_score"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="100"
-        android:textAppearance="?android:textAppearanceSmall"
-        app:layout_constraintEnd_toStartOf="@+id/result_avg_score_unit"
-        app:layout_constraintStart_toEndOf="@+id/result_avg_score_title"
-        app:layout_constraintTop_toBottomOf="@+id/result_score_title" />
-
-    <TextView
-        android:id="@+id/result_avg_score_unit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/quiz_result_score_unit"
-        android:textAppearance="?android:textAppearanceSmall"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/result_avg_score"
-        app:layout_constraintTop_toBottomOf="@+id/result_score_title" />
-
     <Button
         android:id="@+id/go_back_to_quiz_list_button"
         android:layout_width="0dp"
-        android:layout_height="56dp"
+        android:layout_height="64dp"
         android:layout_margin="8dp"
         android:text="@string/quiz_result_go_back_button_text"
+        android:theme="@style/ButtonTheme"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/redo_quiz_button"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result_avg_score_title" />
 
     <Button
         android:id="@+id/redo_quiz_button"
         android:layout_width="0dp"
-        android:layout_height="56dp"
+        android:layout_height="64dp"
         android:layout_margin="8dp"
         android:text="@string/quiz_result_redo_button_text"
+        android:theme="@style/ButtonTheme"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/go_back_to_quiz_list_button" />
+        app:layout_constraintStart_toEndOf="@+id/go_back_to_quiz_list_button"
+        app:layout_constraintTop_toBottomOf="@+id/result_avg_score_title" />
 
 </android.support.constraint.ConstraintLayout>

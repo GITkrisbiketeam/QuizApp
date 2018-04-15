@@ -49,12 +49,8 @@ public class QuizAppRepository {
         return mQuizDataDao.getQuizDataById(quizId);
     }
 
-    public void insert(QuizzesItem... items) {
-        new InsertQuizzesItemAsyncTask(mQuizzesItemDao).execute(items);
-    }
-
-    public void updateQuizData(QuizData... quizData) {
-        new UpdateQuizDataAsyncTask(mQuizDataDao).execute(quizData);
+    public void updateQuizData(@NonNull QuizData quizData) {
+        new UpdateQuizDataAsyncTask(mQuizDataDao, mQuizzesItemDao).execute(quizData);
     }
 
     public void getNewQuizzes() {
@@ -69,22 +65,21 @@ public class QuizAppRepository {
             @Override
             public void onResponse(@NonNull Call<QuizzesListData> call, @NonNull
                     Response<QuizzesListData> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Log.w(TAG, "getNewQuizzes RetrofitClient onResponse response:" + response
-                            .toString());
+                if (response.isSuccessful() && response.body() != null && response.body()
+                        .getItems() != null) {
                     //Got Successfully
                     List<QuizzesItem> quizzesList = response.body().getItems();
-                    Log.i(TAG, "getNewQuizzes RetrofitClient quizzesList.size:" + quizzesList
+                    Log.i(TAG, "updateNewQuizzes RetrofitClient quizzesList.size:" + quizzesList
                             .size());
                     if (quizzesList.size() > 0) {
-                        Log.i(TAG, "getNewQuizzes RetrofitClient item:" + quizzesList.get(0)
+                        Log.i(TAG, "updateNewQuizzes RetrofitClient item:" + quizzesList.get(0)
                                 .getCreatedAt() + " " + quizzesList.get(0).getTitle());
                     }
                     // Add all items to Database
                     new InsertQuizzesItemAsyncTask(mQuizzesItemDao).execute(quizzesList.toArray
                             (new QuizzesItem[]{}));
                 } else {
-                    Log.w(TAG, "getNewQuizzes RetrofitClient onResponse response:" + response
+                    Log.w(TAG, "updateNewQuizzes RetrofitClient onResponse response:" + response
                             .toString());
                 }
             }
@@ -140,7 +135,32 @@ public class QuizAppRepository {
 
         @Override
         protected Void doInBackground(final QuizzesItem... items) {
-            mAsyncTaskDao.addQuiz(items);
+            Log.e(TAG, "InsertQuizzesItemAsyncTask begin");
+            for (QuizzesItem item : items) {
+                QuizzesItem oldItem = mAsyncTaskDao.getQuizItemById(item.getId());
+                // restore my answers
+                if (oldItem != null) {
+                    item.setMyAnswers(oldItem.getMyAnswers());
+                }
+            }
+            Log.e(TAG, "InsertQuizzesItemAsyncTask end");
+            mAsyncTaskDao.addQuizzesItem(items);
+            return null;
+        }
+
+    }
+
+    private static class DeleteAsyncTask extends AsyncTask<QuizzesItem, Void, Void> {
+
+        private final QuizzesItemDao mAsyncTaskDao;
+
+        DeleteAsyncTask(QuizzesItemDao dao) {
+            mAsyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(final QuizzesItem... params) {
+            mAsyncTaskDao.deleteQuizzesItem(params[0]);
             return null;
         }
 
@@ -174,35 +194,25 @@ public class QuizAppRepository {
 
     private static class UpdateQuizDataAsyncTask extends AsyncTask<QuizData, Void, Void> {
 
-        private final QuizDataDao mAsyncTaskDao;
+        private final QuizDataDao mAsyncTaskQuizDao;
+        private final QuizzesItemDao mAsyncTaskQuizzesDao;
 
-        UpdateQuizDataAsyncTask(QuizDataDao dao) {
-            mAsyncTaskDao = dao;
+
+        UpdateQuizDataAsyncTask(QuizDataDao quizDao, QuizzesItemDao quizzesDao) {
+            mAsyncTaskQuizDao = quizDao;
+            mAsyncTaskQuizzesDao = quizzesDao;
         }
 
         @Override
-        protected Void doInBackground(final QuizData... items) {
-            mAsyncTaskDao.updateQuizData(items[0]);
+        protected Void doInBackground(final QuizData... datas) {
+            mAsyncTaskQuizDao.updateQuizData(datas[0]);
+            Log.e(TAG, "InsertQuizzesItemAsyncTask begin");
+            QuizzesItem quizzesItem = mAsyncTaskQuizzesDao.getQuizItemById(datas[0].getId());
+            quizzesItem.setMyAnswers(datas[0].getMyAnswers());
+            mAsyncTaskQuizzesDao.updateQuizzesItem(quizzesItem);
+            Log.e(TAG, "InsertQuizzesItemAsyncTask end");
             return null;
         }
 
     }
-
-    private static class DeleteAsyncTask extends AsyncTask<QuizzesItem, Void, Void> {
-
-        private final QuizzesItemDao mAsyncTaskDao;
-
-        DeleteAsyncTask(QuizzesItemDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final QuizzesItem... params) {
-            mAsyncTaskDao.deleteQuiz(params[0]);
-            return null;
-        }
-
-    }
-
-
 }

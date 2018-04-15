@@ -6,13 +6,16 @@
     android:layout_height="128dp"
     android:background="?selectableItemBackground"
     android:clickable="true"
-    android:focusable="true"
-    android:padding="16dp">
+    android:focusable="true">
 
     <ImageView
         android:id="@+id/quizzes_list_item_image_view"
-        android:layout_width="128dp"
+        android:layout_width="120dp"
         android:layout_height="96dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
         android:contentDescription="@string/quiz_image"
         android:scaleType="centerCrop"
         android:src="@mipmap/ic_launcher"
@@ -21,32 +24,50 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/quizzes_list_item_text_view_title"
         app:layout_constraintTop_toTopOf="parent" />
+    <ProgressBar
+        android:id="@+id/quizzes_list_item_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="4dp"
+        android:progress="0"
+        app:layout_constraintBottom_toBottomOf="@+id/quizzes_list_item_image_view"
+        app:layout_constraintEnd_toEndOf="@+id/quizzes_list_item_image_view"
+        app:layout_constraintStart_toStartOf="@+id/quizzes_list_item_image_view" />
 
     <TextView
         android:id="@+id/quizzes_list_item_text_view_title"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:ellipsize="end"
         android:maxLines="3"
         android:textAppearance="?android:textAppearanceListItem"
-        app:layout_constraintBottom_toTopOf="@+id/quizzes_list_item_text_view_type"
+        app:layout_constraintBottom_toTopOf="@+id/quizzes_list_item_text_view_score"
         app:layout_constraintEnd_toStartOf="@id/quizzes_list_item_image_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@string/list_item_title" />
 
     <TextView
-        android:id="@+id/quizzes_list_item_text_view_type"
+        android:id="@+id/quizzes_list_item_text_view_score"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
         android:textAppearance="?android:textAppearanceListItemSmall"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/quizzes_list_item_image_view"
         app:layout_constraintStart_toStartOf="parent"
-        tools:text="@string/list_item_type" />
+        app:layout_constraintTop_toBottomOf="@+id/quizzes_list_item_text_view_title" />
+
+
 
 </android.support.constraint.ConstraintLayout>

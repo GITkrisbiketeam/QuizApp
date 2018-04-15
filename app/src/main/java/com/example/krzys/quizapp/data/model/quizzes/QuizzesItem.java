@@ -11,6 +11,7 @@ import java.util.List;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.example.krzys.quizapp.data.db.converter.BooleanConverter;
 import com.example.krzys.quizapp.data.db.converter.CategoriesConverter;
 import com.example.krzys.quizapp.data.db.converter.TagsConverter;
 import com.example.krzys.quizapp.data.model.common.Category;
@@ -78,6 +79,10 @@ public class QuizzesItem implements Parcelable {
     @SerializedName("tags")
     @Expose
     private List<Tag> tags = null;
+
+    @TypeConverters(BooleanConverter.class)
+    private List<Boolean> myAnswers = null;
+
     public final static Parcelable.Creator<QuizzesItem> CREATOR = new Creator<QuizzesItem>() {
 
 
@@ -108,6 +113,8 @@ public class QuizzesItem implements Parcelable {
         this.category = ((Category_) in.readValue((Category_.class.getClassLoader())));
         this.tags = new ArrayList<>();
         in.readList(this.tags, (Tag.class.getClassLoader()));
+        this.myAnswers = new ArrayList<>();
+        in.readList(this.myAnswers, (Boolean.class.getClassLoader()));
     }
 
     public QuizzesItem() {
@@ -217,13 +224,22 @@ public class QuizzesItem implements Parcelable {
         this.tags = tags;
     }
 
+    public List<Boolean> getMyAnswers() {
+        return myAnswers;
+    }
+
+    public void setMyAnswers(List<Boolean> myAnswers) {
+        this.myAnswers = myAnswers;
+    }
+
+
     @Override
     public String toString() {
         return "buttonStart: " + buttonStart + "; shareTitle: " + shareTitle + "; questions: " +
                 questions + "; createdAt: " + createdAt + "; sponsored: " + sponsored + "; " +
                 "categories: " + categories + "; id: " + id + "; title: " + title + "; type: " +
                 type + "; content: " + content + "; mainPhoto: " + mainPhoto + "; category: " +
-                category + "; tags: " + tags;
+                category + "; tags: " + tags + "; myAnswers: "  + myAnswers;
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -240,6 +256,7 @@ public class QuizzesItem implements Parcelable {
         dest.writeValue(mainPhoto);
         dest.writeValue(category);
         dest.writeList(tags);
+        dest.writeList(myAnswers);
     }
 
     public int describeContents() {

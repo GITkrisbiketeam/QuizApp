@@ -54,7 +54,6 @@ public class QuizActivity extends AppCompatActivity {
 
     private ProgressBar mAppBarProgressBar;
 
-
     private ViewGroup mQuizContentRoot;
 
     private ViewFlipper mQuizContentViewFlipper;
@@ -129,6 +128,9 @@ public class QuizActivity extends AppCompatActivity {
                 if (quizData != null) {
                     mQuizData = quizData;
                     updateUI();
+                } else if (!Utils.checkConnection(this)) {
+                    Utils.showSnackbar(mQuizContentRoot, R.string
+                            .string_internet_connection_not_available);
                 }
             });
             updateAppBar(item);
@@ -174,7 +176,7 @@ public class QuizActivity extends AppCompatActivity {
                 return false;
             }
         }).placeholder(R.mipmap.ic_launcher).error(R.mipmap.ic_launcher).fallback(R.mipmap
-                .ic_launcher).into(quizImage);
+                .ic_launcher).centerCrop().dontAnimate().into(quizImage);
 
     }
 
@@ -263,16 +265,8 @@ public class QuizActivity extends AppCompatActivity {
                 mQuizContentRoot, false);
 
         for (Question q : questions) {
-            Image image = q.getImage();
-            if (image != null) {
-                String url = image.getUrl();
-                if (!TextUtils.isEmpty(url)) {
-                    Log.e(TAG, "getQuizQuestionsContentView there is image in Question url: " +
-                            url);
-                }
-            }
             for (Answer a : q.getAnswers()) {
-                Image aImage = q.getImage();
+                Image aImage = a.getImage();
                 if (aImage != null) {
                     String aUrl = aImage.getUrl();
                     if (!TextUtils.isEmpty(aUrl)) {
@@ -285,6 +279,31 @@ public class QuizActivity extends AppCompatActivity {
         // quiz questions content Components
         TextView questionTextView = newQuizContent.findViewById(R.id.question_title);
         questionTextView.setText(questions.get(currentQuestion).getText());
+
+        ImageView imageView = newQuizContent.findViewById(R.id.question_image);
+        Image image = questions.get(currentQuestion).getImage();
+        if (image != null && !TextUtils.isEmpty(image.getUrl())) {
+            Log.e(TAG, "getQuizQuestionsContentView image.getUrl(): " + image.getUrl());
+            imageView.setVisibility(View.VISIBLE);
+            GlideApp.with(this).load(image.getUrl())
+                    /*.listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model,
+                                                    Target<Drawable> target, boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
+                                target, DataSource dataSource, boolean isFirstResource) {
+                            imageView.setVisibility(View.VISIBLE);
+                            return false;
+                        }
+                    })*/
+                    .placeholder(R.mipmap.ic_launcher).error(R.mipmap.ic_launcher).fallback(R.mipmap
+                    .ic_launcher).centerCrop().dontAnimate().into(imageView);
+
+        }
         RadioGroup answersRadioGroup = newQuizContent.findViewById(R.id.answers_radio_group);
         answersRadioGroup.setOnCheckedChangeListener((group, checkedId) -> processAnswerSelected
                 (checkedId));
@@ -312,8 +331,8 @@ public class QuizActivity extends AppCompatActivity {
 
         // quiz result content Components
         TextView resultTextView = newQuizContent.findViewById(R.id.result_text);
-        TextView userScoreTextView = newQuizContent.findViewById(R.id.result_score);
-        TextView avgUserScoreTextView = newQuizContent.findViewById(R.id.result_avg_score);
+        TextView userScoreTextView = newQuizContent.findViewById(R.id.result_score_title);
+        TextView avgUserScoreTextView = newQuizContent.findViewById(R.id.result_avg_score_title);
         List<Boolean> myAnswers = mQuizData.getMyAnswers();
         int myCorrectAnswers = 0;
         for (Boolean b : myAnswers) {
@@ -324,10 +343,12 @@ public class QuizActivity extends AppCompatActivity {
         int questionsCount = mQuizData.getQuestions().size();
         int score = Math.round(myCorrectAnswers / (float) questionsCount * 100);
         Log.d(TAG, "getQuizResolvedContentView score is: " + score);
-        userScoreTextView.setText(String.valueOf(score));
+        String scoreText = getString(R.string.quiz_result_score_title, score);
+        userScoreTextView.setText(scoreText);
         int avgScore = (int) Math.round(mQuizData.getAvgResult() * 100);
         Log.d(TAG, "getQuizResolvedContentView avgScore is: " + avgScore);
-        avgUserScoreTextView.setText(String.valueOf(avgScore));
+        String avgScoreText = getString(R.string.quiz_result_avg_score_title, avgScore);
+        avgUserScoreTextView.setText(String.valueOf(avgScoreText));
         List<Rate> rates = mQuizData.getRates();
         for (Rate r : rates) {
             if (score >= r.getFrom() && score < r.getTo()) {

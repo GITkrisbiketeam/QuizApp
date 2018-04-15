@@ -3,6 +3,8 @@ package com.example.krzys.quizapp.utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.view.View;
 import android.widget.Toast;
 
 public class Utils {
@@ -33,5 +35,15 @@ public class Utils {
     public static void showToast(@NonNull Context context, String text) {
         Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
         toast.show();
+    }
+
+    /**
+     * Shows Snackbar on provided viewRoot with given message
+     *
+     * @param viewRoot      View to which attach Snackbar
+     * @param messageResId  int with resource Id with message to show
+     */
+    public static void showSnackbar(@NonNull View viewRoot, int messageResId) {
+        Snackbar.make(viewRoot, messageResId, Snackbar.LENGTH_LONG).show();
     }
 }

@@ -29,19 +29,17 @@
                 android:id="@+id/activity_quiz_toolbar_image_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:contentDescription="@string/quiz_image"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_launcher_foreground"
                 android:transitionName="@string/transition_name_shared_image"
-                app:layout_collapseMode="parallax"
-                android:contentDescription="@string/quiz_image" />
+                app:layout_collapseMode="parallax" />
 
             <LinearLayout
                 android:id="@+id/activity_quiz_toolbar_layout_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:layout_marginEnd="16dp"
-                android:layout_marginStart="16dp"
                 android:orientation="vertical"
                 app:layout_collapseMode="parallax">
 
@@ -49,7 +47,10 @@
                     android:id="@+id/activity_quiz_toolbar_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
                     android:text="@string/list_item_title"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
@@ -57,7 +58,7 @@
                     android:id="@+id/activity_quiz_toolbar_progress"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="4dp"
                     android:progress="30" />
             </LinearLayout>
 

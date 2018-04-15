@@ -6,7 +6,9 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.TypeConverters;
+import android.arch.persistence.room.Update;
 
+import com.example.krzys.quizapp.data.db.converter.BooleanConverter;
 import com.example.krzys.quizapp.data.db.converter.CategoriesConverter;
 import com.example.krzys.quizapp.data.db.converter.TagsConverter;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
@@ -16,7 +18,7 @@ import java.util.List;
 import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 
 @Dao
-@TypeConverters({CategoriesConverter.class, TagsConverter.class})
+@TypeConverters({CategoriesConverter.class, TagsConverter.class, BooleanConverter.class})
 public interface QuizzesItemDao {
 
     @Query("select * from QuizzesItem ORDER BY createdAt DESC")
@@ -26,9 +28,12 @@ public interface QuizzesItemDao {
     QuizzesItem getQuizItemById(long id);
 
     @Insert(onConflict = REPLACE)
-    void addQuiz(QuizzesItem... quizzesItems);
+    void addQuizzesItem(QuizzesItem... quizzesItems);
+
+    @Update
+    void updateQuizzesItem(QuizzesItem quizzesItem);
 
     @Delete
-    void deleteQuiz(QuizzesItem quizzesItem);
+    void deleteQuizzesItem(QuizzesItem quizzesItem);
 
 }

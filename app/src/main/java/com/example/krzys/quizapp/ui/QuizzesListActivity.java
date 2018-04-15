@@ -2,7 +2,6 @@ package com.example.krzys.quizapp.ui;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -74,27 +73,21 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
             if (quizzesItems != null) {
                 mQuizzesAdapter.addQuizzesItems(quizzesItems);
                 mSwipeRefreshLayout.setRefreshing(false);
-                Log.w(TAG, "QuizAppViewModel observer onChanged quizzesItems.size():" + quizzesItems.size());
+                Log.w(TAG, "QuizAppViewModel observer onChanged quizzesItems.size():" +
+                        quizzesItems.size());
 
                 if (quizzesItems.size() > 0) {
-                    Log.i(TAG, "QuizAppViewModel observer onChanged item:" + quizzesItems.get(0).getCreatedAt() + "" + " " + quizzesItems.get(0).getTitle());
+                    Log.i(TAG, "QuizAppViewModel observer onChanged item:" + quizzesItems.get(0)
+                            .getCreatedAt() + "" + " " + quizzesItems.get(0).getTitle());
                 }
-                // TODO: for logging only
-                /*for (QuizzesItem item : mQuizzesList) {
-                    Log.i(TAG, "QuizAppViewModel observer onChanged item:" + item.getCreatedAt() +
-                            "" + " " + item.getTitle());
-                }*/
             }
         });
 
-        //mQuizAppViewModel.getNewQuizzes(getApplication());
-
-        if (!Utils.checkConnection(getApplicationContext())) {
-            Snackbar.make(mRootView, R.string.string_internet_connection_not_available, Snackbar
-                    .LENGTH_LONG).show();
-        } else {
+        if (Utils.checkConnection(getApplicationContext())) {
             // Show refreshing animation
             mSwipeRefreshLayout.setRefreshing(true);
+        } else {
+            Utils.showSnackbar(mRootView, R.string.string_internet_connection_not_available);
         }
     }
 
@@ -115,9 +108,14 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
             case R.id.quizzes_menu_refresh:
                 // User chose the "Refresh" action
                 Log.w(TAG, "onOptionsItemSelected refresh called");
-                mQuizAppViewModel.getNewQuizzes(getApplication());
-                // Show refreshing animation
-                mSwipeRefreshLayout.setRefreshing(true);
+                if (Utils.checkConnection(this)) {
+                    mQuizAppViewModel.updateNewQuizzes();
+                    // Show refreshing animation
+                    mSwipeRefreshLayout.setRefreshing(true);
+                } else {
+                    Utils.showSnackbar(mRootView, R.string
+                            .string_internet_connection_not_available);
+                }
                 return true;
 
             default:
@@ -149,6 +147,12 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
     @Override
     public void onRefresh() {
         Log.w(TAG, "onRefresh SwipeRefreshLayout called to refresh");
-        mQuizAppViewModel.getNewQuizzes(getApplication());
+        if (Utils.checkConnection(this)) {
+            mQuizAppViewModel.updateNewQuizzes();
+        } else {
+            Utils.showSnackbar(mRootView, R.string.string_internet_connection_not_available);
+            // Stop refreshing animation
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
     }
 }

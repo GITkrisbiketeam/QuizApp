@@ -12,10 +12,10 @@ import com.google.gson.annotations.SerializedName;
 @Entity
 public class Answer implements Parcelable {
 
-    @Embedded(prefix = "image__")
+    @Embedded(prefix = "Image")
     @SerializedName("image")
     @Expose
-    private Image_ image;
+    private Image image;
     @PrimaryKey(autoGenerate = true)
     @SerializedName("order")
     @Expose
@@ -41,7 +41,7 @@ public class Answer implements Parcelable {
     };
 
     protected Answer(Parcel in) {
-        this.image = ((Image_) in.readValue((Image_.class.getClassLoader())));
+        this.image = ((Image) in.readValue((Image.class.getClassLoader())));
         this.order = ((Integer) in.readValue((Integer.class.getClassLoader())));
         this.text = ((String) in.readValue((String.class.getClassLoader())));
         this.isCorrect = ((Integer) in.readValue((Integer.class.getClassLoader())));
@@ -50,11 +50,11 @@ public class Answer implements Parcelable {
     public Answer() {
     }
 
-    public Image_ getImage() {
+    public Image getImage() {
         return image;
     }
 
-    public void setImage(Image_ image) {
+    public void setImage(Image image) {
         this.image = image;
     }
 
