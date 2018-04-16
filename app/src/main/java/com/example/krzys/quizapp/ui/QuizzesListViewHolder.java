@@ -20,7 +20,7 @@ public class QuizzesListViewHolder extends RecyclerView.ViewHolder implements Vi
     public final ProgressBar progressBar;
 
     public interface QuizItemHolderClickListener {
-        void onQuizItemClicked(View view, int position);
+        void onQuizItemClicked(ImageView imageView, ProgressBar progressBar, int position);
     }
 
     QuizzesListViewHolder(ConstraintLayout rootView, QuizItemHolderClickListener clickListener) {
@@ -38,6 +38,6 @@ public class QuizzesListViewHolder extends RecyclerView.ViewHolder implements Vi
 
     @Override
     public void onClick(View view) {
-        mListener.onQuizItemClicked(view, getAdapterPosition());
+        mListener.onQuizItemClicked(imageView, progressBar, getAdapterPosition());
     }
 }

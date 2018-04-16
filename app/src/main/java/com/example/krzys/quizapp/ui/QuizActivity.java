@@ -7,7 +7,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.constraint.ConstraintLayout;
+import android.support.transition.Fade;
+import android.support.transition.Transition;
+import android.support.transition.TransitionManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -32,6 +35,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.krzys.quizapp.R;
+import com.example.krzys.quizapp.data.model.common.Category_;
 import com.example.krzys.quizapp.data.model.quiz.Answer;
 import com.example.krzys.quizapp.data.model.quiz.Image;
 import com.example.krzys.quizapp.data.model.quiz.Question;
@@ -41,11 +45,14 @@ import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.data.viewmodel.QuizAppViewModel;
 import com.example.krzys.quizapp.utils.Utils;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class QuizActivity extends AppCompatActivity {
-    private static final String TAG = Utils.getLogTag(QuizActivity.class.getName());
+    private static final String TAG = Utils.getLogTag(QuizActivity.class.getSimpleName());
     public static final String EXTRA_QUIZ = "extra_quiz";
 
     private QuizAppViewModel mQuizAppViewModel;
@@ -74,7 +81,6 @@ public class QuizActivity extends AppCompatActivity {
             ab.setDisplayHomeAsUpEnabled(true);
         }
 
-        //AppBar Components
         mAppBarProgressBar = findViewById(R.id.activity_quiz_toolbar_progress);
 
         mQuizContentRoot = findViewById(R.id.quiz_content_root);
@@ -120,64 +126,135 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void processIntent(@NonNull Intent intent) {
-        QuizzesItem item = intent.getParcelableExtra(EXTRA_QUIZ);
-        Log.d(TAG, "processIntent item: " + item.toString());
-        if (item != null) {
-            mQuizAppViewModel.loadQuizData(item.getId()).observe(QuizActivity.this, quizData -> {
-                Log.w(TAG, "QuizActivity observer onChanged quizData:" + quizData);
+        QuizzesItem quizzesItem = intent.getParcelableExtra(EXTRA_QUIZ);
+        Log.d(TAG, "processIntent quizzesItem: " + quizzesItem.toString());
+        if (quizzesItem != null) {
+            ImageView appBarQuizImage = findViewById(R.id.activity_quiz_toolbar_image_view);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                // Delay Enter transition animation until Image is loaded
+                supportPostponeEnterTransition();
+            } else {
+                updateAppBarContent(quizzesItem);
+            }
+//TODO: add some sort of Network connectivity observer to be able to rfefresh data on network
+// available
+            mQuizAppViewModel.loadQuizData(quizzesItem.getId()).observe(QuizActivity.this, quizData -> {
+                Log.w(TAG, "QuizActivity observer onChanged");
                 if (quizData != null) {
                     mQuizData = quizData;
                     updateUI();
                 } else if (!Utils.checkConnection(this)) {
+                    scheduleStartPostponedTransition(appBarQuizImage);
                     Utils.showSnackbar(mQuizContentRoot, R.string
                             .string_internet_connection_not_available);
                 }
             });
-            updateAppBar(item);
+
+            // Prepare/download Quiz Toolbar image
+            if (appBarQuizImage != null) {
+                GlideApp.with(this).load(quizzesItem.getMainPhoto().getUrl()).listener(new RequestListener<Drawable>() {
+
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model,
+                                                Target<Drawable> target, boolean isFirstResource) {
+                        scheduleStartPostponedTransition(appBarQuizImage);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
+                            target, DataSource dataSource, boolean isFirstResource) {
+                        // Call the "scheduleStartPostponedTransition()" method
+                        // below when you know for certain that the shared element is
+                        // ready for the transition to begin.
+                        scheduleStartPostponedTransition(appBarQuizImage);
+                        return false;
+                    }
+                }).placeholder(R.mipmap.ic_launcher).error(R.mipmap.ic_launcher).fallback(R.mipmap
+                        .ic_launcher).centerCrop().dontAnimate().into(appBarQuizImage);
+            }
+
+            // Prepare and set ProgressBar
+            if (mAppBarProgressBar != null) {
+                mAppBarProgressBar.setMax(quizzesItem.getQuestions());
+                mAppBarProgressBar.setProgress(0);
+            }
         }
     }
 
-    private void updateAppBar(@NonNull QuizzesItem item) {
-        // Delay Enter transition animation until Image is loaded
-        supportPostponeEnterTransition();
+    @Override
+    public void onEnterAnimationComplete() {
+        super.onEnterAnimationComplete();
+        Log.e(TAG, "onEnterAnimationComplete");
+        Intent intent = getIntent();
+        if (intent != null) {
+            QuizzesItem quizzesItem = getIntent().getParcelableExtra(EXTRA_QUIZ);
+            if (quizzesItem != null) {
+                updateAppBarContent(quizzesItem);
+            }
+        }
+    }
 
-        CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id
-                .activity_quiz_collapsing_toolbar_layout);
-        //collapsingToolbarLayout.setTitle(getResources().getString(R.string.user_name));
+    private void updateAppBarContent(@NonNull QuizzesItem quizzesItem) {
+
+        ConstraintLayout constraintToolbarLayout = findViewById(R.id
+                .activity_quiz_toolbar_layout_title);
+        Transition trans = new Fade();
+        trans.setDuration(500);
+        TransitionManager.beginDelayedTransition(constraintToolbarLayout, trans);
+
+        TextView appBarTitle = constraintToolbarLayout.findViewById(R.id
+                .activity_quiz_toolbar_title);
+        TextView appBarCategories = constraintToolbarLayout.findViewById(R.id
+                .activity_quiz_toolbar_categories);
+        TextView appBarCreatedAt = constraintToolbarLayout.findViewById(R.id
+                .activity_quiz_toolbar_created_at);
+        View appBarImageScrim = constraintToolbarLayout.findViewById(R.id
+                .activity_quiz_toolbar_image_scrim);
 
         // Set AppBar Title
-        TextView appBarTitle = findViewById(R.id.activity_quiz_toolbar_title);
         if (appBarTitle != null) {
-            appBarTitle.setText(item.getTitle());
+            appBarTitle.setText(quizzesItem.getTitle());
+            appBarTitle.setVisibility(View.VISIBLE);
         }
 
-        // Prepare ProgressBar
-        mAppBarProgressBar.setMax(item.getQuestions());
-        mAppBarProgressBar.setProgress(0);
+        // Set AppBar created at field
+        if (appBarCreatedAt != null) {
+            try {
+                String createTime = quizzesItem.getCreatedAt();
+                if (createTime == null) {
+                    throw new NullPointerException();
+                }
 
-
-        // Prepare Quiz Toolbar image
-        ImageView quizImage = collapsingToolbarLayout.findViewById(R.id
-                .activity_quiz_toolbar_image_view);
-        GlideApp.with(this).load(item.getMainPhoto().getUrl()).listener(new RequestListener<Drawable>() {
-            @Override
-            public boolean onLoadFailed(@Nullable GlideException e, Object model,
-                                        Target<Drawable> target, boolean isFirstResource) {
-                return false;
+                SimpleDateFormat quizDataTimeFormat = new SimpleDateFormat
+                        ("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
+                Date date = quizDataTimeFormat.parse(createTime);
+                SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy h:mm");
+                appBarCreatedAt.setVisibility(View.VISIBLE);
+                appBarCreatedAt.setText(getString(R.string.quiz_app_bar_create_at_text,
+                        formatter.format(date)));
+            } catch (Exception e) {
+                Log.w(TAG, "updateAppBarContent could not parse created time value");
+                appBarCreatedAt.setVisibility(View.GONE);
             }
+        }
 
-            @Override
-            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
-                    target, DataSource dataSource, boolean isFirstResource) {
-                // Call the "scheduleStartPostponedTransition()" method
-                // below when you know for certain that the shared element is
-                // ready for the transition to begin.
-                scheduleStartPostponedTransition(quizImage);
-                return false;
+        // Set AppBar categories field
+        if (appBarCategories != null){
+            Category_ category = quizzesItem.getCategory();
+            if(category == null || TextUtils.isEmpty(category.getName())){
+                appBarCategories.setVisibility(View.GONE);
+            } else {
+                appBarCategories.setText(getString(R.string.quiz_app_bar_categories_text,category
+                        .getName()));
+                appBarCategories.setVisibility(View.VISIBLE);
             }
-        }).placeholder(R.mipmap.ic_launcher).error(R.mipmap.ic_launcher).fallback(R.mipmap
-                .ic_launcher).centerCrop().dontAnimate().into(quizImage);
+        }
 
+        if (appBarImageScrim != null){
+            appBarImageScrim.setVisibility(View.VISIBLE);
+        }
     }
 
     private void scheduleStartPostponedTransition(final View sharedElement) {
@@ -227,10 +304,12 @@ public class QuizActivity extends AppCompatActivity {
         Log.d(TAG, "mQuizData mQuizContentViewFlipper.getChildCount(): " +
                 mQuizContentViewFlipper.getChildCount());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            mAppBarProgressBar.setProgress(currentQuestion, true);
-        } else {
-            mAppBarProgressBar.setProgress(currentQuestion);
+        if (mAppBarProgressBar != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mAppBarProgressBar.setProgress(currentQuestion, true);
+            } else {
+                mAppBarProgressBar.setProgress(currentQuestion);
+            }
         }
         View newQuizContent;
         if (currentQuestion < questions.size()) {
@@ -286,20 +365,6 @@ public class QuizActivity extends AppCompatActivity {
             Log.e(TAG, "getQuizQuestionsContentView image.getUrl(): " + image.getUrl());
             imageView.setVisibility(View.VISIBLE);
             GlideApp.with(this).load(image.getUrl())
-                    /*.listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model,
-                                                    Target<Drawable> target, boolean isFirstResource) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
-                                target, DataSource dataSource, boolean isFirstResource) {
-                            imageView.setVisibility(View.VISIBLE);
-                            return false;
-                        }
-                    })*/
                     .placeholder(R.mipmap.ic_launcher).error(R.mipmap.ic_launcher).fallback(R.mipmap
                     .ic_launcher).centerCrop().dontAnimate().into(imageView);
 
@@ -343,7 +408,8 @@ public class QuizActivity extends AppCompatActivity {
         int questionsCount = mQuizData.getQuestions().size();
         int score = Math.round(myCorrectAnswers / (float) questionsCount * 100);
         Log.d(TAG, "getQuizResolvedContentView score is: " + score);
-        String scoreText = getString(R.string.quiz_result_score_title, score);
+        String scoreText = getString(R.string.quiz_result_score_title, myCorrectAnswers,
+                questionsCount, score);
         userScoreTextView.setText(scoreText);
         int avgScore = (int) Math.round(mQuizData.getAvgResult() * 100);
         Log.d(TAG, "getQuizResolvedContentView avgScore is: " + avgScore);
@@ -371,6 +437,14 @@ public class QuizActivity extends AppCompatActivity {
         return newQuizContent;
     }
 
+    /**
+     * Processes Selection of particular question answer.
+     * checks if user selection is correct answer and stores  his answer in DB through
+     * {@link QuizAppViewModel}. Input checkedId is an intiger of an answer as mapped in
+     * getQuizQuestionsContentView() method.
+     *
+     * @param checkedId id of selected question answer
+     */
     private void processAnswerSelected(int checkedId) {
         Log.d(TAG, "processAnswerSelected checkedId: " + checkedId);
         List<Boolean> myAnswers = mQuizData.getMyAnswers();

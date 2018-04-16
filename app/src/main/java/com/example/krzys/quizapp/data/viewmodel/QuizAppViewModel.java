@@ -14,10 +14,9 @@ import java.util.List;
 
 public class QuizAppViewModel extends AndroidViewModel {
 
-    private static final String TAG = Utils.getLogTag(QuizAppViewModel.class.getName());
+    private static final String TAG = Utils.getLogTag(QuizAppViewModel.class.getSimpleName());
 
     private final QuizAppRepository mRepository;
-    private final LiveData<List<QuizzesItem>> mAllQuizzesList;
 
     private int mQuizActivityCurrentQuestion = -1;
 
@@ -25,16 +24,11 @@ public class QuizAppViewModel extends AndroidViewModel {
         super(application);
         Log.d(TAG, "QuizAppViewModel");
         mRepository = new QuizAppRepository(application);
-        mAllQuizzesList = mRepository.getAllQuizzesItems();
-
-        Log.d(TAG, "QuizAppViewModel mAllQuizzesList.getValue().size(): " + (mAllQuizzesList
-                .getValue() != null ? mAllQuizzesList.getValue().size() : -1));
-
         Log.d(TAG, "QuizAppViewModel QuizItems retrofit requested");
     }
 
     public LiveData<List<QuizzesItem>> getAllQuizzesList() {
-        return mAllQuizzesList;
+        return mRepository.getAllQuizzesItems();
     }
 
     public void updateNewQuizzes() {

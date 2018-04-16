@@ -23,24 +23,26 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class QuizAppRepository {
-    private static final String TAG = Utils.getLogTag(QuizAppRepository.class.getName());
+    private static final String TAG = Utils.getLogTag(QuizAppRepository.class.getSimpleName());
 
 
     private final QuizzesItemDao mQuizzesItemDao;
     private final QuizDataDao mQuizDataDao;
 
-    private final LiveData<List<QuizzesItem>> mAllQuizzesItems;
+    private LiveData<List<QuizzesItem>> mAllQuizzesItems;
 
     public QuizAppRepository(Application application) {
         QuizAppRoomDatabase db = QuizAppRoomDatabase.getDatabase(application);
         mQuizzesItemDao = db.quizzesItemDao();
         mQuizDataDao = db.quizDataDao();
-        mAllQuizzesItems = mQuizzesItemDao.getAllQuizzesItems();
     }
 
     public LiveData<List<QuizzesItem>> getAllQuizzesItems() {
         //TODO: should we download Quizzes lst all the time????
         getNewQuizzes();
+        if (mAllQuizzesItems == null) {
+            mAllQuizzesItems = mQuizzesItemDao.getAllQuizzesItems();
+        }
         return mAllQuizzesItems;
     }
 
@@ -69,17 +71,17 @@ public class QuizAppRepository {
                         .getItems() != null) {
                     //Got Successfully
                     List<QuizzesItem> quizzesList = response.body().getItems();
-                    Log.i(TAG, "updateNewQuizzes RetrofitClient quizzesList.size:" + quizzesList
+                    Log.i(TAG, "getNewQuizzes RetrofitClient quizzesList.size:" + quizzesList
                             .size());
                     if (quizzesList.size() > 0) {
-                        Log.i(TAG, "updateNewQuizzes RetrofitClient item:" + quizzesList.get(0)
+                        Log.i(TAG, "getNewQuizzes RetrofitClient item:" + quizzesList.get(0)
                                 .getCreatedAt() + " " + quizzesList.get(0).getTitle());
                     }
                     // Add all items to Database
                     new InsertQuizzesItemAsyncTask(mQuizzesItemDao).execute(quizzesList.toArray
                             (new QuizzesItem[]{}));
                 } else {
-                    Log.w(TAG, "updateNewQuizzes RetrofitClient onResponse response:" + response
+                    Log.w(TAG, "getNewQuizzes RetrofitClient onResponse response:" + response
                             .toString());
                 }
             }
@@ -108,7 +110,7 @@ public class QuizAppRepository {
                     //Got Successfully
                     QuizData quizData = response.body();
                     if (quizData != null) {
-                        Log.i(TAG, "getQuizData RetrofitClient quizData: " + quizData.toString());
+                        Log.i(TAG, "got proper QuizData from RetrofitClient");
                         new InsertQuizDataAsyncTask(mQuizDataDao).execute(quizData);
                     }
 

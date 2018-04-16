@@ -2,10 +2,11 @@ package com.example.krzys.quizapp.ui;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,16 +16,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.example.krzys.quizapp.R;
-import com.example.krzys.quizapp.data.viewmodel.QuizAppViewModel;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
+import com.example.krzys.quizapp.data.viewmodel.QuizAppViewModel;
 import com.example.krzys.quizapp.utils.Utils;
 
 public class QuizzesListActivity extends AppCompatActivity implements QuizzesListAdapter
         .QuizItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
-    private static final String TAG = Utils.getLogTag(QuizzesListActivity.class.getName());
+    private static final String TAG = Utils.getLogTag(QuizzesListActivity.class.getSimpleName());
 
     private View mRootView;
 
@@ -69,7 +71,7 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
         mQuizAppViewModel = ViewModelProviders.of(this).get(QuizAppViewModel.class);
 
         mQuizAppViewModel.getAllQuizzesList().observe(QuizzesListActivity.this, quizzesItems -> {
-            Log.w(TAG, "QuizAppViewModel observer onChanged quizzesItems:" + quizzesItems);
+            Log.w(TAG, "QuizAppViewModel observer onChanged");
             if (quizzesItems != null) {
                 mQuizzesAdapter.addQuizzesItems(quizzesItems);
                 mSwipeRefreshLayout.setRefreshing(false);
@@ -127,17 +129,19 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
     }
 
     @Override
-    public void onQuizItemClicked(View view, QuizzesItem item) {
+    public void onQuizItemClicked(ImageView imageView, ProgressBar progressBar, QuizzesItem item) {
         Log.w(TAG, "onQuizItemClicked clicked item: " + item);
         Intent intent = new Intent(this, QuizActivity.class);
-        ImageView imageView = view.findViewById(R.id.quizzes_list_item_image_view);
-        Log.w(TAG, "onQuizItemClicked clicked imageView: " + imageView);
 
         // Pass quiz id in the bundle and populate details activity.
         intent.putExtra(QuizActivity.EXTRA_QUIZ, item);
+        Pair<View, String> image = Pair.create(imageView, getString(R.string
+                .transition_name_shared_image));
+        Pair<View, String> progress = Pair.create(progressBar, getString(R.string
+                .transition_name_shared_progress));
+
         ActivityOptionsCompat options = ActivityOptionsCompat.
-                makeSceneTransitionAnimation(this, imageView, getString(R.string
-                        .transition_name_shared_image));
+                makeSceneTransitionAnimation(this, image, progress);
         startActivity(intent, options.toBundle());
     }
 

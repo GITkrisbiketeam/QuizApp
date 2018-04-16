@@ -1,21 +1,33 @@
 <resources>
     <string name="app_name">QuizApp</string>
-    <string name="string_internet_connection_not_available">Brak połaczenia z internetem</string>
+    <string name="title_activity_quiz">QuizApp Pytania</string>
+
+    <string name="string_internet_connection_not_available">Brak połaczenia z internetem.</string>
     <string name="string_some_thing_wrong">Coś poszło nie tak</string>
-    <string name="quiz_image">Obrazek Quizu</string>
+
     <string name="list_item_title">Przykładowy tytuł quizu</string>
-    <string name="list_item_solve_score">Ostatni wynik to: %d%%</string>
+    <string name="list_item_solve_score">Ostatni wynik to: %d/%d, %d%%</string>
     <string name="list_item_quiz_progress">Quiz rozwiązany w %d%%</string>
-    <string name="title_activity_quiz">QuizActivity</string>
 
     <string name="action_settings">Settings</string>
     <string name="quizzes_menu_refresh">Odświerz</string>
-    <string name="question_text">Jakie to pytanie?</string>
+
+    <!-- QuizActivity strings-->
+    <string name="quiz_app_bar_create_at_text">Utworzono: %s</string>
+    <string name="quiz_app_bar_categories_text">Kategoria: %s</string>
+
+    <string name="quiz_solve_question_text">Jakie to pytanie?</string>
+
     <string name="quiz_result_text">Brawo !!!</string>
-    <string name="quiz_result_score_title">Twój wynik to: %d%%</string>
+    <string name="quiz_result_score_title">Twój wynik to: %d/%d, %d%%</string>
     <string name="quiz_result_avg_score_title">Średni wynik innych użytkowników to: %d%%</string>
+
     <string name="quiz_result_redo_button_text">Powtórz ten quiz</string>
     <string name="quiz_result_go_back_button_text">Powrót do listy quizów</string>
 
+    <!-- Other staff-->
+    <string name="quiz_image">Obrazek Quizu</string>
+
     <string name="transition_name_shared_image">transitionNameForSharedImage</string>
+    <string name="transition_name_shared_progress">transitionNameForSharedProgress</string>
 </resources>

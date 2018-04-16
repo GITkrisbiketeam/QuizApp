@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.example.krzys.quizapp.R;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
@@ -18,7 +20,7 @@ import java.util.List;
 
 public class QuizzesListAdapter extends RecyclerView.Adapter<QuizzesListViewHolder> implements
         QuizzesListViewHolder.QuizItemHolderClickListener {
-    private static final String TAG = Utils.getLogTag(QuizzesListAdapter.class.getName());
+    private static final String TAG = Utils.getLogTag(QuizzesListAdapter.class.getSimpleName());
 
     final Context mContext;
     private final LayoutInflater mInflater;
@@ -27,7 +29,7 @@ public class QuizzesListAdapter extends RecyclerView.Adapter<QuizzesListViewHold
     final QuizItemClickListener mQuizItemClickListener;
 
     public interface QuizItemClickListener {
-        void onQuizItemClicked(View view, QuizzesItem item);
+        void onQuizItemClicked(ImageView imageView, ProgressBar progressBar, QuizzesItem item);
     }
 
     public QuizzesListAdapter(@NonNull Context context, @NonNull QuizItemClickListener
@@ -67,7 +69,8 @@ public class QuizzesListAdapter extends RecyclerView.Adapter<QuizzesListViewHold
             String scoreText = null;
             if (answersCount == questionsCount) {
                 int score = Math.round(myCorrectAnswers / (float) questionsCount * 100);
-                scoreText = mContext.getString(R.string.list_item_solve_score, score);
+                scoreText = mContext.getString(R.string.list_item_solve_score, myCorrectAnswers,
+                        questionsCount, score);
             } else if (answersCount > 0) {
                 int score = Math.round(answersCount / (float) questionsCount * 100);
                 scoreText = mContext.getString(R.string.list_item_quiz_progress, score);
@@ -113,7 +116,8 @@ public class QuizzesListAdapter extends RecyclerView.Adapter<QuizzesListViewHold
     }
 
     @Override
-    public void onQuizItemClicked(View view, int position) {
-        mQuizItemClickListener.onQuizItemClicked(view, mQuizzesItemsList.get(position));
+    public void onQuizItemClicked(ImageView imageView, ProgressBar progressBar, int position) {
+        mQuizItemClickListener.onQuizItemClicked(imageView, progressBar, mQuizzesItemsList
+                .get(position));
     }
 }

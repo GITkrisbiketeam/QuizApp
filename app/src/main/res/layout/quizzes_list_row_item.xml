@@ -24,12 +24,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/quizzes_list_item_text_view_title"
         app:layout_constraintTop_toTopOf="parent" />
+
     <ProgressBar
         android:id="@+id/quizzes_list_item_progress"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="4dp"
         android:progress="0"
+        android:transitionName="@string/transition_name_shared_progress"
         app:layout_constraintBottom_toBottomOf="@+id/quizzes_list_item_image_view"
         app:layout_constraintEnd_toEndOf="@+id/quizzes_list_item_image_view"
         app:layout_constraintStart_toStartOf="@+id/quizzes_list_item_image_view" />
@@ -67,7 +69,6 @@
         app:layout_constraintEnd_toStartOf="@id/quizzes_list_item_image_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/quizzes_list_item_text_view_title" />
-
 
 
 </android.support.constraint.ConstraintLayout>
