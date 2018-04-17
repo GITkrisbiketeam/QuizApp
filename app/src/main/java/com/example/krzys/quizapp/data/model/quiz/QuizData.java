@@ -5,18 +5,16 @@ import java.util.List;
 
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.example.krzys.quizapp.data.db.converter.BooleanConverter;
-import com.example.krzys.quizapp.data.db.converter.CategoriesConverter;
-import com.example.krzys.quizapp.data.db.converter.LatestResultConverter;
+import com.example.krzys.quizapp.data.db.converter.FlagResultConverter;
 import com.example.krzys.quizapp.data.db.converter.QuestionConverter;
 import com.example.krzys.quizapp.data.db.converter.RateConverter;
 import com.example.krzys.quizapp.data.model.common.Category;
-import com.example.krzys.quizapp.data.model.common.Category_;
 import com.example.krzys.quizapp.data.model.common.MainPhoto;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -24,94 +22,130 @@ import com.google.gson.annotations.SerializedName;
 @Entity
 public class QuizData implements Parcelable {
 
-    @Embedded(prefix = "celebrity_")
+    @Ignore
     @SerializedName("celebrity")
     @Expose
     private Celebrity celebrity;
+
     @TypeConverters(RateConverter.class)
     @SerializedName("rates")
     @Expose
     private List<Rate> rates = null;
+
     @TypeConverters(QuestionConverter.class)
     @SerializedName("questions")
     @Expose
     private List<Question> questions = null;
+
     @SerializedName("createdAt")
     @Expose
     private String createdAt;
+
+    @Ignore
     @SerializedName("sponsored")
     @Expose
     private Boolean sponsored;
+
     @SerializedName("title")
     @Expose
     private String title;
+
     @SerializedName("type")
     @Expose
     private String type;
+
     @SerializedName("content")
     @Expose
     private String content;
+
+    @Ignore
     @SerializedName("buttonStart")
     @Expose
     private String buttonStart;
+
+    @Ignore
     @SerializedName("shareTitle")
     @Expose
     private String shareTitle;
-    @TypeConverters(CategoriesConverter.class)
+
+    @TypeConverters(FlagResultConverter.class)
+    @SerializedName("flagResults")
+    @Expose
+    private List<FlagResult> flagResults = null;
+
+    @Ignore
     @SerializedName("categories")
     @Expose
     private List<Category> categories = null;
-    @PrimaryKey(autoGenerate = true)
+
+    @PrimaryKey
     @SerializedName("id")
     @Expose
     private Long id;
+
+    @Ignore
     @SerializedName("scripts")
     @Expose
     private String scripts;
+
     @Embedded(prefix = "mainPhoto_")
     @SerializedName("mainPhoto")
     @Expose
     private MainPhoto mainPhoto;
-    @Embedded(prefix = "category__")
+
+    @Embedded(prefix = "category_")
     @SerializedName("category")
     @Expose
-    private Category_ category;
+    private Category category;
+
+    @Ignore
     @SerializedName("isBattle")
     @Expose
     private Boolean isBattle;
+
+    @Ignore
     @SerializedName("created")
     @Expose
     private Long created;
-    @TypeConverters(LatestResultConverter.class)
+
+    @Ignore
     @SerializedName("latestResults")
     @Expose
     private List<LatestResult> latestResults = null;
+
     @SerializedName("avgResult")
     @Expose
     private Double avgResult;
+
+    @Ignore
     @SerializedName("resultCount")
     @Expose
     private Long resultCount;
+
+    @Ignore
     @SerializedName("cityAvg")
     @Expose
     private String cityAvg;
+
+    @Ignore
     @SerializedName("cityTime")
     @Expose
     private String cityTime;
+
+    @Ignore
     @SerializedName("cityCount")
     @Expose
     private String cityCount;
+
+    @Ignore
     @SerializedName("userBattleDone")
     @Expose
     private Boolean userBattleDone;
-    @Embedded(prefix = "sponsoredResults_")
+
+    @Ignore
     @SerializedName("sponsoredResults")
     @Expose
     private SponsoredResults sponsoredResults;
-
-
-    @TypeConverters(BooleanConverter.class)
-    private List<Boolean> myAnswers = null;
 
     public final static Creator<QuizData> CREATOR = new Creator<QuizData>() {
 
@@ -140,12 +174,14 @@ public class QuizData implements Parcelable {
         this.content = ((String) in.readValue((String.class.getClassLoader())));
         this.buttonStart = ((String) in.readValue((String.class.getClassLoader())));
         this.shareTitle = ((String) in.readValue((String.class.getClassLoader())));
+        this.flagResults = new ArrayList<>();
+        in.readList(this.flagResults, (com.example.krzys.quizapp.data.model.quiz.FlagResult.class.getClassLoader()));
         this.categories = new ArrayList<>();
         in.readList(this.categories, (Category.class.getClassLoader()));
         this.id = ((Long) in.readValue((Long.class.getClassLoader())));
         this.scripts = ((String) in.readValue((String.class.getClassLoader())));
         this.mainPhoto = ((MainPhoto) in.readValue((MainPhoto.class.getClassLoader())));
-        this.category = ((Category_) in.readValue((Category_.class.getClassLoader())));
+        this.category = ((Category) in.readValue((Category.class.getClassLoader())));
         this.isBattle = ((Boolean) in.readValue((Boolean.class.getClassLoader())));
         this.created = ((Long) in.readValue((Long.class.getClassLoader())));
         this.latestResults = new ArrayList<>();
@@ -158,8 +194,6 @@ public class QuizData implements Parcelable {
         this.userBattleDone = ((Boolean) in.readValue((Boolean.class.getClassLoader())));
         this.sponsoredResults = ((SponsoredResults) in.readValue((SponsoredResults.class
                 .getClassLoader())));
-        this.myAnswers = new ArrayList<>();
-        in.readList(this.myAnswers, (Boolean.class.getClassLoader()));
     }
 
     public QuizData() {
@@ -245,6 +279,14 @@ public class QuizData implements Parcelable {
         this.shareTitle = shareTitle;
     }
 
+    public List<FlagResult> getFlagResults() {
+        return flagResults;
+    }
+
+    public void setFlagResults(List<FlagResult> flagResults) {
+        this.flagResults = flagResults;
+    }
+
     public List<Category> getCategories() {
         return categories;
     }
@@ -277,11 +319,11 @@ public class QuizData implements Parcelable {
         this.mainPhoto = mainPhoto;
     }
 
-    public Category_ getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(Category_ category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 
@@ -365,26 +407,17 @@ public class QuizData implements Parcelable {
         this.sponsoredResults = sponsoredResults;
     }
 
-    public List<Boolean> getMyAnswers() {
-        return myAnswers;
-    }
-
-    public void setMyAnswers(List<Boolean> myAnswers) {
-        this.myAnswers = myAnswers;
-    }
-
     @Override
     public String toString() {
         return "celebrity: " + celebrity + "; rates: " + rates + "; questions: " + questions +
                 "; createdAt: " + createdAt + "; sponsored: " + sponsored + "; title: " + title +
                 "; type: " + type + "; content: " + content + "; buttonStart: " + buttonStart +
-                "; shareTitle: " + shareTitle + "; categories: " + categories + "; id: " + id +
+                "; shareTitle: " + shareTitle + "; flagResults: " + flagResults + "; categories: " + categories + "; id: " + id +
                 "; scripts: " + scripts + "; mainPhoto: " + mainPhoto + "; category: " + category +
                 "; isBattle: " + isBattle + "; created: " + created + "; latestResults: " +
                 latestResults + "; avgResult: " + avgResult + "; resultCount: " + resultCount +
                 "; cityAvg: " + cityAvg + "; cityTime: " + cityTime + "; cityCount: " + cityCount +
-                "; userBattleDone: " + userBattleDone + "; sponsoredResults: " + sponsoredResults
-                + "; myAnswers: " + myAnswers;
+                "; userBattleDone: " + userBattleDone + "; sponsoredResults: " + sponsoredResults;
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -398,6 +431,7 @@ public class QuizData implements Parcelable {
         dest.writeValue(content);
         dest.writeValue(buttonStart);
         dest.writeValue(shareTitle);
+        dest.writeList(flagResults);
         dest.writeList(categories);
         dest.writeValue(id);
         dest.writeValue(scripts);
@@ -413,7 +447,6 @@ public class QuizData implements Parcelable {
         dest.writeValue(cityCount);
         dest.writeValue(userBattleDone);
         dest.writeValue(sponsoredResults);
-        dest.writeList(myAnswers);
     }
 
     public int describeContents() {

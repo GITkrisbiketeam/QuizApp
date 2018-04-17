@@ -1,31 +1,40 @@
 package com.example.krzys.quizapp.data.model.quiz;
 
 import android.arch.persistence.room.Embedded;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-@Entity
 public class Answer implements Parcelable {
 
-    @Embedded(prefix = "Image")
+    @Embedded(prefix = "image")
     @SerializedName("image")
     @Expose
     private Image image;
-    @PrimaryKey(autoGenerate = true)
+
     @SerializedName("order")
     @Expose
     private Integer order;
+
     @SerializedName("text")
     @Expose
     private String text;
+
     @SerializedName("isCorrect")
     @Expose
     private Integer isCorrect;
+
+    @SerializedName("votes")
+    @Expose
+    private Integer votes;
+
+    @Embedded(prefix = "flag_answer")
+    @SerializedName("flag_answer")
+    @Expose
+    private FlagAnswer flagAnswer;
+
     public final static Creator<Answer> CREATOR = new Creator<Answer>() {
 
 
@@ -45,6 +54,8 @@ public class Answer implements Parcelable {
         this.order = ((Integer) in.readValue((Integer.class.getClassLoader())));
         this.text = ((String) in.readValue((String.class.getClassLoader())));
         this.isCorrect = ((Integer) in.readValue((Integer.class.getClassLoader())));
+        this.votes = ((Integer) in.readValue((Integer.class.getClassLoader())));
+        this.flagAnswer = ((FlagAnswer) in.readValue((FlagAnswer.class.getClassLoader())));
     }
 
     public Answer() {
@@ -82,10 +93,26 @@ public class Answer implements Parcelable {
         this.isCorrect = isCorrect;
     }
 
+    public Integer getVotes() {
+        return votes;
+    }
+
+    public void setVotes(Integer votes) {
+        this.votes = votes;
+    }
+
+    public FlagAnswer getFlagAnswer() {
+        return flagAnswer;
+    }
+
+    public void setFlagAnswer(FlagAnswer flagAnswer) {
+        this.flagAnswer = flagAnswer;
+    }
+
     @Override
     public String toString() {
         return "image: " + image + "; order: " + order + "; text: " + text + "; isCorrect: " +
-                isCorrect;
+                isCorrect + "; votes: " + votes;
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -93,6 +120,8 @@ public class Answer implements Parcelable {
         dest.writeValue(order);
         dest.writeValue(text);
         dest.writeValue(isCorrect);
+        dest.writeValue(votes);
+        dest.writeValue(flagAnswer);
     }
 
     public int describeContents() {

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.arch.persistence.room.Embedded;
-import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.TypeConverters;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -13,29 +12,34 @@ import com.example.krzys.quizapp.data.db.converter.AnswerConverter;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-@Entity
 public class Question implements Parcelable {
 
     @Embedded(prefix = "image_")
     @SerializedName("image")
     @Expose
     private Image image;
+
     @TypeConverters(AnswerConverter.class)
     @SerializedName("answers")
     @Expose
     private List<Answer> answers = null;
+
     @SerializedName("text")
     @Expose
     private String text;
+
     @SerializedName("answer")
     @Expose
     private String answer;
+
     @SerializedName("type")
     @Expose
     private String type;
+
     @SerializedName("order")
     @Expose
     private Integer order;
+
     public final static Creator<Question> CREATOR = new Creator<Question>() {
 
 

@@ -1,14 +1,11 @@
 package com.example.krzys.quizapp.data.model.quiz;
 
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-@Entity
 public class Celebrity implements Parcelable {
 
     @SerializedName("result")
@@ -23,7 +20,6 @@ public class Celebrity implements Parcelable {
     @SerializedName("imageUrl")
     @Expose
     private String imageUrl;
-    @PrimaryKey(autoGenerate = true)
     @SerializedName("show")
     @Expose
     private Long show;

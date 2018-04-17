@@ -56,6 +56,8 @@ public class QuizzesListAdapter extends RecyclerView.Adapter<QuizzesListViewHold
         QuizzesItem item = mQuizzesItemsList.get(position);
 
         holder.textViewTitle.setText(item.getTitle());
+        holder.textViewType.setText(Utils.getTypeString(mContext,item.getType()));
+
         List<Boolean> myAnswers = item.getMyAnswers();
         if (myAnswers != null) {
             int questionsCount = item.getQuestions();
@@ -85,23 +87,16 @@ public class QuizzesListAdapter extends RecyclerView.Adapter<QuizzesListViewHold
             holder.progressBar.setProgress(0);
         }
 
-        Log.e(TAG, "onBindViewHolder " + item.getMainPhoto().getUrl());
         if (item.getMainPhoto() != null) {
             holder.imageView.setVisibility(View.VISIBLE);
             GlideApp.with(mContext).load(item.getMainPhoto().getUrl()).placeholder(R.mipmap
                     .ic_launcher).error(R.mipmap.ic_launcher).fallback(R.mipmap.ic_launcher)
                     .centerCrop().into(holder.imageView);
         } else {
-            Log.e(TAG, "onBindViewHolder no image Url");
+            Log.w(TAG, "onBindViewHolder no image Url");
             GlideApp.with(mContext).clear(holder.imageView);
             holder.imageView.setVisibility(View.GONE);
         }
-    }
-
-    @Override
-    public void onViewRecycled(@NonNull QuizzesListViewHolder holder) {
-        GlideApp.with(mContext).clear(holder.imageView);
-        super.onViewRecycled(holder);
     }
 
     @Override
@@ -110,9 +105,14 @@ public class QuizzesListAdapter extends RecyclerView.Adapter<QuizzesListViewHold
     }
 
     public void addQuizzesItems(@NonNull List<QuizzesItem> quizzesItemsList) {
-        mQuizzesItemsList.clear();
-        mQuizzesItemsList.addAll(quizzesItemsList);
-        notifyDataSetChanged();
+        if (mQuizzesItemsList.size() > 0) {
+            mQuizzesItemsList.clear();
+            mQuizzesItemsList.addAll(quizzesItemsList);
+            notifyItemRangeChanged(0, quizzesItemsList.size());
+        } else {
+            mQuizzesItemsList.addAll(quizzesItemsList);
+            notifyDataSetChanged();
+        }
     }
 
     @Override

@@ -1,18 +1,13 @@
 package com.example.krzys.quizapp.data.model.common;
 
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-@Entity
 public class Category implements Parcelable {
 
-    @PrimaryKey(autoGenerate = true)
     @SerializedName("uid")
     @Expose
     private Long uid;

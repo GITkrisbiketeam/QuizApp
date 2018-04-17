@@ -2,6 +2,7 @@ package com.example.krzys.quizapp.data.model.quizzes;
 
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
 
@@ -12,10 +13,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.example.krzys.quizapp.data.db.converter.BooleanConverter;
-import com.example.krzys.quizapp.data.db.converter.CategoriesConverter;
 import com.example.krzys.quizapp.data.db.converter.TagsConverter;
 import com.example.krzys.quizapp.data.model.common.Category;
-import com.example.krzys.quizapp.data.model.common.Category_;
 import com.example.krzys.quizapp.data.model.common.MainPhoto;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -23,10 +22,12 @@ import com.google.gson.annotations.SerializedName;
 @Entity
 public class QuizzesItem implements Parcelable {
 
+    @Ignore
     @SerializedName("buttonStart")
     @Expose
     private String buttonStart;
 
+    @Ignore
     @SerializedName("shareTitle")
     @Expose
     private String shareTitle;
@@ -39,16 +40,17 @@ public class QuizzesItem implements Parcelable {
     @Expose
     private String createdAt;
 
+    @Ignore
     @SerializedName("sponsored")
     @Expose
     private Boolean sponsored;
 
-    @TypeConverters(CategoriesConverter.class)
+    @Ignore
     @SerializedName("categories")
     @Expose
     private List<Category> categories = null;
 
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     @SerializedName("id")
     @Expose
     private Long id;
@@ -70,10 +72,10 @@ public class QuizzesItem implements Parcelable {
     @Expose
     private MainPhoto mainPhoto;
 
-    @Embedded(prefix = "category__")
+    @Embedded(prefix = "category_")
     @SerializedName("category")
     @Expose
-    private Category_ category;
+    private Category category;
 
     @TypeConverters(TagsConverter.class)
     @SerializedName("tags")
@@ -82,6 +84,8 @@ public class QuizzesItem implements Parcelable {
 
     @TypeConverters(BooleanConverter.class)
     private List<Boolean> myAnswers = null;
+
+    private Integer myPoll = null;
 
     public final static Parcelable.Creator<QuizzesItem> CREATOR = new Creator<QuizzesItem>() {
 
@@ -110,11 +114,12 @@ public class QuizzesItem implements Parcelable {
         this.type = ((String) in.readValue((String.class.getClassLoader())));
         this.content = ((String) in.readValue((String.class.getClassLoader())));
         this.mainPhoto = ((MainPhoto) in.readValue((MainPhoto.class.getClassLoader())));
-        this.category = ((Category_) in.readValue((Category_.class.getClassLoader())));
+        this.category = ((Category) in.readValue((Category.class.getClassLoader())));
         this.tags = new ArrayList<>();
         in.readList(this.tags, (Tag.class.getClassLoader()));
         this.myAnswers = new ArrayList<>();
         in.readList(this.myAnswers, (Boolean.class.getClassLoader()));
+        this.myPoll = ((Integer) in.readValue((Integer.class.getClassLoader())));
     }
 
     public QuizzesItem() {
@@ -208,11 +213,11 @@ public class QuizzesItem implements Parcelable {
         this.mainPhoto = mainPhoto;
     }
 
-    public Category_ getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(Category_ category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 
@@ -232,6 +237,14 @@ public class QuizzesItem implements Parcelable {
         this.myAnswers = myAnswers;
     }
 
+    public Integer getMyPoll() {
+        return myPoll;
+    }
+
+    public void setMyPoll(Integer myPoll) {
+        this.myPoll = myPoll;
+    }
+
 
     @Override
     public String toString() {
@@ -239,7 +252,7 @@ public class QuizzesItem implements Parcelable {
                 questions + "; createdAt: " + createdAt + "; sponsored: " + sponsored + "; " +
                 "categories: " + categories + "; id: " + id + "; title: " + title + "; type: " +
                 type + "; content: " + content + "; mainPhoto: " + mainPhoto + "; category: " +
-                category + "; tags: " + tags + "; myAnswers: "  + myAnswers;
+                category + "; tags: " + tags + "; myAnswers: "  + myAnswers + "; myPoll: "  + myPoll;
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -257,6 +270,7 @@ public class QuizzesItem implements Parcelable {
         dest.writeValue(category);
         dest.writeList(tags);
         dest.writeList(myAnswers);
+        dest.writeValue(myPoll);
     }
 
     public int describeContents() {

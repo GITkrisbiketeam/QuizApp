@@ -5,11 +5,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -22,9 +22,17 @@ import com.example.krzys.quizapp.R;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.data.viewmodel.QuizAppViewModel;
 import com.example.krzys.quizapp.utils.Utils;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
+import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class QuizzesListActivity extends AppCompatActivity implements QuizzesListAdapter
-        .QuizItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+        .QuizItemClickListener, SwipyRefreshLayout.OnRefreshListener {
 
     private static final String TAG = Utils.getLogTag(QuizzesListActivity.class.getSimpleName());
 
@@ -33,7 +41,7 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
     private QuizzesListAdapter mQuizzesAdapter;
     private QuizAppViewModel mQuizAppViewModel;
 
-    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private SwipyRefreshLayout mSwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +60,11 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
                 .color.holo_green_light, android.R.color.holo_orange_light, android.R.color
                 .holo_red_light);
 
-        //Getting List and Setting List Adapter
+        // Getting List and Setting List Adapter
         RecyclerView quizzesRecyclerView = findViewById(R.id.quizzes_recycler_view);
         quizzesRecyclerView.setHasFixedSize(true);
+        // Disable list items refresh animation
+        ((SimpleItemAnimator) quizzesRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
 
         // use a linear layout manager
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
@@ -70,7 +80,7 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
 
         mQuizAppViewModel = ViewModelProviders.of(this).get(QuizAppViewModel.class);
 
-        mQuizAppViewModel.getAllQuizzesList().observe(QuizzesListActivity.this, quizzesItems -> {
+        mQuizAppViewModel.getAllQuizzesList(this).observe(this, quizzesItems -> {
             Log.w(TAG, "QuizAppViewModel observer onChanged");
             if (quizzesItems != null) {
                 mQuizzesAdapter.addQuizzesItems(quizzesItems);
@@ -84,6 +94,20 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
                 }
             }
         });
+
+        mQuizAppViewModel.getAllQuizzesListTypes().observe(this, quizzesTypes ->{
+            if (quizzesTypes!=null) {
+                List<String> types;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    types = quizzesTypes.parallelStream().unordered().distinct().collect(Collectors
+                                .toList());
+                } else {
+                    types = new ArrayList<>(new HashSet<>(quizzesTypes));
+                }
+                Log.e(TAG, "typeList: " + Arrays.toString(types.toArray()));
+            }
+        });
+
 
         if (Utils.checkConnection(getApplicationContext())) {
             // Show refreshing animation
@@ -111,9 +135,12 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
                 // User chose the "Refresh" action
                 Log.w(TAG, "onOptionsItemSelected refresh called");
                 if (Utils.checkConnection(this)) {
-                    mQuizAppViewModel.updateNewQuizzes();
+                    mQuizAppViewModel.updateNewQuizzes(0);
                     // Show refreshing animation
+                    //mSwipeRefreshLayout.setDirection(SwipyRefreshLayoutDirection.TOP);
                     mSwipeRefreshLayout.setRefreshing(true);
+                    //mSwipeRefreshLayout.setDirection(SwipyRefreshLayoutDirection.BOTH);
+
                 } else {
                     Utils.showSnackbar(mRootView, R.string
                             .string_internet_connection_not_available);
@@ -146,17 +173,27 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
     }
 
     /**
-     * Called due to {@link SwipeRefreshLayout} been called to refresh
+     * Called due to {@link SwipyRefreshLayout} been called to refresh
      */
     @Override
-    public void onRefresh() {
-        Log.w(TAG, "onRefresh SwipeRefreshLayout called to refresh");
-        if (Utils.checkConnection(this)) {
-            mQuizAppViewModel.updateNewQuizzes();
+    public void onRefresh(SwipyRefreshLayoutDirection direction) {
+        Log.w(TAG, "onRefresh SwipeRefreshLayout called to refresh direction: " + direction);
+        if (direction == SwipyRefreshLayoutDirection.TOP) {
+            if (Utils.checkConnection(this)) {
+                mQuizAppViewModel.updateNewQuizzes(0);
+            } else {
+                Utils.showSnackbar(mRootView, R.string.string_internet_connection_not_available);
+                // Stop refreshing animation
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
         } else {
-            Utils.showSnackbar(mRootView, R.string.string_internet_connection_not_available);
-            // Stop refreshing animation
-            mSwipeRefreshLayout.setRefreshing(false);
+            if (Utils.checkConnection(this)) {
+                mQuizAppViewModel.updateNewQuizzes(mQuizzesAdapter.getItemCount());
+            } else {
+                Utils.showSnackbar(mRootView, R.string.string_internet_connection_not_available);
+                // Stop refreshing animation
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
         }
     }
 }

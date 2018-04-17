@@ -35,7 +35,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.krzys.quizapp.R;
-import com.example.krzys.quizapp.data.model.common.Category_;
+import com.example.krzys.quizapp.data.model.common.Category;
 import com.example.krzys.quizapp.data.model.quiz.Answer;
 import com.example.krzys.quizapp.data.model.quiz.Image;
 import com.example.krzys.quizapp.data.model.quiz.Question;
@@ -43,6 +43,7 @@ import com.example.krzys.quizapp.data.model.quiz.QuizData;
 import com.example.krzys.quizapp.data.model.quiz.Rate;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.data.viewmodel.QuizAppViewModel;
+import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;
 
 import java.text.SimpleDateFormat;
@@ -58,6 +59,7 @@ public class QuizActivity extends AppCompatActivity {
     private QuizAppViewModel mQuizAppViewModel;
 
     private QuizData mQuizData;
+    private QuizzesItem mQuizzesItem;
 
     private ProgressBar mAppBarProgressBar;
 
@@ -68,7 +70,7 @@ public class QuizActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate");
+        Log.d(TAG, "onCreate " + savedInstanceState);
         setContentView(R.layout.activity_quiz);
 
         final Toolbar toolbar = findViewById(R.id.activity_quiz_toolbar);
@@ -97,7 +99,8 @@ public class QuizActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (intent != null) {
-            processIntent(intent);
+            processIntent(intent, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+                    savedInstanceState == null);
         }
     }
 
@@ -106,7 +109,7 @@ public class QuizActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         Log.d(TAG, "onNewIntent");
         if (intent != null) {
-            processIntent(intent);
+            processIntent(intent, false);
         }
     }
 
@@ -125,22 +128,30 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
-    private void processIntent(@NonNull Intent intent) {
-        QuizzesItem quizzesItem = intent.getParcelableExtra(EXTRA_QUIZ);
-        Log.d(TAG, "processIntent quizzesItem: " + quizzesItem.toString());
-        if (quizzesItem != null) {
+    /**
+     * Process incoming Intent due to QuizActivity Created or recreated
+     * This will trigger download selected QuizData based on input intent EXTRA_QUIZ
+     * We will delay show of this Activity waiting for Quiz Item picture to downloaded
+     *
+     * @param intent Input {@link Intent} that should contain EXTRA_QUIZ with QuizzesItem
+     * @param postponeEnterTransition should we pospone enter transition waiting for image to
+     *                                download
+     */
+    private void processIntent(@NonNull Intent intent, boolean postponeEnterTransition) {
+        mQuizzesItem = intent.getParcelableExtra(EXTRA_QUIZ);
+        Log.d(TAG, "processIntent quizzesItem: " + mQuizzesItem.toString());
+        if (mQuizzesItem != null) {
             ImageView appBarQuizImage = findViewById(R.id.activity_quiz_toolbar_image_view);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (postponeEnterTransition) {
                 // Delay Enter transition animation until Image is loaded
                 supportPostponeEnterTransition();
             } else {
-                updateAppBarContent(quizzesItem);
+                updateAppBarContent(mQuizzesItem);
             }
-//TODO: add some sort of Network connectivity observer to be able to rfefresh data on network
-// available
-            mQuizAppViewModel.loadQuizData(quizzesItem.getId()).observe(QuizActivity.this, quizData -> {
-                Log.w(TAG, "QuizActivity observer onChanged");
+
+            mQuizAppViewModel.loadQuizData(this, mQuizzesItem.getId()).observe(this, quizData -> {
+                Log.w(TAG, "QuizActivity observer onChanged quizData: " + quizData);
                 if (quizData != null) {
                     mQuizData = quizData;
                     updateUI();
@@ -153,7 +164,7 @@ public class QuizActivity extends AppCompatActivity {
 
             // Prepare/download Quiz Toolbar image
             if (appBarQuizImage != null) {
-                GlideApp.with(this).load(quizzesItem.getMainPhoto().getUrl()).listener(new RequestListener<Drawable>() {
+                GlideApp.with(this).load(mQuizzesItem.getMainPhoto().getUrl()).listener(new RequestListener<Drawable>() {
 
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model,
@@ -177,9 +188,12 @@ public class QuizActivity extends AppCompatActivity {
 
             // Prepare and set ProgressBar
             if (mAppBarProgressBar != null) {
-                mAppBarProgressBar.setMax(quizzesItem.getQuestions());
+                mAppBarProgressBar.setMax(mQuizzesItem.getQuestions());
                 mAppBarProgressBar.setProgress(0);
             }
+        } else {
+            // No QuizzesItem was provided in this intent so leave this Activity
+            finish();
         }
     }
 
@@ -242,7 +256,7 @@ public class QuizActivity extends AppCompatActivity {
 
         // Set AppBar categories field
         if (appBarCategories != null){
-            Category_ category = quizzesItem.getCategory();
+            Category category = quizzesItem.getCategory();
             if(category == null || TextUtils.isEmpty(category.getName())){
                 appBarCategories.setVisibility(View.GONE);
             } else {
@@ -252,6 +266,7 @@ public class QuizActivity extends AppCompatActivity {
             }
         }
 
+        // Set AppBar gradient scrim for better TextView readability on ImageView
         if (appBarImageScrim != null){
             appBarImageScrim.setVisibility(View.VISIBLE);
         }
@@ -281,13 +296,13 @@ public class QuizActivity extends AppCompatActivity {
             // TODO show some error message to user
             return;
         }
-        final List<Boolean> myAnswers = mQuizData.getMyAnswers();
+        final List<Boolean> myAnswers = mQuizzesItem.getMyAnswers();
 
         // Check previous answers and start from new question
         final int currentQuestion;
         if (myAnswers != null) {
             if (myAnswers.size() <= questions.size()) {
-                currentQuestion = mQuizData.getMyAnswers().size();
+                currentQuestion = mQuizzesItem.getMyAnswers().size();
             } else {
                 currentQuestion = questions.size();
             }
@@ -398,23 +413,32 @@ public class QuizActivity extends AppCompatActivity {
         TextView resultTextView = newQuizContent.findViewById(R.id.result_text);
         TextView userScoreTextView = newQuizContent.findViewById(R.id.result_score_title);
         TextView avgUserScoreTextView = newQuizContent.findViewById(R.id.result_avg_score_title);
-        List<Boolean> myAnswers = mQuizData.getMyAnswers();
+        List<Boolean> myAnswers = mQuizzesItem.getMyAnswers();
+
+        // Count correct answers
         int myCorrectAnswers = 0;
         for (Boolean b : myAnswers) {
             if (b) {
                 myCorrectAnswers++;
             }
         }
+
         int questionsCount = mQuizData.getQuestions().size();
+
+        // Calculate and update User score
         int score = Math.round(myCorrectAnswers / (float) questionsCount * 100);
         Log.d(TAG, "getQuizResolvedContentView score is: " + score);
         String scoreText = getString(R.string.quiz_result_score_title, myCorrectAnswers,
                 questionsCount, score);
         userScoreTextView.setText(scoreText);
+
+        // Calculate and update avarega user score
         int avgScore = (int) Math.round(mQuizData.getAvgResult() * 100);
         Log.d(TAG, "getQuizResolvedContentView avgScore is: " + avgScore);
         String avgScoreText = getString(R.string.quiz_result_avg_score_title, avgScore);
         avgUserScoreTextView.setText(String.valueOf(avgScoreText));
+
+        // Get Result Text based on User score
         List<Rate> rates = mQuizData.getRates();
         for (Rate r : rates) {
             if (score >= r.getFrom() && score < r.getTo()) {
@@ -422,6 +446,7 @@ public class QuizActivity extends AppCompatActivity {
                 break;
             }
         }
+
         Button backButton = newQuizContent.findViewById(R.id.go_back_to_quiz_list_button);
         backButton.setOnClickListener(v -> {
             // show back image share transition animation
@@ -430,9 +455,9 @@ public class QuizActivity extends AppCompatActivity {
 
         Button redoButton = newQuizContent.findViewById(R.id.redo_quiz_button);
         redoButton.setOnClickListener(v -> {
-            mQuizData.setMyAnswers(new ArrayList<>());
+            mQuizzesItem.setMyAnswers(new ArrayList<>());
             // This will also call to refresh UI through DB LiveData observer
-            mQuizAppViewModel.updateQuizData(mQuizData);
+            mQuizAppViewModel.updateQuizzesItem(mQuizzesItem);
         });
         return newQuizContent;
     }
@@ -446,28 +471,43 @@ public class QuizActivity extends AppCompatActivity {
      * @param checkedId id of selected question answer
      */
     private void processAnswerSelected(int checkedId) {
-        Log.d(TAG, "processAnswerSelected checkedId: " + checkedId);
-        List<Boolean> myAnswers = mQuizData.getMyAnswers();
-        if (myAnswers == null) {
-            myAnswers = new ArrayList<>();
-        }
-        if (myAnswers.size() < mQuizData.getQuestions().size()) {
-            Integer isCorrect = mQuizData.getQuestions().get(myAnswers.size()).getAnswers().get
-                    (checkedId).getIsCorrect();
+        Log.d(TAG, "processAnswerSelected checkedId: " + checkedId + mQuizData.getType());
+        List<Boolean> myAnswers = mQuizzesItem.getMyAnswers();
+        switch (mQuizData.getType()) {
+            case Constants.TYPE_QUIZ:
+                if (myAnswers == null) {
+                    myAnswers = new ArrayList<>();
+                }
+                if (myAnswers.size() < mQuizData.getQuestions().size()) {
+                    Integer isCorrect = mQuizData.getQuestions().get(myAnswers.size()).getAnswers().get
+                            (checkedId).getIsCorrect();
 
-            if (isCorrect != null && isCorrect > 0) {
-                Log.d(TAG, "processAnswerSelected correct answer");
-                myAnswers.add(Boolean.TRUE);
-            } else {
-                Log.d(TAG, "processAnswerSelected wrong answer");
-                myAnswers.add(Boolean.FALSE);
-            }
-            mQuizData.setMyAnswers(myAnswers);
+                    if (isCorrect != null && isCorrect > 0) {
+                        Log.d(TAG, "processAnswerSelected correct answer");
+                        myAnswers.add(Boolean.TRUE);
+                    } else {
+                        Log.d(TAG, "processAnswerSelected wrong answer");
+                        myAnswers.add(Boolean.FALSE);
+                    }
+                    mQuizzesItem.setMyAnswers(myAnswers);
 
-            //UI will be updated due to DB changes
-            mQuizAppViewModel.updateQuizData(mQuizData);
-        } else {
-            Log.d(TAG, "processAnswerSelected Quiz solved");
+                    mQuizAppViewModel.updateQuizzesItem(mQuizzesItem);
+
+                    updateUI();
+                } else {
+                    Log.d(TAG, "processAnswerSelected Quiz solved");
+                }
+            break;
+            case Constants.TYPE_TEST:
+                mQuizzesItem.setMyPoll(checkedId);
+                updateUI();
+                break;
+            case Constants.TYPE_POLL:
+
+                break;
+            default:
+                // Hmm this should not happen
+                Log.e(TAG, "processAnswerSelected wrong quiz type");
         }
     }
 }

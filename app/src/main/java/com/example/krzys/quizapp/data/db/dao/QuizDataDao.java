@@ -6,20 +6,19 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.TypeConverters;
-import android.arch.persistence.room.Update;
 
 import com.example.krzys.quizapp.data.db.converter.AnswerConverter;
 import com.example.krzys.quizapp.data.db.converter.BooleanConverter;
-import com.example.krzys.quizapp.data.db.converter.LatestResultConverter;
+import com.example.krzys.quizapp.data.db.converter.FlagResultConverter;
 import com.example.krzys.quizapp.data.db.converter.QuestionConverter;
 import com.example.krzys.quizapp.data.db.converter.RateConverter;
 import com.example.krzys.quizapp.data.model.quiz.QuizData;
 
-import static android.arch.persistence.room.OnConflictStrategy.IGNORE;
+import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 
 @Dao
-@TypeConverters({AnswerConverter.class, LatestResultConverter.class, QuestionConverter.class,
-        RateConverter.class, BooleanConverter.class})
+@TypeConverters({AnswerConverter.class, QuestionConverter.class, RateConverter.class,
+        BooleanConverter.class, FlagResultConverter.class})
 public interface QuizDataDao {
 
     @Query("select * from QuizData where id = :id")
@@ -28,11 +27,8 @@ public interface QuizDataDao {
     @Query("select * from QuizData where id = :id")
     QuizData getQuizDataByIdImmediate(long id);
 
-    @Insert(onConflict = IGNORE)
-    long insertQuizData(QuizData quizData);
-
-    @Update
-    void updateQuizData(QuizData quizData);
+    @Insert(onConflict = REPLACE)
+    void insertQuizData(QuizData quizData);
 
     @Delete
     void deleteQuizData(QuizData quizData);

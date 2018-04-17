@@ -1,20 +1,16 @@
 package com.example.krzys.quizapp.data.model.quiz;
 
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-@Entity
 public class Rate implements Parcelable {
 
     @SerializedName("from")
     @Expose
     private Integer from;
-    @PrimaryKey(autoGenerate = true)
     @SerializedName("to")
     @Expose
     private Integer to;

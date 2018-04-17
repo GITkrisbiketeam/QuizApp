@@ -14,6 +14,7 @@ import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesListData;
 import com.example.krzys.quizapp.data.retro.ApiEndpointInterface;
 import com.example.krzys.quizapp.data.retro.RetrofitClient;
+import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;
 
 import java.util.List;
@@ -24,7 +25,6 @@ import retrofit2.Response;
 
 public class QuizAppRepository {
     private static final String TAG = Utils.getLogTag(QuizAppRepository.class.getSimpleName());
-
 
     private final QuizzesItemDao mQuizzesItemDao;
     private final QuizDataDao mQuizDataDao;
@@ -39,8 +39,8 @@ public class QuizAppRepository {
 
     public LiveData<List<QuizzesItem>> getAllQuizzesItems() {
         //TODO: should we download Quizzes lst all the time????
-        getNewQuizzes();
-        if (mAllQuizzesItems == null) {
+        getNewQuizzes(0);
+         if (mAllQuizzesItems == null) {
             mAllQuizzesItems = mQuizzesItemDao.getAllQuizzesItems();
         }
         return mAllQuizzesItems;
@@ -51,16 +51,20 @@ public class QuizAppRepository {
         return mQuizDataDao.getQuizDataById(quizId);
     }
 
-    public void updateQuizData(@NonNull QuizData quizData) {
-        new UpdateQuizDataAsyncTask(mQuizDataDao, mQuizzesItemDao).execute(quizData);
+    public LiveData<List<String>> getAllQuizzesItemsTypes() {
+        return mQuizzesItemDao.getTypes();
     }
 
-    public void getNewQuizzes() {
+    public void updateQuizzesItem(@NonNull QuizzesItem quizzesItem) {
+        new UpdateQuizzesItemAsyncTask(mQuizzesItemDao).execute(quizzesItem);
+    }
+
+    public void getNewQuizzes(int offset) {
         //Creating an object of our api interface
         ApiEndpointInterface api = RetrofitClient.getApiService();
 
         //Calling JSON
-        Call<QuizzesListData> call = api.getQuizListData(0, 100);
+        Call<QuizzesListData> call = api.getQuizListData(offset, Constants.INITIAL_QUIZZES_GET_COUNT);
 
         //Enqueue Callback will be call when get response...
         call.enqueue(new Callback<QuizzesListData>() {
@@ -179,40 +183,25 @@ public class QuizAppRepository {
         @Override
         protected Void doInBackground(final QuizData... items) {
 
-            QuizData oldData = mAsyncTaskDao.getQuizDataByIdImmediate(items[0].getId());
-            // restore my answers
-            if (oldData != null) {
-                items[0].setMyAnswers(oldData.getMyAnswers());
-            }
-            long id = mAsyncTaskDao.insertQuizData(items[0]);
-            // If Item already exists in DB then do update
-            if (id == -1) {
-                mAsyncTaskDao.updateQuizData(items[0]);
-            }
+            mAsyncTaskDao.insertQuizData(items[0]);
             return null;
         }
 
     }
 
-    private static class UpdateQuizDataAsyncTask extends AsyncTask<QuizData, Void, Void> {
+    private static class UpdateQuizzesItemAsyncTask extends AsyncTask<QuizzesItem, Void, Void> {
 
-        private final QuizDataDao mAsyncTaskQuizDao;
         private final QuizzesItemDao mAsyncTaskQuizzesDao;
 
 
-        UpdateQuizDataAsyncTask(QuizDataDao quizDao, QuizzesItemDao quizzesDao) {
-            mAsyncTaskQuizDao = quizDao;
+        UpdateQuizzesItemAsyncTask(QuizzesItemDao quizzesDao) {
             mAsyncTaskQuizzesDao = quizzesDao;
         }
 
         @Override
-        protected Void doInBackground(final QuizData... datas) {
-            mAsyncTaskQuizDao.updateQuizData(datas[0]);
-            Log.e(TAG, "InsertQuizzesItemAsyncTask begin");
-            QuizzesItem quizzesItem = mAsyncTaskQuizzesDao.getQuizItemById(datas[0].getId());
-            quizzesItem.setMyAnswers(datas[0].getMyAnswers());
-            mAsyncTaskQuizzesDao.updateQuizzesItem(quizzesItem);
-            Log.e(TAG, "InsertQuizzesItemAsyncTask end");
+        protected Void doInBackground(final QuizzesItem... datas) {
+            mAsyncTaskQuizzesDao.updateQuizzesItem(datas[0]);
+            Log.e(TAG, "UpdateQuizzesItemAsyncTask end");
             return null;
         }
 
