@@ -45,9 +45,7 @@ public class ConnectionLiveData extends LiveData<Boolean> {
                 Log.d(TAG, "onReceive EXTRA_NO_CONNECTIVITY");
                 postValue(Boolean.FALSE);
             } else {
-                ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context
-                        .CONNECTIVITY_SERVICE);
-                if (cm != null && cm.getActiveNetworkInfo().isConnected()) {
+                if (Utils.checkConnection(context)) {
                     Log.d(TAG, "onReceive is connected");
                     postValue(Boolean.TRUE);
                 } else {

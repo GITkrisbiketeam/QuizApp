@@ -9,28 +9,28 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class BooleanConverter implements Serializable {
+public class IntegerConverter implements Serializable {
 
     @TypeConverter
-    public String fromBooleansList(List<Boolean> tags) {
-        if (tags == null) {
+    public String fromBooleansList(List<Integer> integers) {
+        if (integers == null) {
             return (null);
         }
         Gson gson = new Gson();
-        Type type = new TypeToken<List<Boolean>>() {
+        Type type = new TypeToken<List<Integer>>() {
         }.getType();
-        return gson.toJson(tags, type);
+        return gson.toJson(integers, type);
     }
 
     @TypeConverter
-    public List<Boolean> toBooleansList(String tagsString) {
-        if (tagsString == null) {
+    public List<Integer> toBooleansList(String integersString) {
+        if (integersString == null) {
             return (null);
         }
         Gson gson = new Gson();
-        Type type = new TypeToken<List<Boolean>>() {
+        Type type = new TypeToken<List<Integer>>() {
         }.getType();
-        return gson.fromJson(tagsString, type);
+        return gson.fromJson(integersString, type);
     }
 
 }

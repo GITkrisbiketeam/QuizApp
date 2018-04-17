@@ -17,7 +17,6 @@ public class QuizzesListViewHolder extends RecyclerView.ViewHolder implements Vi
     public final ImageView imageView;
     public final TextView textViewTitle;
     public final TextView textViewScore;
-    public final TextView textViewType;
     public final ProgressBar progressBar;
 
     public interface QuizItemHolderClickListener {
@@ -32,7 +31,6 @@ public class QuizzesListViewHolder extends RecyclerView.ViewHolder implements Vi
         this.imageView = rootView.findViewById(R.id.quizzes_list_item_image_view);
         this.textViewTitle = rootView.findViewById(R.id.quizzes_list_item_text_view_title);
         this.textViewScore = rootView.findViewById(R.id.quizzes_list_item_text_view_score);
-        this.textViewType = rootView.findViewById(R.id.quizzes_list_item_text_view_type);
         this.progressBar = rootView.findViewById(R.id.quizzes_list_item_progress);
 
         this.rootView.setOnClickListener(this);

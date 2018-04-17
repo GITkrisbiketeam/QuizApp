@@ -21,6 +21,7 @@ import android.widget.ProgressBar;
 import com.example.krzys.quizapp.R;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.data.viewmodel.QuizAppViewModel;
+import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
@@ -64,7 +65,8 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
         RecyclerView quizzesRecyclerView = findViewById(R.id.quizzes_recycler_view);
         quizzesRecyclerView.setHasFixedSize(true);
         // Disable list items refresh animation
-        ((SimpleItemAnimator) quizzesRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+        ((SimpleItemAnimator) quizzesRecyclerView.getItemAnimator()).setSupportsChangeAnimations
+                (false);
 
         // use a linear layout manager
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
@@ -85,6 +87,10 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
             if (quizzesItems != null) {
                 mQuizzesAdapter.addQuizzesItems(quizzesItems);
                 mSwipeRefreshLayout.setRefreshing(false);
+                // Restore Both directions refreshing after some delay so that
+                // mSwipeRefreshLayout animation stops
+                mSwipeRefreshLayout.postDelayed(() -> mSwipeRefreshLayout.setDirection
+                        (SwipyRefreshLayoutDirection.BOTH), 500);
                 Log.w(TAG, "QuizAppViewModel observer onChanged quizzesItems.size():" +
                         quizzesItems.size());
 
@@ -95,12 +101,12 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
             }
         });
 
-        mQuizAppViewModel.getAllQuizzesListTypes().observe(this, quizzesTypes ->{
-            if (quizzesTypes!=null) {
+        mQuizAppViewModel.getAllQuizzesListTypes().observe(this, quizzesTypes -> {
+            if (quizzesTypes != null) {
                 List<String> types;
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    types = quizzesTypes.parallelStream().unordered().distinct().collect(Collectors
-                                .toList());
+                    types = quizzesTypes.parallelStream().unordered().distinct().collect
+                            (Collectors.toList());
                 } else {
                     types = new ArrayList<>(new HashSet<>(quizzesTypes));
                 }
@@ -127,19 +133,18 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.quizzes_action_settings:
-                // User chose the "Settings" item, show the app settings UI...
-                return true;
-
             case R.id.quizzes_menu_refresh:
                 // User chose the "Refresh" action
                 Log.w(TAG, "onOptionsItemSelected refresh called");
                 if (Utils.checkConnection(this)) {
-                    mQuizAppViewModel.updateNewQuizzes(0);
-                    // Show refreshing animation
-                    //mSwipeRefreshLayout.setDirection(SwipyRefreshLayoutDirection.TOP);
-                    mSwipeRefreshLayout.setRefreshing(true);
-                    //mSwipeRefreshLayout.setDirection(SwipyRefreshLayoutDirection.BOTH);
+                    // Do not allow refreshing while previous is still pending
+                    if (!mSwipeRefreshLayout.isRefreshing()) {
+                        mQuizAppViewModel.updateNewQuizzes(0, Constants.INITIAL_QUIZZES_GET_COUNT);
+                        // Switch only to top refreshing animation on manual refresh
+                        mSwipeRefreshLayout.setDirection(SwipyRefreshLayoutDirection.TOP);
+                        // Show refreshing animation
+                        mSwipeRefreshLayout.setRefreshing(true);
+                    }
 
                 } else {
                     Utils.showSnackbar(mRootView, R.string
@@ -180,7 +185,7 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
         Log.w(TAG, "onRefresh SwipeRefreshLayout called to refresh direction: " + direction);
         if (direction == SwipyRefreshLayoutDirection.TOP) {
             if (Utils.checkConnection(this)) {
-                mQuizAppViewModel.updateNewQuizzes(0);
+                mQuizAppViewModel.updateNewQuizzes(0, Constants.INITIAL_QUIZZES_GET_COUNT);
             } else {
                 Utils.showSnackbar(mRootView, R.string.string_internet_connection_not_available);
                 // Stop refreshing animation
@@ -188,7 +193,8 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
             }
         } else {
             if (Utils.checkConnection(this)) {
-                mQuizAppViewModel.updateNewQuizzes(mQuizzesAdapter.getItemCount());
+                mQuizAppViewModel.updateNewQuizzes(mQuizzesAdapter.getItemCount(), Constants
+                        .QUIZZES_GET_ADDITIONAL_COUNT);
             } else {
                 Utils.showSnackbar(mRootView, R.string.string_internet_connection_not_available);
                 // Stop refreshing animation

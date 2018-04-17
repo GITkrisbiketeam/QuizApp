@@ -20,9 +20,9 @@
 
     <ImageView
         android:id="@+id/question_image"
-        android:layout_width="128dp"
-        android:layout_height="96dp"
-        android:layout_margin="8dp"
+        android:layout_width="@dimen/quizzes_list_item_image_width"
+        android:layout_height="@dimen/quizzes_list_item_image_height"
+        android:layout_margin="@dimen/text_margin"
         android:contentDescription="@string/quiz_image"
         android:scaleType="centerCrop"
         android:src="@mipmap/ic_launcher"

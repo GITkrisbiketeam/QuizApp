@@ -46,8 +46,8 @@
     <Button
         android:id="@+id/go_back_to_quiz_list_button"
         android:layout_width="0dp"
-        android:layout_height="64dp"
-        android:layout_margin="8dp"
+        android:layout_height="@dimen/quiz_content_resolve_button_height"
+        android:layout_margin="@dimen/half_text_margin"
         android:text="@string/quiz_result_go_back_button_text"
         android:theme="@style/ButtonTheme"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -58,8 +58,8 @@
     <Button
         android:id="@+id/redo_quiz_button"
         android:layout_width="0dp"
-        android:layout_height="64dp"
-        android:layout_margin="8dp"
+        android:layout_height="@dimen/quiz_content_resolve_button_height"
+        android:layout_margin="@dimen/half_text_margin"
         android:text="@string/quiz_result_redo_button_text"
         android:theme="@style/ButtonTheme"
         app:layout_constraintBottom_toBottomOf="parent"

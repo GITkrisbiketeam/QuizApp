@@ -24,7 +24,8 @@ public class Utils {
     public static boolean checkConnection(@NonNull Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context
                 .CONNECTIVITY_SERVICE);
-        return cm != null && cm.getActiveNetworkInfo() != null;
+        return cm != null && cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo()
+                .isConnected();
     }
 
     /**
@@ -59,7 +60,6 @@ public class Utils {
                 break;
             default:
                 resId = R.string.list_item_type_unknown;
-
         }
         return context.getString(resId);
     }

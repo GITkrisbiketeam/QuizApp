@@ -23,6 +23,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Repository for managing DB and Network object retrieval.
+ */
 public class QuizAppRepository {
     private static final String TAG = Utils.getLogTag(QuizAppRepository.class.getSimpleName());
 
@@ -37,34 +40,72 @@ public class QuizAppRepository {
         mQuizDataDao = db.quizDataDao();
     }
 
+    /**
+     * See {@link QuizzesItemDao#getAllQuizzesItems()}
+     * Additionally performing download of latest QuizzezItems through Retorfit
+     *
+     * @return
+     */
     public LiveData<List<QuizzesItem>> getAllQuizzesItems() {
         //TODO: should we download Quizzes lst all the time????
-        getNewQuizzes(0);
+        getNewQuizzes(0, Constants.INITIAL_QUIZZES_GET_COUNT);
          if (mAllQuizzesItems == null) {
             mAllQuizzesItems = mQuizzesItemDao.getAllQuizzesItems();
         }
         return mAllQuizzesItems;
     }
 
+    /**
+     * See {@link QuizzesItemDao#getQuizzesItemById(long)}
+     *
+     * @return
+     */
+    public LiveData<QuizzesItem> loadQuizzesItem(final long quizId) {
+        return mQuizzesItemDao.getQuizzesItemById(quizId);
+    }
+
+    /**
+     * See {@link QuizDataDao#getQuizDataById(long)}
+     * Additionally performing download of given QuizData through Retorfit
+     *
+     * @return
+     */
     public LiveData<QuizData> loadQuizData(final long quizId) {
         getQuizData(quizId);
         return mQuizDataDao.getQuizDataById(quizId);
     }
 
+    /**
+     * See {@link QuizzesItemDao#getTypes()}
+     *
+     * @return
+     */
     public LiveData<List<String>> getAllQuizzesItemsTypes() {
         return mQuizzesItemDao.getTypes();
     }
 
+    /**
+     * Update given {@link QuizzesItem} into DB this happens after user selects given Answer
+     *
+     * @param quizzesItem   {@link QuizzesItem} to be updated in DB
+     */
     public void updateQuizzesItem(@NonNull QuizzesItem quizzesItem) {
         new UpdateQuizzesItemAsyncTask(mQuizzesItemDao).execute(quizzesItem);
     }
 
-    public void getNewQuizzes(int offset) {
+    /**
+     * Download {@link QuizzesItem} List with Retrofit and put them in DB. LiveData observer for
+     * this List<QuizzesItem> will be then triggered. a number of {@link Constants#INITIAL_QUIZZES_GET_COUNT}
+     * will be downloaded
+     *
+     * @param offset    from which offset to start download new items from API
+     */
+    public void getNewQuizzes(int offset, int count) {
         //Creating an object of our api interface
         ApiEndpointInterface api = RetrofitClient.getApiService();
 
         //Calling JSON
-        Call<QuizzesListData> call = api.getQuizListData(offset, Constants.INITIAL_QUIZZES_GET_COUNT);
+        Call<QuizzesListData> call = api.getQuizListData(offset, count);
 
         //Enqueue Callback will be call when get response...
         call.enqueue(new Callback<QuizzesListData>() {
@@ -97,6 +138,12 @@ public class QuizAppRepository {
         });
     }
 
+    /**
+     * Download QuizData Item with Retrofit and put it in DB. LiveData observer for this item
+     * will be then triggered
+     *
+     * @param id    id of QuizData to download
+     */
     public void getQuizData(long id) {
         ApiEndpointInterface api = RetrofitClient.getApiService();
 
@@ -131,6 +178,10 @@ public class QuizAppRepository {
         });
     }
 
+    /**
+     * AsyncTask for inserting new {@link QuizzesItem}'s into DB restoring User previously given
+     * myAnswers
+     */
     private static class InsertQuizzesItemAsyncTask extends AsyncTask<QuizzesItem, Void, Void> {
 
         private final QuizzesItemDao mAsyncTaskDao;
@@ -141,54 +192,24 @@ public class QuizAppRepository {
 
         @Override
         protected Void doInBackground(final QuizzesItem... items) {
-            Log.e(TAG, "InsertQuizzesItemAsyncTask begin");
+            // Update QuizzesItem#myAnswers for newly downloaded QuizzesItems
             for (QuizzesItem item : items) {
-                QuizzesItem oldItem = mAsyncTaskDao.getQuizItemById(item.getId());
+                QuizzesItem oldItem = mAsyncTaskDao.getQuizzesItemByIdImmediate(item.getId());
                 // restore my answers
                 if (oldItem != null) {
                     item.setMyAnswers(oldItem.getMyAnswers());
                 }
             }
-            Log.e(TAG, "InsertQuizzesItemAsyncTask end");
-            mAsyncTaskDao.addQuizzesItem(items);
+            mAsyncTaskDao.insertQuizzesItem(items);
             return null;
         }
 
     }
 
-    private static class DeleteAsyncTask extends AsyncTask<QuizzesItem, Void, Void> {
-
-        private final QuizzesItemDao mAsyncTaskDao;
-
-        DeleteAsyncTask(QuizzesItemDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final QuizzesItem... params) {
-            mAsyncTaskDao.deleteQuizzesItem(params[0]);
-            return null;
-        }
-
-    }
-
-    private static class InsertQuizDataAsyncTask extends AsyncTask<QuizData, Void, Void> {
-
-        private final QuizDataDao mAsyncTaskDao;
-
-        InsertQuizDataAsyncTask(QuizDataDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final QuizData... items) {
-
-            mAsyncTaskDao.insertQuizData(items[0]);
-            return null;
-        }
-
-    }
-
+    /**
+     * AsyncTask for updating given {@link QuizzesItem} into DB this happens after user selects
+     * given Answer
+     */
     private static class UpdateQuizzesItemAsyncTask extends AsyncTask<QuizzesItem, Void, Void> {
 
         private final QuizzesItemDao mAsyncTaskQuizzesDao;
@@ -201,7 +222,26 @@ public class QuizAppRepository {
         @Override
         protected Void doInBackground(final QuizzesItem... datas) {
             mAsyncTaskQuizzesDao.updateQuizzesItem(datas[0]);
-            Log.e(TAG, "UpdateQuizzesItemAsyncTask end");
+            return null;
+        }
+
+    }
+
+    /**
+     * AsyncTask for inserting given {@link QuizData} into DB
+     */
+    private static class InsertQuizDataAsyncTask extends AsyncTask<QuizData, Void, Void> {
+
+        private final QuizDataDao mAsyncTaskDao;
+
+        InsertQuizDataAsyncTask(QuizDataDao dao) {
+            mAsyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(final QuizData... items) {
+
+            mAsyncTaskDao.insertQuizData(items[0]);
             return null;
         }
 

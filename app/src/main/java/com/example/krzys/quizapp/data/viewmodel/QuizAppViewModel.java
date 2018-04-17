@@ -11,6 +11,7 @@ import com.example.krzys.quizapp.data.QuizAppRepository;
 import com.example.krzys.quizapp.data.livedata.ConnectionLiveData;
 import com.example.krzys.quizapp.data.model.quiz.QuizData;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
+import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;
 
 import java.util.List;
@@ -35,24 +36,33 @@ public class QuizAppViewModel extends AndroidViewModel {
 
     public LiveData<List<QuizzesItem>> getAllQuizzesList(@NonNull LifecycleOwner owner) {
         mConnectionLiveData.observe(owner, isConnected -> {
-            if (isConnected) {
-                mRepository.getNewQuizzes(0);
+            if (isConnected != null && isConnected) {
+                mRepository.getNewQuizzes(0, Constants.INITIAL_QUIZZES_GET_COUNT);
             }
         });
         return mRepository.getAllQuizzesItems();
+    }
+
+    public LiveData<QuizzesItem> loadQuizzesItem(@NonNull LifecycleOwner owner, final long quizId) {
+        mConnectionLiveData.observe(owner, isConnected -> {
+            if (isConnected != null && isConnected) {
+                mRepository.loadQuizzesItem(quizId);
+            }
+        });
+        return mRepository.loadQuizzesItem(quizId);
     }
 
     public LiveData<List<String>> getAllQuizzesListTypes() {
         return mRepository.getAllQuizzesItemsTypes();
     }
 
-    public void updateNewQuizzes(int offset) {
-        mRepository.getNewQuizzes(offset);
+    public void updateNewQuizzes(int offset, int count) {
+        mRepository.getNewQuizzes(offset, count);
     }
 
     public LiveData<QuizData> loadQuizData(@NonNull LifecycleOwner owner, final long quizId) {
         mConnectionLiveData.observe(owner, isConnected -> {
-            if (isConnected) {
+            if (isConnected != null && isConnected) {
                 mRepository.getQuizData(quizId);
             }
         });

@@ -1,4 +1,9 @@
 <resources>
     <dimen name="app_bar_height">300dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+    <dimen name="half_text_margin">8dp</dimen>
+    <dimen name="progress_bar_height">16dp</dimen>
+    <dimen name="quiz_content_resolve_button_height">64dp</dimen>
+    <dimen name="quizzes_list_item_image_width">120dp</dimen>
+    <dimen name="quizzes_list_item_image_height">96dp</dimen>
 </resources>

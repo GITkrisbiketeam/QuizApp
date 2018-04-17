@@ -16,19 +16,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.ViewFlipper;
 
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -36,20 +29,12 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.krzys.quizapp.R;
 import com.example.krzys.quizapp.data.model.common.Category;
-import com.example.krzys.quizapp.data.model.quiz.Answer;
-import com.example.krzys.quizapp.data.model.quiz.Image;
-import com.example.krzys.quizapp.data.model.quiz.Question;
-import com.example.krzys.quizapp.data.model.quiz.QuizData;
-import com.example.krzys.quizapp.data.model.quiz.Rate;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.data.viewmodel.QuizAppViewModel;
-import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class QuizActivity extends AppCompatActivity {
@@ -58,14 +43,7 @@ public class QuizActivity extends AppCompatActivity {
 
     private QuizAppViewModel mQuizAppViewModel;
 
-    private QuizData mQuizData;
-    private QuizzesItem mQuizzesItem;
-
-    private ProgressBar mAppBarProgressBar;
-
-    private ViewGroup mQuizContentRoot;
-
-    private ViewFlipper mQuizContentViewFlipper;
+    QuizActivityContent mQuizActivityContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,17 +60,6 @@ public class QuizActivity extends AppCompatActivity {
             // Enable the Up button
             ab.setDisplayHomeAsUpEnabled(true);
         }
-
-        mAppBarProgressBar = findViewById(R.id.activity_quiz_toolbar_progress);
-
-        mQuizContentRoot = findViewById(R.id.quiz_content_root);
-        mQuizContentViewFlipper = findViewById(R.id.quiz_content_view_flipper);
-        // set slide in Animation for ViewFlipper
-        mQuizContentViewFlipper.setInAnimation(AnimationUtils.loadAnimation(this, R.anim
-                .slide_in_from_right));
-        // set slide out Animation for ViewFlipper
-        mQuizContentViewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this, R.anim
-                .slide_out_from_left));
 
         // Initialize ViewModel
         mQuizAppViewModel = ViewModelProviders.of(this).get(QuizAppViewModel.class);
@@ -138,33 +105,22 @@ public class QuizActivity extends AppCompatActivity {
      *                                download
      */
     private void processIntent(@NonNull Intent intent, boolean postponeEnterTransition) {
-        mQuizzesItem = intent.getParcelableExtra(EXTRA_QUIZ);
-        Log.d(TAG, "processIntent quizzesItem: " + mQuizzesItem.toString());
-        if (mQuizzesItem != null) {
+        QuizzesItem quizzesItem = intent.getParcelableExtra(EXTRA_QUIZ);
+        Log.d(TAG, "processIntent quizzesItem: " + quizzesItem.toString());
+        if (quizzesItem != null) {
             ImageView appBarQuizImage = findViewById(R.id.activity_quiz_toolbar_image_view);
+            mQuizActivityContent = new QuizActivityContentQuiz(this, quizzesItem);
 
             if (postponeEnterTransition) {
                 // Delay Enter transition animation until Image is loaded
                 supportPostponeEnterTransition();
             } else {
-                updateAppBarContent(mQuizzesItem);
+                updateAppBarContent(quizzesItem);
             }
-
-            mQuizAppViewModel.loadQuizData(this, mQuizzesItem.getId()).observe(this, quizData -> {
-                Log.w(TAG, "QuizActivity observer onChanged quizData: " + quizData);
-                if (quizData != null) {
-                    mQuizData = quizData;
-                    updateUI();
-                } else if (!Utils.checkConnection(this)) {
-                    scheduleStartPostponedTransition(appBarQuizImage);
-                    Utils.showSnackbar(mQuizContentRoot, R.string
-                            .string_internet_connection_not_available);
-                }
-            });
 
             // Prepare/download Quiz Toolbar image
             if (appBarQuizImage != null) {
-                GlideApp.with(this).load(mQuizzesItem.getMainPhoto().getUrl()).listener(new RequestListener<Drawable>() {
+                GlideApp.with(this).load(quizzesItem.getMainPhoto().getUrl()).listener(new RequestListener<Drawable>() {
 
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model,
@@ -187,10 +143,25 @@ public class QuizActivity extends AppCompatActivity {
             }
 
             // Prepare and set ProgressBar
-            if (mAppBarProgressBar != null) {
-                mAppBarProgressBar.setMax(mQuizzesItem.getQuestions());
-                mAppBarProgressBar.setProgress(0);
+            ProgressBar appBarProgressBar = findViewById(R.id.activity_quiz_toolbar_progress);
+
+            // set ProgressBar color on pre Lolipop
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                appBarProgressBar.getProgressDrawable().setColorFilter(getResources().getColor(R
+                        .color.colorAccent), android.graphics.PorterDuff.Mode.SRC_IN);
             }
+            if (appBarProgressBar != null) {
+                appBarProgressBar.setMax(quizzesItem.getQuestions());
+                updateAppBarProgress(appBarProgressBar, quizzesItem);
+            }
+            mQuizAppViewModel.loadQuizzesItem(this, quizzesItem.getId()).observe(this,
+                    quizzesItem1 -> {
+                        Log.d(TAG, "processIntent quizzesItem changed: " + quizzesItem.toString());
+                        if (appBarProgressBar != null) {
+                            updateAppBarProgress(appBarProgressBar, quizzesItem);
+                        }
+                        mQuizActivityContent.updateUI();
+                    });
         } else {
             // No QuizzesItem was provided in this intent so leave this Activity
             finish();
@@ -272,6 +243,12 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
+    private void updateAppBarProgress(@NonNull ProgressBar progressBar, @NonNull QuizzesItem
+            quizzesItem) {
+        progressBar.setProgress(quizzesItem.getMyAnswers()!= null ? quizzesItem
+                .getMyAnswers().size() : 0);
+    }
+
     private void scheduleStartPostponedTransition(final View sharedElement) {
         sharedElement.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver
                 .OnPreDrawListener() {
@@ -284,230 +261,4 @@ public class QuizActivity extends AppCompatActivity {
         });
     }
 
-    private void updateUI() {
-        if (mQuizData == null) {
-            Log.w(TAG, "updateUI mQuizData is null");
-            return;
-        }
-
-        final List<Question> questions = mQuizData.getQuestions();
-        if (questions == null || questions.isEmpty()) {
-            Log.e(TAG, "updateUI there are no answers in this quiz !!!");
-            // TODO show some error message to user
-            return;
-        }
-        final List<Boolean> myAnswers = mQuizzesItem.getMyAnswers();
-
-        // Check previous answers and start from new question
-        final int currentQuestion;
-        if (myAnswers != null) {
-            if (myAnswers.size() <= questions.size()) {
-                currentQuestion = mQuizzesItem.getMyAnswers().size();
-            } else {
-                currentQuestion = questions.size();
-            }
-        } else {
-            currentQuestion = 0;
-        }
-        if (mQuizAppViewModel.getQuizActivityCurrentQuestion() == currentQuestion &&
-                mQuizContentViewFlipper.getChildCount() > 0) {
-            // there was no change in current question;
-            // do nothing more;
-            return;
-        }
-        Log.d(TAG, "mQuizData currentQuestion: " + currentQuestion);
-        Log.d(TAG, "mQuizData mQuizContentViewFlipper.getChildCount(): " +
-                mQuizContentViewFlipper.getChildCount());
-
-        if (mAppBarProgressBar != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                mAppBarProgressBar.setProgress(currentQuestion, true);
-            } else {
-                mAppBarProgressBar.setProgress(currentQuestion);
-            }
-        }
-        View newQuizContent;
-        if (currentQuestion < questions.size()) {
-            // prepare next question View
-            newQuizContent = getQuizQuestionsContentView(currentQuestion);
-        } else {
-            Log.i(TAG, "updateUI, Quiz solved");
-            newQuizContent = getQuizResolvedContentView();
-        }
-        if (newQuizContent != null) {
-            mQuizContentViewFlipper.addView(newQuizContent);
-            // Animate show next only when question changes or we initialize this Activity
-            if (mQuizAppViewModel.getQuizActivityCurrentQuestion() != currentQuestion) {
-                mQuizContentViewFlipper.showNext();
-            }
-            if (mQuizContentViewFlipper.getChildCount() > 2) {
-                mQuizContentViewFlipper.removeViewAt(0);
-            }
-        }
-        mQuizAppViewModel.setQuizActivityCurrentQuestion(currentQuestion);
-    }
-
-    @Nullable
-    private View getQuizQuestionsContentView(int currentQuestion) {
-        List<Question> questions = mQuizData.getQuestions();
-        if (questions == null || currentQuestion >= questions.size()) {
-            Log.e(TAG, "getQuizQuestionsContentView questions are empty or current question " +
-                    "wrong value");
-            return null;
-        }
-        View newQuizContent = LayoutInflater.from(this).inflate(R.layout.quiz_content_solve,
-                mQuizContentRoot, false);
-
-        for (Question q : questions) {
-            for (Answer a : q.getAnswers()) {
-                Image aImage = a.getImage();
-                if (aImage != null) {
-                    String aUrl = aImage.getUrl();
-                    if (!TextUtils.isEmpty(aUrl)) {
-                        Log.e(TAG, "getQuizQuestionsContentView there is image in Answer url: " +
-                                aUrl);
-                    }
-                }
-            }
-        }
-        // quiz questions content Components
-        TextView questionTextView = newQuizContent.findViewById(R.id.question_title);
-        questionTextView.setText(questions.get(currentQuestion).getText());
-
-        ImageView imageView = newQuizContent.findViewById(R.id.question_image);
-        Image image = questions.get(currentQuestion).getImage();
-        if (image != null && !TextUtils.isEmpty(image.getUrl())) {
-            Log.e(TAG, "getQuizQuestionsContentView image.getUrl(): " + image.getUrl());
-            imageView.setVisibility(View.VISIBLE);
-            GlideApp.with(this).load(image.getUrl())
-                    .placeholder(R.mipmap.ic_launcher).error(R.mipmap.ic_launcher).fallback(R.mipmap
-                    .ic_launcher).centerCrop().dontAnimate().into(imageView);
-
-        }
-        RadioGroup answersRadioGroup = newQuizContent.findViewById(R.id.answers_radio_group);
-        answersRadioGroup.setOnCheckedChangeListener((group, checkedId) -> processAnswerSelected
-                (checkedId));
-
-        answersRadioGroup.removeAllViews();
-        List<Answer> answers = questions.get(currentQuestion).getAnswers();
-        if (answers.size() > 0) {
-            for (int i = 0; i < answers.size(); i++) {
-                RadioButton button = new RadioButton(this);
-                button.setText(answers.get(i).getText());
-                button.setId(i);
-                answersRadioGroup.addView(button);
-            }
-        } else {
-            Log.e(TAG, "updateUI there are no Answers");
-            // TODO show some error message to user
-        }
-        return newQuizContent;
-    }
-
-    @NonNull
-    private View getQuizResolvedContentView() {
-        View newQuizContent = LayoutInflater.from(this).inflate(R.layout.quiz_content_resolved,
-                mQuizContentRoot, false);
-
-        // quiz result content Components
-        TextView resultTextView = newQuizContent.findViewById(R.id.result_text);
-        TextView userScoreTextView = newQuizContent.findViewById(R.id.result_score_title);
-        TextView avgUserScoreTextView = newQuizContent.findViewById(R.id.result_avg_score_title);
-        List<Boolean> myAnswers = mQuizzesItem.getMyAnswers();
-
-        // Count correct answers
-        int myCorrectAnswers = 0;
-        for (Boolean b : myAnswers) {
-            if (b) {
-                myCorrectAnswers++;
-            }
-        }
-
-        int questionsCount = mQuizData.getQuestions().size();
-
-        // Calculate and update User score
-        int score = Math.round(myCorrectAnswers / (float) questionsCount * 100);
-        Log.d(TAG, "getQuizResolvedContentView score is: " + score);
-        String scoreText = getString(R.string.quiz_result_score_title, myCorrectAnswers,
-                questionsCount, score);
-        userScoreTextView.setText(scoreText);
-
-        // Calculate and update avarega user score
-        int avgScore = (int) Math.round(mQuizData.getAvgResult() * 100);
-        Log.d(TAG, "getQuizResolvedContentView avgScore is: " + avgScore);
-        String avgScoreText = getString(R.string.quiz_result_avg_score_title, avgScore);
-        avgUserScoreTextView.setText(String.valueOf(avgScoreText));
-
-        // Get Result Text based on User score
-        List<Rate> rates = mQuizData.getRates();
-        for (Rate r : rates) {
-            if (score >= r.getFrom() && score < r.getTo()) {
-                resultTextView.setText(r.getContent());
-                break;
-            }
-        }
-
-        Button backButton = newQuizContent.findViewById(R.id.go_back_to_quiz_list_button);
-        backButton.setOnClickListener(v -> {
-            // show back image share transition animation
-            supportFinishAfterTransition();
-        });
-
-        Button redoButton = newQuizContent.findViewById(R.id.redo_quiz_button);
-        redoButton.setOnClickListener(v -> {
-            mQuizzesItem.setMyAnswers(new ArrayList<>());
-            // This will also call to refresh UI through DB LiveData observer
-            mQuizAppViewModel.updateQuizzesItem(mQuizzesItem);
-        });
-        return newQuizContent;
-    }
-
-    /**
-     * Processes Selection of particular question answer.
-     * checks if user selection is correct answer and stores  his answer in DB through
-     * {@link QuizAppViewModel}. Input checkedId is an intiger of an answer as mapped in
-     * getQuizQuestionsContentView() method.
-     *
-     * @param checkedId id of selected question answer
-     */
-    private void processAnswerSelected(int checkedId) {
-        Log.d(TAG, "processAnswerSelected checkedId: " + checkedId + mQuizData.getType());
-        List<Boolean> myAnswers = mQuizzesItem.getMyAnswers();
-        switch (mQuizData.getType()) {
-            case Constants.TYPE_QUIZ:
-                if (myAnswers == null) {
-                    myAnswers = new ArrayList<>();
-                }
-                if (myAnswers.size() < mQuizData.getQuestions().size()) {
-                    Integer isCorrect = mQuizData.getQuestions().get(myAnswers.size()).getAnswers().get
-                            (checkedId).getIsCorrect();
-
-                    if (isCorrect != null && isCorrect > 0) {
-                        Log.d(TAG, "processAnswerSelected correct answer");
-                        myAnswers.add(Boolean.TRUE);
-                    } else {
-                        Log.d(TAG, "processAnswerSelected wrong answer");
-                        myAnswers.add(Boolean.FALSE);
-                    }
-                    mQuizzesItem.setMyAnswers(myAnswers);
-
-                    mQuizAppViewModel.updateQuizzesItem(mQuizzesItem);
-
-                    updateUI();
-                } else {
-                    Log.d(TAG, "processAnswerSelected Quiz solved");
-                }
-            break;
-            case Constants.TYPE_TEST:
-                mQuizzesItem.setMyPoll(checkedId);
-                updateUI();
-                break;
-            case Constants.TYPE_POLL:
-
-                break;
-            default:
-                // Hmm this should not happen
-                Log.e(TAG, "processAnswerSelected wrong quiz type");
-        }
-    }
 }

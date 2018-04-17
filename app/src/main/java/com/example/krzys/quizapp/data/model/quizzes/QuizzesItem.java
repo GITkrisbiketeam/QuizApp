@@ -12,7 +12,7 @@ import java.util.List;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.example.krzys.quizapp.data.db.converter.BooleanConverter;
+import com.example.krzys.quizapp.data.db.converter.IntegerConverter;
 import com.example.krzys.quizapp.data.db.converter.TagsConverter;
 import com.example.krzys.quizapp.data.model.common.Category;
 import com.example.krzys.quizapp.data.model.common.MainPhoto;
@@ -82,10 +82,11 @@ public class QuizzesItem implements Parcelable {
     @Expose
     private List<Tag> tags = null;
 
-    @TypeConverters(BooleanConverter.class)
-    private List<Boolean> myAnswers = null;
-
-    private Integer myPoll = null;
+    /**
+     * Custom field in Room Database to store user answers
+     */
+    @TypeConverters(IntegerConverter.class)
+    private List<Integer> myAnswers = null;
 
     public final static Parcelable.Creator<QuizzesItem> CREATOR = new Creator<QuizzesItem>() {
 
@@ -118,8 +119,7 @@ public class QuizzesItem implements Parcelable {
         this.tags = new ArrayList<>();
         in.readList(this.tags, (Tag.class.getClassLoader()));
         this.myAnswers = new ArrayList<>();
-        in.readList(this.myAnswers, (Boolean.class.getClassLoader()));
-        this.myPoll = ((Integer) in.readValue((Integer.class.getClassLoader())));
+        in.readList(this.myAnswers, (Integer.class.getClassLoader()));
     }
 
     public QuizzesItem() {
@@ -229,22 +229,13 @@ public class QuizzesItem implements Parcelable {
         this.tags = tags;
     }
 
-    public List<Boolean> getMyAnswers() {
+    public List<Integer> getMyAnswers() {
         return myAnswers;
     }
 
-    public void setMyAnswers(List<Boolean> myAnswers) {
+    public void setMyAnswers(List<Integer> myAnswers) {
         this.myAnswers = myAnswers;
     }
-
-    public Integer getMyPoll() {
-        return myPoll;
-    }
-
-    public void setMyPoll(Integer myPoll) {
-        this.myPoll = myPoll;
-    }
-
 
     @Override
     public String toString() {
@@ -252,7 +243,7 @@ public class QuizzesItem implements Parcelable {
                 questions + "; createdAt: " + createdAt + "; sponsored: " + sponsored + "; " +
                 "categories: " + categories + "; id: " + id + "; title: " + title + "; type: " +
                 type + "; content: " + content + "; mainPhoto: " + mainPhoto + "; category: " +
-                category + "; tags: " + tags + "; myAnswers: "  + myAnswers + "; myPoll: "  + myPoll;
+                category + "; tags: " + tags + "; myAnswers: "  + myAnswers;
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -270,7 +261,6 @@ public class QuizzesItem implements Parcelable {
         dest.writeValue(category);
         dest.writeList(tags);
         dest.writeList(myAnswers);
-        dest.writeValue(myPoll);
     }
 
     public int describeContents() {

@@ -1,6 +1,7 @@
 package com.example.krzys.quizapp.ui;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +14,7 @@ import android.widget.ProgressBar;
 
 import com.example.krzys.quizapp.R;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
+import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;
 
 import java.util.ArrayList;
@@ -56,32 +58,51 @@ public class QuizzesListAdapter extends RecyclerView.Adapter<QuizzesListViewHold
         QuizzesItem item = mQuizzesItemsList.get(position);
 
         holder.textViewTitle.setText(item.getTitle());
-        holder.textViewType.setText(Utils.getTypeString(mContext,item.getType()));
 
-        List<Boolean> myAnswers = item.getMyAnswers();
+        List<Integer> myAnswers = item.getMyAnswers();
         if (myAnswers != null) {
             int questionsCount = item.getQuestions();
             int answersCount = myAnswers.size();
             int myCorrectAnswers = 0;
-            for (Boolean b : myAnswers) {
-                if (b) {
-                    myCorrectAnswers++;
-                }
+            switch (item.getType()) {
+                case Constants.TYPE_QUIZ:
+                    // count correct answers, correct answer will be Integer '1' value
+                    for (Integer b : myAnswers) {
+                        if (b != null && b == 1) {
+                            myCorrectAnswers++;
+                        }
+                    }
+                    String scoreText = null;
+                    if (answersCount == questionsCount) {
+                        // if answer count is the same as questions count this means quiz was solved
+                        int score = Math.round(myCorrectAnswers / (float) questionsCount * 100);
+                        scoreText = mContext.getString(R.string.list_item_solve_score,
+                                myCorrectAnswers, questionsCount, score);
+                    } else if (answersCount > 0) {
+                        // if answer count is more than 0 thi means User started this quiz
+                        int score = Math.round(answersCount / (float) questionsCount * 100);
+                        scoreText = mContext.getString(R.string.list_item_quiz_progress, score);
+                    }
+                    holder.textViewScore.setVisibility(View.VISIBLE);
+                    holder.textViewScore.setText(scoreText);
+
+                    break;
+                case Constants.TYPE_TEST:
+                    //TODO:
+                case Constants.TYPE_POLL:
+                    //TODO:
+                    break;
+                default:
+                    holder.textViewScore.setVisibility(View.GONE);
             }
-            String scoreText = null;
-            if (answersCount == questionsCount) {
-                int score = Math.round(myCorrectAnswers / (float) questionsCount * 100);
-                scoreText = mContext.getString(R.string.list_item_solve_score, myCorrectAnswers,
-                        questionsCount, score);
-            } else if (answersCount > 0) {
-                int score = Math.round(answersCount / (float) questionsCount * 100);
-                scoreText = mContext.getString(R.string.list_item_quiz_progress, score);
-            }
-            holder.textViewScore.setVisibility(View.VISIBLE);
-            holder.textViewScore.setText(scoreText);
 
             holder.progressBar.setMax(questionsCount);
             holder.progressBar.setProgress(answersCount);
+            // set ProgressBar color on pre Lolipop
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                holder.progressBar.getProgressDrawable().setColorFilter(mContext.getResources()
+                        .getColor(R.color.colorAccent), android.graphics.PorterDuff.Mode.SRC_IN);
+            }
         } else {
             holder.textViewScore.setVisibility(View.GONE);
             holder.progressBar.setProgress(0);
@@ -117,7 +138,7 @@ public class QuizzesListAdapter extends RecyclerView.Adapter<QuizzesListViewHold
 
     @Override
     public void onQuizItemClicked(ImageView imageView, ProgressBar progressBar, int position) {
-        mQuizItemClickListener.onQuizItemClicked(imageView, progressBar, mQuizzesItemsList
-                .get(position));
+        mQuizItemClickListener.onQuizItemClicked(imageView, progressBar, mQuizzesItemsList.get
+                (position));
     }
 }

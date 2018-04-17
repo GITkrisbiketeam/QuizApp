@@ -8,25 +8,24 @@ import com.google.gson.annotations.SerializedName;
 
 public class FlagAnswer implements Parcelable
 {
-
+    @SerializedName("A")
+    @Expose
+    private Integer a;
     @SerializedName("B")
     @Expose
     private Integer b;
     @SerializedName("C")
     @Expose
     private Integer c;
-    @SerializedName("E")
-    @Expose
-    private Integer e;
-    @SerializedName("A")
-    @Expose
-    private Integer a;
-    @SerializedName("F")
-    @Expose
-    private Integer f;
     @SerializedName("D")
     @Expose
     private Integer d;
+    @SerializedName("E")
+    @Expose
+    private Integer e;
+    @SerializedName("F")
+    @Expose
+    private Integer f;
     public final static Creator<FlagAnswer> CREATOR = new Creator<FlagAnswer>() {
 
 
@@ -45,15 +44,23 @@ public class FlagAnswer implements Parcelable
     ;
 
     protected FlagAnswer(Parcel in) {
+        this.a = ((Integer) in.readValue((Integer.class.getClassLoader())));
         this.b = ((Integer) in.readValue((Integer.class.getClassLoader())));
         this.c = ((Integer) in.readValue((Integer.class.getClassLoader())));
-        this.e = ((Integer) in.readValue((Integer.class.getClassLoader())));
-        this.a = ((Integer) in.readValue((Integer.class.getClassLoader())));
-        this.f = ((Integer) in.readValue((Integer.class.getClassLoader())));
         this.d = ((Integer) in.readValue((Integer.class.getClassLoader())));
+        this.e = ((Integer) in.readValue((Integer.class.getClassLoader())));
+        this.f = ((Integer) in.readValue((Integer.class.getClassLoader())));
     }
 
     public FlagAnswer() {
+    }
+
+    public Integer getA() {
+        return a;
+    }
+
+    public void setA(Integer a) {
+        this.a = a;
     }
 
     public Integer getB() {
@@ -72,20 +79,20 @@ public class FlagAnswer implements Parcelable
         this.c = c;
     }
 
+    public Integer getD() {
+        return d;
+    }
+
+    public void setD(Integer d) {
+        this.d = d;
+    }
+
     public Integer getE() {
         return e;
     }
 
     public void setE(Integer e) {
         this.e = e;
-    }
-
-    public Integer getA() {
-        return a;
-    }
-
-    public void setA(Integer a) {
-        this.a = a;
     }
 
     public Integer getF() {
@@ -96,14 +103,6 @@ public class FlagAnswer implements Parcelable
         this.f = f;
     }
 
-    public Integer getD() {
-        return d;
-    }
-
-    public void setD(Integer d) {
-        this.d = d;
-    }
-
     @Override
     public String toString() {
         return "a: " + a + "; b: " + b + "; c: " + c + "; d: " +
@@ -111,12 +110,12 @@ public class FlagAnswer implements Parcelable
     }
 
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(a);
         dest.writeValue(b);
         dest.writeValue(c);
-        dest.writeValue(e);
-        dest.writeValue(a);
-        dest.writeValue(f);
         dest.writeValue(d);
+        dest.writeValue(e);
+        dest.writeValue(f);
     }
 
     public int describeContents() {
