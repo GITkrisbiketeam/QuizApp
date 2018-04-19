@@ -30,21 +30,30 @@ import retrofit2.Response;
 
 /**
  * Repository for managing DB and Network object retrieval.
+ *
+ * TODO: Google Architecture suggest it to be Incection Dependency (Dagger2 is preferable)
+ * For now we are using singleton
  */
 public class QuizAppRepository {
     private static final String TAG = Utils.getLogTag(QuizAppRepository.class.getSimpleName());
 
     private static final int DEFAULT_NETWORK_PAGE_SIZE = 10;
+
+    private static final Object mLock = new Object();
+    private static QuizAppRepository sInstance = null;
+
     private final QuizzesItemDao mQuizzesItemDao;
     private final QuizDataDao mQuizDataDao;
 
-    private final int mNetworkPageSize;
-
     ApiEndpointInterface mQuizApi;
+
+    // should this be passe as constructor argument
+    private final int mNetworkPageSize = DEFAULT_NETWORK_PAGE_SIZE;
 
     private LiveData<PagedList<QuizzesItem>> mAllQuizzesItems;
 
     public QuizAppRepository(Application application) {
+        Log.i(TAG, "QuizAppRepository created");
         QuizAppRoomDatabase db = QuizAppRoomDatabase.getDatabase(application);
         mQuizzesItemDao = db.quizzesItemDao();
         mQuizDataDao = db.quizDataDao();
@@ -53,7 +62,18 @@ public class QuizAppRepository {
         mQuizApi = RetrofitClient.getApiService();
 
         // should this be passe as constructor argument
-        mNetworkPageSize = DEFAULT_NETWORK_PAGE_SIZE;
+        //mNetworkPageSize;
+    }
+
+    public static QuizAppRepository getInstance(Application application){
+        if(sInstance == null){
+            synchronized (mLock) {
+                if (sInstance == null) {
+                    sInstance = new QuizAppRepository(application);
+                }
+            }
+        }
+        return sInstance;
     }
 
     /**

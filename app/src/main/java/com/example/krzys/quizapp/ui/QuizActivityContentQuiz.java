@@ -31,7 +31,7 @@ public class QuizActivityContentQuiz extends QuizActivityContent {
     private static final String TAG = Utils.getLogTag(QuizActivityContentQuiz.class.getSimpleName
             ());
 
-    QuizActivityContentQuiz(AppCompatActivity activity, QuizzesItem quizzesItem) {
+    QuizActivityContentQuiz(@NonNull AppCompatActivity activity, @NonNull QuizzesItem quizzesItem) {
         super(activity, quizzesItem);
     }
 

@@ -80,6 +80,70 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Process incoming Intent due to QuizActivity Created or recreated
+     * This will trigger download selected QuizData based on input intent EXTRA_QUIZ
+     * We will delay show of this Activity waiting for Quiz Item picture to downloaded
+     *
+     * @param intent Input {@link Intent} that should contain EXTRA_QUIZ with QuizzesItem
+     * @param postponeEnterTransition should we pospone enter transition waiting for image to
+     *                                download
+     */
+    private void processIntent(@NonNull Intent intent, boolean postponeEnterTransition) {
+        QuizzesItem quizzesItem = intent.getParcelableExtra(EXTRA_QUIZ);
+
+        // initalize QuizViewModel with initial data
+        mQuizViewModel.init(quizzesItem);
+
+        Log.d(TAG, "processIntent quizzesItem: " + quizzesItem);
+        if (quizzesItem != null) {
+            if (postponeEnterTransition) {
+                // Delay Enter transition animation until Image is loaded
+                supportPostponeEnterTransition();
+            } else {
+                updateAppBarContent(quizzesItem);
+            }
+
+            mQuizActivityContent = new QuizActivityContentQuiz(this, quizzesItem);
+
+            ImageView appBarQuizImage = findViewById(R.id.activity_quiz_toolbar_image_view);
+
+            // Prepare/download Quiz Toolbar image
+            if (appBarQuizImage != null) {
+                loadImageToAppBar(appBarQuizImage, quizzesItem.getMainPhoto().getUrl());
+            }
+
+            // Prepare and set ProgressBar
+            ProgressBar appBarProgressBar = findViewById(R.id.activity_quiz_toolbar_progress);
+
+            if (appBarProgressBar != null) {
+                // set ProgressBar color on pre Lolipop
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                    appBarProgressBar.getProgressDrawable().setColorFilter(getResources().getColor(R
+                            .color.colorAccent), android.graphics.PorterDuff.Mode.SRC_IN);
+                }
+                // set AppBar Progress max range
+                appBarProgressBar.setMax(quizzesItem.getQuestions());
+                // set AppBar current progress
+                //updateAppBarProgress(appBarProgressBar, quizzesItem);
+            }
+
+            // set observer for Progress changes, as progres is calculated form given user
+            // answers which are stored in {@link QuizzesItem} entry in DB
+            mQuizViewModel.getQuizzesItemLiveData().observe(this,
+                    item -> {
+                        Log.d(TAG, "processIntent quizzesItem changed: " + item);
+                        if (appBarProgressBar != null) {
+                            updateAppBarProgress(appBarProgressBar, item);
+                        }
+                        mQuizActivityContent.updateUI();
+                    });
+        } else {
+            // No QuizzesItem was provided in this intent so leave this Activity
+            finish();
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -95,90 +159,36 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Process incoming Intent due to QuizActivity Created or recreated
-     * This will trigger download selected QuizData based on input intent EXTRA_QUIZ
-     * We will delay show of this Activity waiting for Quiz Item picture to downloaded
-     *
-     * @param intent Input {@link Intent} that should contain EXTRA_QUIZ with QuizzesItem
-     * @param postponeEnterTransition should we pospone enter transition waiting for image to
-     *                                download
-     */
-    private void processIntent(@NonNull Intent intent, boolean postponeEnterTransition) {
-        QuizzesItem quizzesItem = intent.getParcelableExtra(EXTRA_QUIZ);
-        Log.d(TAG, "processIntent quizzesItem: " + quizzesItem.toString());
-        if (quizzesItem != null) {
-            ImageView appBarQuizImage = findViewById(R.id.activity_quiz_toolbar_image_view);
-            mQuizActivityContent = new QuizActivityContentQuiz(this, quizzesItem);
-
-            if (postponeEnterTransition) {
-                // Delay Enter transition animation until Image is loaded
-                supportPostponeEnterTransition();
-            } else {
-                updateAppBarContent(quizzesItem);
-            }
-
-            // Prepare/download Quiz Toolbar image
-            if (appBarQuizImage != null) {
-                GlideApp.with(this).load(quizzesItem.getMainPhoto().getUrl()).listener(new RequestListener<Drawable>() {
-
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model,
-                                                Target<Drawable> target, boolean isFirstResource) {
-                        scheduleStartPostponedTransition(appBarQuizImage);
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
-                            target, DataSource dataSource, boolean isFirstResource) {
-                        // Call the "scheduleStartPostponedTransition()" method
-                        // below when you know for certain that the shared element is
-                        // ready for the transition to begin.
-                        scheduleStartPostponedTransition(appBarQuizImage);
-                        return false;
-                    }
-                }).placeholder(R.mipmap.ic_launcher).error(R.mipmap.ic_launcher).fallback(R.mipmap
-                        .ic_launcher).centerCrop().dontAnimate().into(appBarQuizImage);
-            }
-
-            // Prepare and set ProgressBar
-            ProgressBar appBarProgressBar = findViewById(R.id.activity_quiz_toolbar_progress);
-
-            // set ProgressBar color on pre Lolipop
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                appBarProgressBar.getProgressDrawable().setColorFilter(getResources().getColor(R
-                        .color.colorAccent), android.graphics.PorterDuff.Mode.SRC_IN);
-            }
-            if (appBarProgressBar != null) {
-                appBarProgressBar.setMax(quizzesItem.getQuestions());
-                updateAppBarProgress(appBarProgressBar, quizzesItem);
-            }
-            mQuizViewModel.loadQuizzesItem(this, quizzesItem.getId()).observe(this,
-                    quizzesItem1 -> {
-                        Log.d(TAG, "processIntent quizzesItem changed: " + quizzesItem.toString());
-                        if (appBarProgressBar != null) {
-                            updateAppBarProgress(appBarProgressBar, quizzesItem);
-                        }
-                        mQuizActivityContent.updateUI();
-                    });
-        } else {
-            // No QuizzesItem was provided in this intent so leave this Activity
-            finish();
-        }
-    }
-
     @Override
     public void onEnterAnimationComplete() {
         super.onEnterAnimationComplete();
         Log.e(TAG, "onEnterAnimationComplete");
-        Intent intent = getIntent();
-        if (intent != null) {
-            QuizzesItem quizzesItem = getIntent().getParcelableExtra(EXTRA_QUIZ);
-            if (quizzesItem != null) {
-                updateAppBarContent(quizzesItem);
-            }
+        if (mQuizViewModel.getQuizzesItemLiveData().getValue() != null) {
+            updateAppBarContent(mQuizViewModel.getQuizzesItemLiveData().getValue());
         }
+    }
+
+    private void loadImageToAppBar(@NonNull ImageView imageView, @Nullable String photoUrl){
+        GlideApp.with(this).load(photoUrl).listener(new RequestListener<Drawable>() {
+
+            @Override
+            public boolean onLoadFailed(@Nullable GlideException e, Object model,
+                                        Target<Drawable> target, boolean isFirstResource) {
+                scheduleStartPostponedTransition(imageView);
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
+                    target, DataSource dataSource, boolean isFirstResource) {
+                // Call the "scheduleStartPostponedTransition()" method
+                // below when you know for certain that the shared element is
+                // ready for the transition to begin.
+                scheduleStartPostponedTransition(imageView);
+                return false;
+            }
+        }).placeholder(R.mipmap.ic_launcher).error(R.mipmap.ic_launcher).fallback(R.mipmap
+                .ic_launcher).centerCrop().dontAnimate().into(imageView);
     }
 
     private void updateAppBarContent(@NonNull QuizzesItem quizzesItem) {

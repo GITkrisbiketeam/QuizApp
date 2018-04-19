@@ -27,8 +27,7 @@ public class QuizzesListViewModel extends AndroidViewModel {
     public QuizzesListViewModel(Application application) {
         super(application);
         Log.d(TAG, "QuizzesListViewModel");
-        mRepository = new QuizAppRepository(application);
-        Log.d(TAG, "QuizzesListViewModel QuizItems retrofit requested");
+        mRepository = QuizAppRepository.getInstance(application);
 
         mConnectionLiveData = new ConnectionLiveData(application);
     }

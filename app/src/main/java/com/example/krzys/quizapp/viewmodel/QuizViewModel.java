@@ -4,6 +4,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -15,22 +16,47 @@ import com.example.krzys.quizapp.utils.Utils;
 
 public class QuizViewModel extends AndroidViewModel {
 
+    //TODO add model and logic to store current question etc. no logic in UI should be present
     private static final String TAG = Utils.getLogTag(QuizViewModel.class.getSimpleName());
 
     private final QuizAppRepository mRepository;
 
     ConnectionLiveData mConnectionLiveData;
+
+    private LiveData<QuizData> mQuizData;
+
+    private LiveData<QuizzesItem> mQuizzesItem;
+
     private int mQuizActivityCurrentQuestion = -1;
+
 
     public QuizViewModel(Application application) {
         super(application);
-        Log.d(TAG, "QuizzesListViewModel");
-        mRepository = new QuizAppRepository(application);
-        Log.d(TAG, "QuizzesListViewModel QuizItems retrofit requested");
+        Log.d(TAG, "QuizViewModel");
+        mRepository = QuizAppRepository.getInstance(application);
 
+        //TODO: will be still needed???
         mConnectionLiveData = new ConnectionLiveData(application);
     }
 
+    public void init(@NonNull QuizzesItem item){
+        if (mQuizzesItem == null){
+            mQuizzesItem = mRepository.loadQuizzesItem(item.getId());
+        }
+        if (mQuizData == null){
+            mQuizData = mRepository.loadQuizData(item.getId());
+        }
+    }
+
+    public LiveData<QuizData> getQuizData() {
+        return mQuizData;
+    }
+
+    public LiveData<QuizzesItem> getQuizzesItemLiveData() {
+        return mQuizzesItem;
+    }
+
+    @Deprecated
     public LiveData<QuizzesItem> loadQuizzesItem(@NonNull LifecycleOwner owner, final long quizId) {
         mConnectionLiveData.observe(owner, isConnected -> {
             if (isConnected != null && isConnected) {
@@ -40,7 +66,8 @@ public class QuizViewModel extends AndroidViewModel {
         return mRepository.loadQuizzesItem(quizId);
     }
 
-   public LiveData<QuizData> loadQuizData(@NonNull LifecycleOwner owner, final long quizId) {
+    @Deprecated
+    public LiveData<QuizData> getQuizData(@NonNull LifecycleOwner owner, final long quizId) {
         mConnectionLiveData.observe(owner, isConnected -> {
             if (isConnected != null && isConnected) {
                 mRepository.getQuizData(quizId);
@@ -53,6 +80,8 @@ public class QuizViewModel extends AndroidViewModel {
         mRepository.updateQuizzesItem(quizzesItem);
     }
 
+
+    //Getters and Setters
     public int getQuizActivityCurrentQuestion() {
         return mQuizActivityCurrentQuestion;
     }

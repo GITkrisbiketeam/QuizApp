@@ -35,7 +35,7 @@ abstract class QuizActivityContent {
     protected QuizData mQuizData;
     protected QuizzesItem mQuizzesItem;
 
-    QuizActivityContent(AppCompatActivity activity, QuizzesItem quizzesItem) {
+    QuizActivityContent(@NonNull AppCompatActivity activity, @NonNull QuizzesItem quizzesItem) {
         mQuizzesItem = quizzesItem;
 
         mQuizContentRoot = activity.findViewById(R.id.quiz_content_root);
@@ -51,7 +51,7 @@ abstract class QuizActivityContent {
         // Initialize ViewModel
         mQuizViewModel = ViewModelProviders.of(activity).get(QuizViewModel.class);
 
-        mQuizViewModel.loadQuizData(activity, mQuizzesItem.getId()).observe(activity, quizData
+        mQuizViewModel.getQuizData(activity, mQuizzesItem.getId()).observe(activity, quizData
                 -> {
             Log.w(TAG, "QuizActivityContent observer onChanged quizData: " + quizData);
             if (quizData != null) {
