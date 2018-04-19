@@ -2,7 +2,11 @@ package com.example.krzys.quizapp.data;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.paging.LivePagedListBuilder;
+import android.arch.paging.PagedList;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -17,6 +21,7 @@ import com.example.krzys.quizapp.data.retro.RetrofitClient;
 import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;
 
+import java.util.Arrays;
 import java.util.List;
 
 import retrofit2.Call;
@@ -29,15 +34,26 @@ import retrofit2.Response;
 public class QuizAppRepository {
     private static final String TAG = Utils.getLogTag(QuizAppRepository.class.getSimpleName());
 
+    private static final int DEFAULT_NETWORK_PAGE_SIZE = 10;
     private final QuizzesItemDao mQuizzesItemDao;
     private final QuizDataDao mQuizDataDao;
 
-    private LiveData<List<QuizzesItem>> mAllQuizzesItems;
+    private final int mNetworkPageSize;
+
+    ApiEndpointInterface mQuizApi;
+
+    private LiveData<PagedList<QuizzesItem>> mAllQuizzesItems;
 
     public QuizAppRepository(Application application) {
         QuizAppRoomDatabase db = QuizAppRoomDatabase.getDatabase(application);
         mQuizzesItemDao = db.quizzesItemDao();
         mQuizDataDao = db.quizDataDao();
+
+        //Creating an object of our api interface
+        mQuizApi = RetrofitClient.getApiService();
+
+        // should this be passe as constructor argument
+        mNetworkPageSize = DEFAULT_NETWORK_PAGE_SIZE;
     }
 
     /**
@@ -46,11 +62,17 @@ public class QuizAppRepository {
      *
      * @return
      */
-    public LiveData<List<QuizzesItem>> getAllQuizzesItems() {
+    public LiveData<PagedList<QuizzesItem>> getAllQuizzesItems() {
         //TODO: should we download Quizzes lst all the time????
         getNewQuizzes(0, Constants.INITIAL_QUIZZES_GET_COUNT);
-         if (mAllQuizzesItems == null) {
-            mAllQuizzesItems = mQuizzesItemDao.getAllQuizzesItems();
+        if (mAllQuizzesItems == null) {
+            mAllQuizzesItems =
+                    new LivePagedListBuilder<>(
+                            mQuizzesItemDao.getAllQuizzesItems(),
+                            /* page size */ 20)
+//                            .setFetchExecutor(myNetworkExecutor)
+                            .build();
+
         }
         return mAllQuizzesItems;
     }
@@ -100,12 +122,12 @@ public class QuizAppRepository {
      *
      * @param offset    from which offset to start download new items from API
      */
-    public void getNewQuizzes(int offset, int count) {
-        //Creating an object of our api interface
-        ApiEndpointInterface api = RetrofitClient.getApiService();
+    public LiveData getNewQuizzes(int offset, int count) {
+        final MutableLiveData networkState = new MutableLiveData();
+        networkState.setValue(NetworkState.LOADING);
 
         //Calling JSON
-        Call<QuizzesListData> call = api.getQuizListData(offset, count);
+        Call<QuizzesListData> call = mQuizApi.getQuizListData(offset, /*count*/mNetworkPageSize);
 
         //Enqueue Callback will be call when get response...
         call.enqueue(new Callback<QuizzesListData>() {
@@ -136,6 +158,7 @@ public class QuizAppRepository {
                 Log.e(TAG, "onFailure call:" + call, t);
             }
         });
+        return networkState;
     }
 
     /**
@@ -192,12 +215,23 @@ public class QuizAppRepository {
 
         @Override
         protected Void doInBackground(final QuizzesItem... items) {
-            // Update QuizzesItem#myAnswers for newly downloaded QuizzesItems
-            for (QuizzesItem item : items) {
-                QuizzesItem oldItem = mAsyncTaskDao.getQuizzesItemByIdImmediate(item.getId());
-                // restore my answers
-                if (oldItem != null) {
-                    item.setMyAnswers(oldItem.getMyAnswers());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Arrays.stream(items).forEach(quizzesItem -> {
+                    QuizzesItem oldItem = mAsyncTaskDao.getQuizzesItemByIdImmediate(quizzesItem
+                            .getId());
+                    // restore my answers
+                    if (oldItem != null) {
+                        quizzesItem.setMyAnswers(oldItem.getMyAnswers());
+                    }
+                });
+            } else {
+                // Update QuizzesItem#myAnswers for newly downloaded QuizzesItems
+                for (QuizzesItem item : items) {
+                    QuizzesItem oldItem = mAsyncTaskDao.getQuizzesItemByIdImmediate(item.getId());
+                    // restore my answers
+                    if (oldItem != null) {
+                        item.setMyAnswers(oldItem.getMyAnswers());
+                    }
                 }
             }
             mAsyncTaskDao.insertQuizzesItem(items);

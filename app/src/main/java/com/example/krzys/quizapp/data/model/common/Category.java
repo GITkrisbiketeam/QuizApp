@@ -3,6 +3,7 @@ package com.example.krzys.quizapp.data.model.common;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -87,6 +88,20 @@ public class Category implements Parcelable {
         dest.writeValue(secondaryCid);
         dest.writeValue(name);
         dest.writeValue(type);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Category))
+            return false;
+        Category that = (Category) o;
+        return
+                (uid == null ? that.uid == null : uid.equals(that.uid)) &&
+                (secondaryCid == null ? that.secondaryCid == null : secondaryCid.equals(that.secondaryCid)) &&
+                (name == null ? that.name == null : name.equals(that.name)) &&
+                (type == null ? that.type == null : type.equals(that.type));
     }
 
     public int describeContents() {

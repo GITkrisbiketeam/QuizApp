@@ -1,6 +1,7 @@
 package com.example.krzys.quizapp.data.db.dao;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.paging.DataSource;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
@@ -14,6 +15,7 @@ import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
 
 import java.util.List;
 
+
 import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 
 @Dao
@@ -25,8 +27,11 @@ public interface QuizzesItemDao {
      *
      * @return {@link QuizzesItem) {@link List} of {@link LiveData} data holder to be observed
      */
-    @Query("select * from QuizzesItem ORDER BY createdAt DESC")
-    LiveData<List<QuizzesItem>> getAllQuizzesItems();
+    @Query("select * from QuizzesItem ORDER BY createdAt DESC") //ORDER BY indexInResponse ASC
+    DataSource.Factory<Integer, QuizzesItem> getAllQuizzesItems();
+
+    @Query("SELECT MAX(indexInResponse) + 1 FROM QuizzesItem")
+    int getNextIndexInSubreddit();
 
     /**
      * Get {@link LiveData} holder for {@link QuizzesItem} observer based on provided id of Quiz Item

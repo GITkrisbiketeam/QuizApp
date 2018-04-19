@@ -128,6 +128,23 @@ public class MainPhoto implements Parcelable {
         dest.writeValue(mediaId);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof MainPhoto))
+            return false;
+        MainPhoto that = (MainPhoto) o;
+        return
+                (height == null ? that.height == null : height.equals(that.height)) &&
+                (width == null ? that.width == null : width.equals(that.width)) &&
+                (mediaId == null ? that.mediaId == null : mediaId.equals(that.mediaId)) &&
+                (author == null ? that.author == null : author.equals(that.author)) &&
+                (source == null ? that.source == null : source.equals(that.source)) &&
+                (title == null ? that.title == null : title.equals(that.title)) &&
+                (url == null ? that.url == null : url.equals(that.url));
+    }
+
     public int describeContents() {
         return 0;
     }

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
+import android.arch.paging.PagedList;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -34,7 +35,7 @@ public class QuizAppViewModel extends AndroidViewModel {
         mConnectionLiveData = new ConnectionLiveData(application);
     }
 
-    public LiveData<List<QuizzesItem>> getAllQuizzesList(@NonNull LifecycleOwner owner) {
+    public LiveData<PagedList<QuizzesItem>> getAllQuizzesList(@NonNull LifecycleOwner owner) {
         mConnectionLiveData.observe(owner, isConnected -> {
             if (isConnected != null && isConnected) {
                 mRepository.getNewQuizzes(0, Constants.INITIAL_QUIZZES_GET_COUNT);

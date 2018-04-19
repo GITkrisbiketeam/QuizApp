@@ -8,6 +8,7 @@ import android.arch.persistence.room.TypeConverters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -88,6 +89,9 @@ public class QuizzesItem implements Parcelable {
     @TypeConverters(IntegerConverter.class)
     private List<Integer> myAnswers = null;
 
+    // to be consistent w/ changing backend order, we need to keep a data like this
+    private int indexInResponse;
+
     public final static Parcelable.Creator<QuizzesItem> CREATOR = new Creator<QuizzesItem>() {
 
 
@@ -120,6 +124,7 @@ public class QuizzesItem implements Parcelable {
         in.readList(this.tags, (Tag.class.getClassLoader()));
         this.myAnswers = new ArrayList<>();
         in.readList(this.myAnswers, (Integer.class.getClassLoader()));
+        this.indexInResponse  = in.readInt();
     }
 
     public QuizzesItem() {
@@ -237,13 +242,24 @@ public class QuizzesItem implements Parcelable {
         this.myAnswers = myAnswers;
     }
 
+    public int getIndexInResponse() {
+        return indexInResponse;
+    }
+
+    public void setIndexInResponse(int indexInResponse) {
+        this.indexInResponse = indexInResponse;
+    }
+
+
+
     @Override
     public String toString() {
         return "buttonStart: " + buttonStart + "; shareTitle: " + shareTitle + "; questions: " +
                 questions + "; createdAt: " + createdAt + "; sponsored: " + sponsored + "; " +
                 "categories: " + categories + "; id: " + id + "; title: " + title + "; type: " +
                 type + "; content: " + content + "; mainPhoto: " + mainPhoto + "; category: " +
-                category + "; tags: " + tags + "; myAnswers: "  + myAnswers;
+                category + "; tags: " + tags + "; myAnswers: "  + myAnswers +
+                "; indexInResponse: " + indexInResponse;
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -261,6 +277,43 @@ public class QuizzesItem implements Parcelable {
         dest.writeValue(category);
         dest.writeList(tags);
         dest.writeList(myAnswers);
+        dest.writeInt(indexInResponse);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof QuizzesItem))
+            return false;
+        QuizzesItem that = (QuizzesItem) o;
+        return sameExeptMyAnswers(o) &&
+                (myAnswers == null ? that.myAnswers == null : myAnswers.equals(that.myAnswers));
+    }
+
+    public boolean sameExeptMyAnswers(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof QuizzesItem))
+            return false;
+        QuizzesItem that = (QuizzesItem) o;
+        return
+                indexInResponse == that.indexInResponse &&
+                        (buttonStart == null ? that.buttonStart == null : buttonStart.equals(that.buttonStart)) &&
+                        (shareTitle == null ? that.shareTitle == null : shareTitle.equals(that.shareTitle)) &&
+                        (questions == null ? that.questions == null : questions.equals(that.questions)) &&
+                        (createdAt == null ? that.createdAt == null : createdAt.equals(that.createdAt)) &&
+                        (sponsored == null ? that.sponsored == null : sponsored.equals(that.sponsored)) &&
+                        (id == null ? that.id == null : id.equals(that.id)) &&
+                        (title == null ? that.title == null : title.equals(that.title)) &&
+                        (type == null ? that.type == null : type.equals(that.type)) &&
+                        (content == null ? that.content == null : content.equals(that.content)) &&
+
+                        (mainPhoto == null ? that.mainPhoto == null : mainPhoto.equals(that.mainPhoto)) &&
+                        (category == null ? that.category == null : category.equals(that.category)) &&
+
+                        (tags == null ? that.tags == null : tags.equals(that.tags)) &&
+                        (categories == null ? that.categories == null : categories.equals(that.categories));
     }
 
     public int describeContents() {
