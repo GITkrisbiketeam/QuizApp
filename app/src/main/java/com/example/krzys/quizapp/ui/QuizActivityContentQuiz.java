@@ -1,5 +1,6 @@
 package com.example.krzys.quizapp.ui;
 
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.krzys.quizapp.R;
 import com.example.krzys.quizapp.data.model.quiz.Answer;
 import com.example.krzys.quizapp.data.model.quiz.Image;
@@ -79,6 +82,44 @@ public class QuizActivityContentQuiz extends QuizActivityContent {
             for (int i = 0; i < answers.size(); i++) {
                 RadioButton button = new RadioButton(mActivity);
                 button.setText(answers.get(i).getText());
+                if (answers.get(i).getImage() != null) {
+                    int paddingSize = mActivity.getResources().getDimensionPixelSize(R.dimen
+                            .half_text_margin);
+                    button.setPaddingRelative(paddingSize, paddingSize, paddingSize, paddingSize);
+                    Log.d(TAG, "getQuizQuestionsContentView RadioButton load image");
+                    GlideApp.with(mActivity).load(answers.get(i).getImage().getUrl()).
+                            placeholder(R.mipmap.ic_launcher).
+                            error(R.mipmap.ic_launcher)
+                            .fallback(R.mipmap.ic_launcher)
+                            .into(new SimpleTarget<Drawable>() {
+
+                                @Override
+                                public void onLoadStarted(@Nullable Drawable placeholder) {
+                                    button.setCompoundDrawablesWithIntrinsicBounds(null, null,
+                                            placeholder, null);
+                                }
+
+                                @Override
+                                public void onLoadCleared(@Nullable Drawable placeholder) {
+                                    button.setCompoundDrawablesWithIntrinsicBounds(null, null,
+                                            placeholder, null);
+                                }
+
+                                @Override
+                                public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                    button.setCompoundDrawablesWithIntrinsicBounds(null, null,
+                                            errorDrawable, null);
+                                }
+
+                                @Override
+                                public void onResourceReady(@NonNull Drawable resource, @Nullable
+                                        Transition<? super Drawable> transition) {
+                                    button.setCompoundDrawablesWithIntrinsicBounds(null, null,
+                                            resource, null);
+
+                                }
+                            });
+                }
                 button.setId(i);
                 answersRadioGroup.addView(button);
             }
