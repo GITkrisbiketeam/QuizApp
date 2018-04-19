@@ -30,6 +30,7 @@ public class QuizzesListViewHolder extends RecyclerView.ViewHolder implements Vi
     public final TextView textViewScore;
     public final ProgressBar progressBar;
 
+    @FunctionalInterface
     public interface QuizItemHolderClickListener {
         void onQuizItemClicked(ImageView imageView, ProgressBar progressBar, int position);
     }
@@ -137,7 +138,7 @@ public class QuizzesListViewHolder extends RecyclerView.ViewHolder implements Vi
     }
 
     public void clear() {
-        textViewTitle.setText("Loading");
+        textViewTitle.setText(R.string.quizzes_item_title_loading);
         GlideApp.with(rootView.getContext()).clear(imageView);
         textViewScore.setVisibility(View.GONE);
         progressBar.setProgress(0);

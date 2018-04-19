@@ -1,4 +1,4 @@
-package com.example.krzys.quizapp.data.retro;
+package com.example.krzys.quizapp.data.api;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

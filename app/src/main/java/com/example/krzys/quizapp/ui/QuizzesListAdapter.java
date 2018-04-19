@@ -23,6 +23,7 @@ public class QuizzesListAdapter extends PagedListAdapter<QuizzesItem, QuizzesLis
 
     final QuizItemClickListener mQuizItemClickListener;
 
+    @FunctionalInterface
     public interface QuizItemClickListener {
         void onQuizItemClicked(ImageView imageView, ProgressBar progressBar, QuizzesItem item);
     }

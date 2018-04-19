@@ -1,4 +1,4 @@
-package com.example.krzys.quizapp.data.livedata;
+package com.example.krzys.quizapp.repository.livedata;
 
 import android.arch.lifecycle.LiveData;
 import android.content.BroadcastReceiver;

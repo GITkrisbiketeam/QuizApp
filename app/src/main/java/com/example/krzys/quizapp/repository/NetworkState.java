@@ -1,11 +1,12 @@
-package com.example.krzys.quizapp.data;
+package com.example.krzys.quizapp.repository;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import static com.example.krzys.quizapp.data.NetworkState.Status.FAILED;
-import static com.example.krzys.quizapp.data.NetworkState.Status.RUNNING;
-import static com.example.krzys.quizapp.data.NetworkState.Status.SUCCESS;
+import static com.example.krzys.quizapp.repository.NetworkState.Status.FAILED;
+import static com.example.krzys.quizapp.repository.NetworkState.Status.RUNNING;
+import static com.example.krzys.quizapp.repository.NetworkState.Status.SUCCESS;
+
 
 public class NetworkState {
 
@@ -39,9 +40,8 @@ public class NetworkState {
         return this.msg;
     }
 
-
     @NonNull
-    public NetworkState error(String msg) {
+    public static NetworkState error(String msg) {
         return new NetworkState(FAILED, msg);
     }
 

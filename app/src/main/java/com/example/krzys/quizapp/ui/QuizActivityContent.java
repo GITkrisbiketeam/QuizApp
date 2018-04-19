@@ -14,9 +14,10 @@ import com.example.krzys.quizapp.R;
 import com.example.krzys.quizapp.data.model.quiz.Question;
 import com.example.krzys.quizapp.data.model.quiz.QuizData;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
-import com.example.krzys.quizapp.data.viewmodel.QuizAppViewModel;
+import com.example.krzys.quizapp.viewmodel.QuizzesListViewModel;
 import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;
+import com.example.krzys.quizapp.viewmodel.QuizViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ abstract class QuizActivityContent {
     protected ViewGroup mQuizContentRoot;
     protected ViewFlipper mQuizContentViewFlipper;
 
-    protected QuizAppViewModel mQuizAppViewModel;
+    protected QuizViewModel mQuizViewModel;
 
     protected QuizData mQuizData;
     protected QuizzesItem mQuizzesItem;
@@ -48,9 +49,9 @@ abstract class QuizActivityContent {
                 .slide_out_from_left));
 
         // Initialize ViewModel
-        mQuizAppViewModel = ViewModelProviders.of(activity).get(QuizAppViewModel.class);
+        mQuizViewModel = ViewModelProviders.of(activity).get(QuizViewModel.class);
 
-        mQuizAppViewModel.loadQuizData(activity, mQuizzesItem.getId()).observe(activity, quizData
+        mQuizViewModel.loadQuizData(activity, mQuizzesItem.getId()).observe(activity, quizData
                 -> {
             Log.w(TAG, "QuizActivityContent observer onChanged quizData: " + quizData);
             if (quizData != null) {
@@ -91,7 +92,7 @@ abstract class QuizActivityContent {
         } else {
             currentQuestion = 0;
         }
-        if (mQuizAppViewModel.getQuizActivityCurrentQuestion() == currentQuestion &&
+        if (mQuizViewModel.getQuizActivityCurrentQuestion() == currentQuestion &&
                 mQuizContentViewFlipper.getChildCount() > 0) {
             // there was no change in current question;
             // do nothing more;
@@ -112,20 +113,20 @@ abstract class QuizActivityContent {
         if (newQuizContent != null) {
             mQuizContentViewFlipper.addView(newQuizContent);
             // Animate show next only when question changes or we initialize this Activity
-            if (mQuizAppViewModel.getQuizActivityCurrentQuestion() != currentQuestion) {
+            if (mQuizViewModel.getQuizActivityCurrentQuestion() != currentQuestion) {
                 mQuizContentViewFlipper.showNext();
             }
             if (mQuizContentViewFlipper.getChildCount() > 2) {
                 mQuizContentViewFlipper.removeViewAt(0);
             }
         }
-        mQuizAppViewModel.setQuizActivityCurrentQuestion(currentQuestion);
+        mQuizViewModel.setQuizActivityCurrentQuestion(currentQuestion);
     }
 
     /**
      * Processes Selection of particular question answer.
      * checks if user selection is correct answer and stores  his answer in DB through
-     * {@link QuizAppViewModel}. Input checkedId is an intiger of an answer as mapped in
+     * {@link QuizzesListViewModel}. Input checkedId is an intiger of an answer as mapped in
      * getQuizQuestionsContentView() method.
      *
      * @param checkedId id of selected question answer
@@ -151,7 +152,7 @@ abstract class QuizActivityContent {
                     }
                     mQuizzesItem.setMyAnswers(myAnswers);
 
-                    mQuizAppViewModel.updateQuizzesItem(mQuizzesItem);
+                    mQuizViewModel.updateQuizzesItem(mQuizzesItem);
                 } else {
                     Log.d(TAG, "processAnswerSelected Quiz solved");
                 }

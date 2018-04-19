@@ -21,7 +21,7 @@ import android.widget.ProgressBar;
 
 import com.example.krzys.quizapp.R;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
-import com.example.krzys.quizapp.data.viewmodel.QuizAppViewModel;
+import com.example.krzys.quizapp.viewmodel.QuizzesListViewModel;
 import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;
 
@@ -39,7 +39,7 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
     private View mRootView;
 
     private QuizzesListAdapter mQuizzesAdapter;
-    private QuizAppViewModel mQuizAppViewModel;
+    private QuizzesListViewModel mQuizzesListViewModel;
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -79,10 +79,10 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
         mQuizzesAdapter = new QuizzesListAdapter(QuizzesListActivity.this, this);
         quizzesRecyclerView.setAdapter(mQuizzesAdapter);
 
-        mQuizAppViewModel = ViewModelProviders.of(this).get(QuizAppViewModel.class);
+        mQuizzesListViewModel = ViewModelProviders.of(this).get(QuizzesListViewModel.class);
 
-        mQuizAppViewModel.getAllQuizzesList(this).observe(this, quizzesItems -> {
-            Log.w(TAG, "QuizAppViewModel observer onChanged");
+        mQuizzesListViewModel.getAllQuizzesList(this).observe(this, quizzesItems -> {
+            Log.w(TAG, "QuizzesListViewModel observer onChanged");
             mQuizzesAdapter.submitList(quizzesItems);
 
             mSwipeRefreshLayout.setRefreshing(false);
@@ -90,11 +90,11 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
             // mSwipeRefreshLayout animation stops
             mSwipeRefreshLayout.postDelayed(() -> mSwipeRefreshLayout.setDirection
                     (SwipyRefreshLayoutDirection.BOTH), 500);*/
-            Log.w(TAG, "QuizAppViewModel observer onChanged quizzesItems.size():" +
+            Log.w(TAG, "QuizzesListViewModel observer onChanged quizzesItems.size():" +
                     quizzesItems.size());
         });
 
-        mQuizAppViewModel.getAllQuizzesListTypes().observe(this, quizzesTypes -> {
+        mQuizzesListViewModel.getAllQuizzesListTypes().observe(this, quizzesTypes -> {
             if (quizzesTypes != null) {
                 List<String> types;
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -132,7 +132,7 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
                 if (Utils.checkConnection(this)) {
                     // Do not allow refreshing while previous is still pending
                     if (!mSwipeRefreshLayout.isRefreshing()) {
-                        mQuizAppViewModel.updateNewQuizzes(0, Constants.INITIAL_QUIZZES_GET_COUNT);
+                        mQuizzesListViewModel.updateNewQuizzes(0, Constants.INITIAL_QUIZZES_GET_COUNT);
                         /*// Switch only to top refreshing animation on manual refresh
                         mSwipeRefreshLayout.setDirection(SwipyRefreshLayoutDirection.TOP);*/
                         // Show refreshing animation
@@ -178,7 +178,7 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
         Log.w(TAG, "onRefresh SwipeRefreshLayout called to refresh direction: "/* + direction*/);
         /*if (direction == SwipyRefreshLayoutDirection.TOP) {*/
             if (Utils.checkConnection(this)) {
-                mQuizAppViewModel.updateNewQuizzes(0, Constants.INITIAL_QUIZZES_GET_COUNT);
+                mQuizzesListViewModel.updateNewQuizzes(0, Constants.INITIAL_QUIZZES_GET_COUNT);
             } else {
                 Utils.showSnackbar(mRootView, R.string.string_internet_connection_not_available);
                 // Stop refreshing animation
@@ -186,7 +186,7 @@ public class QuizzesListActivity extends AppCompatActivity implements QuizzesLis
             }
         /*} else {
             if (Utils.checkConnection(this)) {
-                mQuizAppViewModel.updateNewQuizzes(mQuizzesAdapter.getItemCount(), Constants
+                mQuizzesListViewModel.updateNewQuizzes(mQuizzesAdapter.getItemCount(), Constants
                         .QUIZZES_GET_ADDITIONAL_COUNT);
             } else {
                 Utils.showSnackbar(mRootView, R.string.string_internet_connection_not_available);

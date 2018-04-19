@@ -3,7 +3,6 @@
     <string name="title_activity_quiz">QuizApp Pytania</string>
 
     <string name="string_internet_connection_not_available">Brak połaczenia z internetem.</string>
-    <string name="string_some_thing_wrong">Coś› poszło nie tak</string>
 
     <string name="list_item_title">Przykładowy tytuł‚ quizu</string>
     <string name="list_item_solve_score">Ostatni wynik to: %d/%d, %d%%</string>
@@ -35,4 +34,5 @@
 
     <string name="transition_name_shared_image">transitionNameForSharedImage</string>
     <string name="transition_name_shared_progress">transitionNameForSharedProgress</string>
+    <string name="quizzes_item_title_loading">Loading…</string>
 </resources>

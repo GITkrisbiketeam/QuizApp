@@ -31,7 +31,7 @@ public interface QuizzesItemDao {
     DataSource.Factory<Integer, QuizzesItem> getAllQuizzesItems();
 
     @Query("SELECT MAX(indexInResponse) + 1 FROM QuizzesItem")
-    int getNextIndexInSubreddit();
+    int getNextIndexInQuizzesItems();
 
     /**
      * Get {@link LiveData} holder for {@link QuizzesItem} observer based on provided id of Quiz Item

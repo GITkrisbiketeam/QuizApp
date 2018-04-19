@@ -82,7 +82,7 @@ public class QuizActivityContentQuiz extends QuizActivityContent {
             for (int i = 0; i < answers.size(); i++) {
                 RadioButton button = new RadioButton(mActivity);
                 button.setText(answers.get(i).getText());
-                if (answers.get(i).getImage() != null) {
+                if (answers.get(i).getImage() != null && !TextUtils.isEmpty(answers.get(i).getImage().getUrl())) {
                     int paddingSize = mActivity.getResources().getDimensionPixelSize(R.dimen
                             .half_text_margin);
                     button.setPaddingRelative(paddingSize, paddingSize, paddingSize, paddingSize);
@@ -183,7 +183,7 @@ public class QuizActivityContentQuiz extends QuizActivityContent {
         redoButton.setOnClickListener(v -> {
             mQuizzesItem.setMyAnswers(new ArrayList<>());
             // This will also call to refresh UI through DB LiveData observer
-            mQuizAppViewModel.updateQuizzesItem(mQuizzesItem);
+            mQuizViewModel.updateQuizzesItem(mQuizzesItem);
         });
         return newQuizContent;
     }

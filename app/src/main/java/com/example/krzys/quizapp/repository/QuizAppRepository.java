@@ -1,4 +1,4 @@
-package com.example.krzys.quizapp.data;
+package com.example.krzys.quizapp.repository;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
@@ -16,8 +16,8 @@ import com.example.krzys.quizapp.data.db.dao.QuizzesItemDao;
 import com.example.krzys.quizapp.data.model.quiz.QuizData;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesListData;
-import com.example.krzys.quizapp.data.retro.ApiEndpointInterface;
-import com.example.krzys.quizapp.data.retro.RetrofitClient;
+import com.example.krzys.quizapp.data.api.ApiEndpointInterface;
+import com.example.krzys.quizapp.data.api.RetrofitClient;
 import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;
 
@@ -62,15 +62,30 @@ public class QuizAppRepository {
      *
      * @return
      */
-    public LiveData<PagedList<QuizzesItem>> getAllQuizzesItems() {
+    public LiveData<PagedList<QuizzesItem>> getAllQuizzesItems(int pageSize) {
         //TODO: should we download Quizzes lst all the time????
-        getNewQuizzes(0, Constants.INITIAL_QUIZZES_GET_COUNT);
         if (mAllQuizzesItems == null) {
             mAllQuizzesItems =
                     new LivePagedListBuilder<>(
                             mQuizzesItemDao.getAllQuizzesItems(),
-                            /* page size */ 20)
+                            /* page size */ pageSize)
 //                            .setFetchExecutor(myNetworkExecutor)
+                            .setBoundaryCallback(new PagedList.BoundaryCallback<QuizzesItem>() {
+                                @Override
+                                public void onZeroItemsLoaded() {
+                                    super.onZeroItemsLoaded();
+                                }
+
+                                @Override
+                                public void onItemAtFrontLoaded(@NonNull QuizzesItem itemAtFront) {
+                                    super.onItemAtFrontLoaded(itemAtFront);
+                                }
+
+                                @Override
+                                public void onItemAtEndLoaded(@NonNull QuizzesItem itemAtEnd) {
+                                    super.onItemAtEndLoaded(itemAtEnd);
+                                }
+                            })
                             .build();
 
         }
@@ -123,7 +138,7 @@ public class QuizAppRepository {
      * @param offset    from which offset to start download new items from API
      */
     public LiveData getNewQuizzes(int offset, int count) {
-        final MutableLiveData networkState = new MutableLiveData();
+        final MutableLiveData<NetworkState> networkState = new MutableLiveData<>();
         networkState.setValue(NetworkState.LOADING);
 
         //Calling JSON

@@ -1,0 +1,281 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "acb139549a72544f8ad50ba72dcccec0",
+    "entities": [
+      {
+        "tableName": "QuizzesItem",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`questions` INTEGER, `createdAt` TEXT, `id` INTEGER, `title` TEXT, `type` TEXT, `content` TEXT, `tags` TEXT, `myAnswers` TEXT, `indexInResponse` INTEGER NOT NULL, `mainPhoto_author` TEXT, `mainPhoto_width` INTEGER, `mainPhoto_source` TEXT, `mainPhoto_title` TEXT, `mainPhoto_url` TEXT, `mainPhoto_height` INTEGER, `mainPhoto_mediaId` INTEGER, `category_uid` INTEGER, `category_secondaryCid` TEXT, `category_name` TEXT, `category_type` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "questions",
+            "columnName": "questions",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "content",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "tags",
+            "columnName": "tags",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "myAnswers",
+            "columnName": "myAnswers",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "indexInResponse",
+            "columnName": "indexInResponse",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mainPhoto.author",
+            "columnName": "mainPhoto_author",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mainPhoto.width",
+            "columnName": "mainPhoto_width",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mainPhoto.source",
+            "columnName": "mainPhoto_source",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mainPhoto.title",
+            "columnName": "mainPhoto_title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mainPhoto.url",
+            "columnName": "mainPhoto_url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mainPhoto.height",
+            "columnName": "mainPhoto_height",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mainPhoto.mediaId",
+            "columnName": "mainPhoto_mediaId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "category.uid",
+            "columnName": "category_uid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "category.secondaryCid",
+            "columnName": "category_secondaryCid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "category.name",
+            "columnName": "category_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "category.type",
+            "columnName": "category_type",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "QuizData",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rates` TEXT, `questions` TEXT, `createdAt` TEXT, `title` TEXT, `type` TEXT, `content` TEXT, `flagResults` TEXT, `id` INTEGER, `avgResult` REAL, `mainPhoto_author` TEXT, `mainPhoto_width` INTEGER, `mainPhoto_source` TEXT, `mainPhoto_title` TEXT, `mainPhoto_url` TEXT, `mainPhoto_height` INTEGER, `mainPhoto_mediaId` INTEGER, `category_uid` INTEGER, `category_secondaryCid` TEXT, `category_name` TEXT, `category_type` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "rates",
+            "columnName": "rates",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "questions",
+            "columnName": "questions",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "content",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "flagResults",
+            "columnName": "flagResults",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "avgResult",
+            "columnName": "avgResult",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mainPhoto.author",
+            "columnName": "mainPhoto_author",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mainPhoto.width",
+            "columnName": "mainPhoto_width",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mainPhoto.source",
+            "columnName": "mainPhoto_source",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mainPhoto.title",
+            "columnName": "mainPhoto_title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mainPhoto.url",
+            "columnName": "mainPhoto_url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mainPhoto.height",
+            "columnName": "mainPhoto_height",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mainPhoto.mediaId",
+            "columnName": "mainPhoto_mediaId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "category.uid",
+            "columnName": "category_uid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "category.secondaryCid",
+            "columnName": "category_secondaryCid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "category.name",
+            "columnName": "category_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "category.type",
+            "columnName": "category_type",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"acb139549a72544f8ad50ba72dcccec0\")"
+    ]
+  }
+}

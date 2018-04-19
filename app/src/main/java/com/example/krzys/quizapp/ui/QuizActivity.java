@@ -30,8 +30,8 @@ import com.bumptech.glide.request.target.Target;
 import com.example.krzys.quizapp.R;
 import com.example.krzys.quizapp.data.model.common.Category;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
-import com.example.krzys.quizapp.data.viewmodel.QuizAppViewModel;
 import com.example.krzys.quizapp.utils.Utils;
+import com.example.krzys.quizapp.viewmodel.QuizViewModel;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,7 +41,7 @@ public class QuizActivity extends AppCompatActivity {
     private static final String TAG = Utils.getLogTag(QuizActivity.class.getSimpleName());
     public static final String EXTRA_QUIZ = "extra_quiz";
 
-    private QuizAppViewModel mQuizAppViewModel;
+    private QuizViewModel mQuizViewModel;
 
     QuizActivityContent mQuizActivityContent;
 
@@ -62,7 +62,7 @@ public class QuizActivity extends AppCompatActivity {
         }
 
         // Initialize ViewModel
-        mQuizAppViewModel = ViewModelProviders.of(this).get(QuizAppViewModel.class);
+        mQuizViewModel = ViewModelProviders.of(this).get(QuizViewModel.class);
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -154,7 +154,7 @@ public class QuizActivity extends AppCompatActivity {
                 appBarProgressBar.setMax(quizzesItem.getQuestions());
                 updateAppBarProgress(appBarProgressBar, quizzesItem);
             }
-            mQuizAppViewModel.loadQuizzesItem(this, quizzesItem.getId()).observe(this,
+            mQuizViewModel.loadQuizzesItem(this, quizzesItem.getId()).observe(this,
                     quizzesItem1 -> {
                         Log.d(TAG, "processIntent quizzesItem changed: " + quizzesItem.toString());
                         if (appBarProgressBar != null) {
@@ -215,7 +215,7 @@ public class QuizActivity extends AppCompatActivity {
                 SimpleDateFormat quizDataTimeFormat = new SimpleDateFormat
                         ("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
                 Date date = quizDataTimeFormat.parse(createTime);
-                SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy h:mm");
+                SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy h:mm", Locale.US);
                 appBarCreatedAt.setVisibility(View.VISIBLE);
                 appBarCreatedAt.setText(getString(R.string.quiz_app_bar_create_at_text,
                         formatter.format(date)));

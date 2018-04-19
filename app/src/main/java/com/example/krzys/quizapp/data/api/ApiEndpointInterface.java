@@ -1,4 +1,4 @@
-package com.example.krzys.quizapp.data.retro;
+package com.example.krzys.quizapp.data.api;
 
 import com.example.krzys.quizapp.data.model.quiz.QuizData;
 import com.example.krzys.quizapp.data.model.quizzes.QuizzesListData;
