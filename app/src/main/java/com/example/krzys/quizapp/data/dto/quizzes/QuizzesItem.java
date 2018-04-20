@@ -1,4 +1,4 @@
-package com.example.krzys.quizapp.data.model.quizzes;
+package com.example.krzys.quizapp.data.dto.quizzes;
 
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
@@ -8,15 +8,14 @@ import android.arch.persistence.room.TypeConverters;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.example.krzys.quizapp.data.db.converter.IntegerConverter;
 import com.example.krzys.quizapp.data.db.converter.TagsConverter;
-import com.example.krzys.quizapp.data.model.common.Category;
-import com.example.krzys.quizapp.data.model.common.MainPhoto;
+import com.example.krzys.quizapp.data.dto.common.Category;
+import com.example.krzys.quizapp.data.dto.common.MainPhoto;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -298,7 +297,7 @@ public class QuizzesItem implements Parcelable {
             return false;
         QuizzesItem that = (QuizzesItem) o;
         return
-                indexInResponse == that.indexInResponse &&
+                //indexInResponse == that.indexInResponse &&
                         (buttonStart == null ? that.buttonStart == null : buttonStart.equals(that.buttonStart)) &&
                         (shareTitle == null ? that.shareTitle == null : shareTitle.equals(that.shareTitle)) &&
                         (questions == null ? that.questions == null : questions.equals(that.questions)) &&

@@ -1,9 +1,8 @@
-package com.example.krzys.quizapp.data.model.common;
+package com.example.krzys.quizapp.data.dto.common;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 

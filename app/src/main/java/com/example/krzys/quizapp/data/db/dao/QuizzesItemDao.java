@@ -1,7 +1,6 @@
 package com.example.krzys.quizapp.data.db.dao;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.paging.DataSource;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
@@ -12,7 +11,7 @@ import android.arch.persistence.room.Update;
 
 import com.example.krzys.quizapp.data.db.converter.IntegerConverter;
 import com.example.krzys.quizapp.data.db.converter.TagsConverter;
-import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
+import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
 
 import java.util.List;
 

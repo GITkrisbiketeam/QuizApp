@@ -2,7 +2,7 @@ package com.example.krzys.quizapp.data.db.converter;
 
 import android.arch.persistence.room.TypeConverter;
 
-import com.example.krzys.quizapp.data.model.quizzes.Tag;
+import com.example.krzys.quizapp.data.dto.quizzes.Tag;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 

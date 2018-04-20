@@ -1,7 +1,7 @@
 package com.example.krzys.quizapp.data.api;
 
-import com.example.krzys.quizapp.data.model.quiz.QuizData;
-import com.example.krzys.quizapp.data.model.quizzes.QuizzesListData;
+import com.example.krzys.quizapp.data.dto.quiz.QuizData;
+import com.example.krzys.quizapp.data.dto.quizzes.QuizzesListData;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

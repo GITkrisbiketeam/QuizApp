@@ -17,11 +17,11 @@ import android.widget.TextView;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.krzys.quizapp.R;
-import com.example.krzys.quizapp.data.model.quiz.Answer;
-import com.example.krzys.quizapp.data.model.quiz.Image;
-import com.example.krzys.quizapp.data.model.quiz.Question;
-import com.example.krzys.quizapp.data.model.quiz.Rate;
-import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
+import com.example.krzys.quizapp.data.dto.quiz.Answer;
+import com.example.krzys.quizapp.data.dto.quiz.Image;
+import com.example.krzys.quizapp.data.dto.quiz.Question;
+import com.example.krzys.quizapp.data.dto.quiz.Rate;
+import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.utils.Utils;
 
 import java.util.ArrayList;

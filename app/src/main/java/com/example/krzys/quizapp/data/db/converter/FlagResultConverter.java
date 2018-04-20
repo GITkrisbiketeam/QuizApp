@@ -2,7 +2,7 @@ package com.example.krzys.quizapp.data.db.converter;
 
 import android.arch.persistence.room.TypeConverter;
 
-import com.example.krzys.quizapp.data.model.quiz.FlagResult;
+import com.example.krzys.quizapp.data.dto.quiz.FlagResult;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 

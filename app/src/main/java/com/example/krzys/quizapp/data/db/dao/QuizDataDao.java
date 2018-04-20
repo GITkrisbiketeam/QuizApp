@@ -12,7 +12,7 @@ import com.example.krzys.quizapp.data.db.converter.IntegerConverter;
 import com.example.krzys.quizapp.data.db.converter.FlagResultConverter;
 import com.example.krzys.quizapp.data.db.converter.QuestionConverter;
 import com.example.krzys.quizapp.data.db.converter.RateConverter;
-import com.example.krzys.quizapp.data.model.quiz.QuizData;
+import com.example.krzys.quizapp.data.dto.quiz.QuizData;
 
 import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 

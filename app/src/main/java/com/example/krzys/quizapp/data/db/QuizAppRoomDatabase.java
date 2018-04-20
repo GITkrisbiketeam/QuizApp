@@ -7,8 +7,8 @@ import android.content.Context;
 
 import com.example.krzys.quizapp.data.db.dao.QuizDataDao;
 import com.example.krzys.quizapp.data.db.dao.QuizzesItemDao;
-import com.example.krzys.quizapp.data.model.quiz.QuizData;
-import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
+import com.example.krzys.quizapp.data.dto.quiz.QuizData;
+import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
 
 @Database(entities = {QuizzesItem.class, QuizData.class}, version = 1)
 public abstract class QuizAppRoomDatabase extends RoomDatabase {

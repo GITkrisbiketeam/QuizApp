@@ -11,9 +11,9 @@ import android.view.animation.AnimationUtils;
 import android.widget.ViewFlipper;
 
 import com.example.krzys.quizapp.R;
-import com.example.krzys.quizapp.data.model.quiz.Question;
-import com.example.krzys.quizapp.data.model.quiz.QuizData;
-import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
+import com.example.krzys.quizapp.data.dto.quiz.Question;
+import com.example.krzys.quizapp.data.dto.quiz.QuizData;
+import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.viewmodel.QuizzesListViewModel;
 import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;

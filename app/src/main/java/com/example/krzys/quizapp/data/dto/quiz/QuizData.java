@@ -1,4 +1,4 @@
-package com.example.krzys.quizapp.data.model.quiz;
+package com.example.krzys.quizapp.data.dto.quiz;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +14,8 @@ import android.os.Parcelable;
 import com.example.krzys.quizapp.data.db.converter.FlagResultConverter;
 import com.example.krzys.quizapp.data.db.converter.QuestionConverter;
 import com.example.krzys.quizapp.data.db.converter.RateConverter;
-import com.example.krzys.quizapp.data.model.common.Category;
-import com.example.krzys.quizapp.data.model.common.MainPhoto;
+import com.example.krzys.quizapp.data.dto.common.Category;
+import com.example.krzys.quizapp.data.dto.common.MainPhoto;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -175,7 +175,7 @@ public class QuizData implements Parcelable {
         this.buttonStart = ((String) in.readValue((String.class.getClassLoader())));
         this.shareTitle = ((String) in.readValue((String.class.getClassLoader())));
         this.flagResults = new ArrayList<>();
-        in.readList(this.flagResults, (com.example.krzys.quizapp.data.model.quiz.FlagResult.class.getClassLoader()));
+        in.readList(this.flagResults, (com.example.krzys.quizapp.data.dto.quiz.FlagResult.class.getClassLoader()));
         this.categories = new ArrayList<>();
         in.readList(this.categories, (Category.class.getClassLoader()));
         this.id = ((Long) in.readValue((Long.class.getClassLoader())));

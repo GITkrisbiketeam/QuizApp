@@ -1,4 +1,4 @@
-package com.example.krzys.quizapp.data.model.quizzes;
+package com.example.krzys.quizapp.data.dto.quizzes;
 
 import android.os.Parcel;
 import android.os.Parcelable;

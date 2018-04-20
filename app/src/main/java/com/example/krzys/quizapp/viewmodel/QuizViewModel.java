@@ -4,12 +4,11 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.example.krzys.quizapp.data.model.quiz.QuizData;
-import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
+import com.example.krzys.quizapp.data.dto.quiz.QuizData;
+import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.repository.QuizAppRepository;
 import com.example.krzys.quizapp.repository.livedata.ConnectionLiveData;
 import com.example.krzys.quizapp.utils.Utils;
@@ -21,7 +20,7 @@ public class QuizViewModel extends AndroidViewModel {
 
     private final QuizAppRepository mRepository;
 
-    ConnectionLiveData mConnectionLiveData;
+    private final ConnectionLiveData mConnectionLiveData;
 
     private LiveData<QuizData> mQuizData;
 
@@ -70,7 +69,7 @@ public class QuizViewModel extends AndroidViewModel {
     public LiveData<QuizData> getQuizData(@NonNull LifecycleOwner owner, final long quizId) {
         mConnectionLiveData.observe(owner, isConnected -> {
             if (isConnected != null && isConnected) {
-                mRepository.getQuizData(quizId);
+                mRepository.getQuizDataFromApi(quizId);
             }
         });
         return mRepository.loadQuizData(quizId);

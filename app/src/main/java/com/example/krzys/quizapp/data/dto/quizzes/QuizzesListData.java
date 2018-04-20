@@ -1,5 +1,5 @@
 
-package com.example.krzys.quizapp.data.model.quizzes;
+package com.example.krzys.quizapp.data.dto.quizzes;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;

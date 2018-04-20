@@ -28,8 +28,8 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.krzys.quizapp.R;
-import com.example.krzys.quizapp.data.model.common.Category;
-import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
+import com.example.krzys.quizapp.data.dto.common.Category;
+import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.utils.Utils;
 import com.example.krzys.quizapp.viewmodel.QuizViewModel;
 

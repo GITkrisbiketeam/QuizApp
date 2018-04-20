@@ -1,4 +1,4 @@
-package com.example.krzys.quizapp.data.model.quiz;
+package com.example.krzys.quizapp.data.dto.quiz;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -2,7 +2,6 @@ package com.example.krzys.quizapp.ui;
 
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,7 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.krzys.quizapp.R;
-import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
+import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;
 
@@ -65,10 +64,10 @@ public class QuizzesListViewHolder extends RecyclerView.ViewHolder implements Vi
     }
 
     public void bindTo(@NonNull QuizzesItem quizzesItem){
-        Log.w(TAG, "bindTo quizzesItem");
         if (quizzesItem == null){
             clear();
         }
+        Log.w(TAG, "bindTo quizzesItem " + (quizzesItem != null? quizzesItem.getIndexInResponse() : "null"));
 
         textViewTitle.setText(quizzesItem.getTitle());
 

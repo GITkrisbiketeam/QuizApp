@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
+import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.utils.Utils;
 
 import java.util.List;
@@ -30,17 +30,24 @@ public class QuizzesListAdapter extends PagedListAdapter<QuizzesItem, QuizzesLis
 
     @NonNull
     private static final DiffUtil.ItemCallback<QuizzesItem> QUIZZES_ITEM_COMPARATOR = new DiffUtil.ItemCallback<QuizzesItem>() {
-        public boolean areContentsTheSame(@NonNull QuizzesItem oldItem, @NonNull QuizzesItem newItem) {
+        public boolean areItemsTheSame(@NonNull QuizzesItem oldItem, @NonNull QuizzesItem newItem) {
 
-            return oldItem == null ? newItem == null : oldItem.equals(newItem);
+            boolean result = oldItem == null ? newItem == null : oldItem.getId().equals(newItem.getId());
+            //Log.e(TAG, "areItemsTheSame result: " + result + " oldItem " + oldItem.getId() + " newItem:" + newItem.getId());
+
+            return result;
         }
 
-        public boolean areItemsTheSame(@NonNull QuizzesItem oldItem, @NonNull QuizzesItem newItem) {
-            return oldItem == null ? newItem == null : oldItem.getId().equals(newItem.getId());
+        public boolean areContentsTheSame(@NonNull QuizzesItem oldItem, @NonNull QuizzesItem newItem) {
+
+            boolean result = oldItem == null ? newItem == null : oldItem.equals(newItem);
+            //Log.e(TAG, "areContentsTheSame result: " + result + " oldItem " + oldItem.getId() + " newItem:" + newItem.getId());
+            return result;
         }
 
         @Nullable
         public Object getChangePayload(@NonNull QuizzesItem oldItem, @NonNull QuizzesItem newItem) {
+            //Log.e(TAG, "getChangePayload oldItem " + oldItem.getId() + " newItem:" + newItem.getId());
             return oldItem != null && newItem != null && oldItem.sameExeptMyAnswers(newItem)? newItem.getMyAnswers(): null;
 
         }
@@ -63,7 +70,10 @@ public class QuizzesListAdapter extends PagedListAdapter<QuizzesItem, QuizzesLis
     @Override
     public void onBindViewHolder(@NonNull QuizzesListViewHolder holder, int position, @NonNull
             List<Object> payloads) {
-        Log.e(TAG, "onBindViewHolder payloads: " + payloads);
+
+        if(!payloads.isEmpty()){
+            Log.e(TAG, "onBindViewHolder payloads: " + payloads);
+        }
         if (payloads != null && !payloads.isEmpty()) {
             QuizzesItem quizzesItem = getItem(position);
             holder.updateProgress(quizzesItem);
@@ -77,7 +87,6 @@ public class QuizzesListAdapter extends PagedListAdapter<QuizzesItem, QuizzesLis
 
         QuizzesItem quizzesItem = getItem(position);
         if (quizzesItem != null) {
-
             holder.bindTo(quizzesItem);
         } else {
             // Null defines a placeholder item - PagedListAdapter will automatically invalidate

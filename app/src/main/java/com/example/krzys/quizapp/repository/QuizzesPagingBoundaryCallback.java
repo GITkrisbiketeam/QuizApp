@@ -4,8 +4,8 @@ import android.arch.paging.PagedList;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.example.krzys.quizapp.data.model.quizzes.QuizzesItem;
-import com.example.krzys.quizapp.data.model.quizzes.QuizzesListData;
+import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
+import com.example.krzys.quizapp.data.dto.quizzes.QuizzesListData;
 import com.example.krzys.quizapp.data.api.ApiEndpointInterface;
 import com.example.krzys.quizapp.utils.Utils;
 
@@ -21,23 +21,29 @@ public class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<Qu
 
     private final Executor mExecutor;
 
-    public PagingRequestHelper getmHelper() {
-        return mHelper;
-    }
-
     private final PagingRequestHelper mHelper;
 
     // Quiz API service, using Retrofit
-    ApiEndpointInterface mQuizApi;
+    private final ApiEndpointInterface mQuizApi;
+
+    private final ApiResponseCallback mApiResponseCallback;
 
     private final int mNetworkPageSize;
 
-    public QuizzesPagingBoundaryCallback(int networkPageSize, Executor executor, PagingRequestHelper helper) {
+    @FunctionalInterface
+    public interface ApiResponseCallback {
+        void saveToDB(@NonNull QuizzesListData body);
+    }
+
+    public QuizzesPagingBoundaryCallback(int networkPageSize, Executor executor,
+                                         ApiEndpointInterface quizApi, PagingRequestHelper helper,
+                                         ApiResponseCallback apiResponseCallback) {
         mNetworkPageSize = networkPageSize;
         mExecutor = executor;
+        mQuizApi = quizApi;
+        mApiResponseCallback = apiResponseCallback;
 
-        mHelper = helper; new PagingRequestHelper(executor);
-        //mNetStatus = mHelper.createStatusLiveData();
+        mHelper = helper;
     }
 
 
@@ -47,14 +53,14 @@ public class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<Qu
         mHelper.runIfNotRunning(PagingRequestHelper.RequestType.BEFORE,
                 helperCallback -> {
                     Log.d(TAG, "onZeroItemsLoaded run");
-                    mQuizApi.getQuizListData(0, mNetworkPageSize).
+                    mQuizApi.getQuizListData(5, mNetworkPageSize).
                             enqueue(createWebserviceCallback(helperCallback));
                 });
     }
 
     @Override
     public void onItemAtFrontLoaded(@NonNull QuizzesItem itemAtFront) {
-        Log.d(TAG, "onItemAtFrontLoaded");
+        //Log.d(TAG, "onItemAtFrontLoaded itemAtFront: " + itemAtFront);
         // ignored, since we only ever append to what's in the DB
         /*mHelper.runIfNotRunning(PagingRequestHelper.RequestType.BEFORE,
                 helperCallback -> {
@@ -66,7 +72,7 @@ public class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<Qu
 
     @Override
     public void onItemAtEndLoaded(@NonNull QuizzesItem itemAtEnd) {
-        Log.d(TAG, "onItemAtEndLoaded");
+        Log.d(TAG, "onItemAtEndLoaded itemAtEnd: " + itemAtEnd);
         mHelper.runIfNotRunning(PagingRequestHelper.RequestType.BEFORE,
                 helperCallback -> {
                     Log.d(TAG, "onItemAtEndLoaded run");
@@ -97,11 +103,15 @@ public class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<Qu
      * every time it gets new items, boundary callback simply inserts them into the database and
      * paging library takes care of refreshing the list if necessary.
      */
-    private void insertItemsIntoDb(Response<QuizzesListData> response, PagingRequestHelper
-            .Request.Callback helperCallback) {
+    private void insertItemsIntoDb(@NonNull Response<QuizzesListData> response,
+                                   @NonNull PagingRequestHelper.Request.Callback helperCallback) {
         mExecutor.execute(() -> {
-            //handleResponse(response.body());
-            helperCallback.recordSuccess();
+            if (response.isSuccessful() && response.body() != null && response.body().getItems() != null){
+                mApiResponseCallback.saveToDB(response.body());
+                helperCallback.recordSuccess();
+            } else {
+                helperCallback.recordFailure(new Throwable());
+            }
         });
     }
 }
