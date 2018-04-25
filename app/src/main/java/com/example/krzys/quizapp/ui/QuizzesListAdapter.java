@@ -32,23 +32,23 @@ public class QuizzesListAdapter extends PagedListAdapter<QuizzesItem, QuizzesLis
     private static final DiffUtil.ItemCallback<QuizzesItem> QUIZZES_ITEM_COMPARATOR = new DiffUtil.ItemCallback<QuizzesItem>() {
         public boolean areItemsTheSame(@NonNull QuizzesItem oldItem, @NonNull QuizzesItem newItem) {
 
-            boolean result = oldItem == null ? newItem == null : oldItem.getId().equals(newItem.getId());
+            //boolean result = oldItem == null ? newItem == null : oldItem.getId().equals(newItem.getId());
             //Log.e(TAG, "areItemsTheSame result: " + result + " oldItem " + oldItem.getId() + " newItem:" + newItem.getId());
 
-            return result;
+            return oldItem.getId().equals(newItem.getId());
         }
 
         public boolean areContentsTheSame(@NonNull QuizzesItem oldItem, @NonNull QuizzesItem newItem) {
 
-            boolean result = oldItem == null ? newItem == null : oldItem.equals(newItem);
+            //boolean result = oldItem == null ? newItem == null : oldItem.equals(newItem);
             //Log.e(TAG, "areContentsTheSame result: " + result + " oldItem " + oldItem.getId() + " newItem:" + newItem.getId());
-            return result;
+            return oldItem.equals(newItem);
         }
 
         @Nullable
         public Object getChangePayload(@NonNull QuizzesItem oldItem, @NonNull QuizzesItem newItem) {
             //Log.e(TAG, "getChangePayload oldItem " + oldItem.getId() + " newItem:" + newItem.getId());
-            return oldItem != null && newItem != null && oldItem.sameExeptMyAnswers(newItem)? newItem.getMyAnswers(): null;
+            return oldItem.sameExeptMyAnswers(newItem)? newItem.getMyAnswers(): null;
 
         }
     };
@@ -73,10 +73,10 @@ public class QuizzesListAdapter extends PagedListAdapter<QuizzesItem, QuizzesLis
 
         if(!payloads.isEmpty()){
             Log.e(TAG, "onBindViewHolder payloads: " + payloads);
-        }
-        if (payloads != null && !payloads.isEmpty()) {
             QuizzesItem quizzesItem = getItem(position);
-            holder.updateProgress(quizzesItem);
+            if (quizzesItem != null) {
+                holder.updateProgress(quizzesItem);
+            }
         } else {
             this.onBindViewHolder(holder, position);
         }

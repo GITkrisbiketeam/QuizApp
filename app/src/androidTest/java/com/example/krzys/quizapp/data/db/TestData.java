@@ -13,7 +13,6 @@ import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.data.dto.quizzes.Tag;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**

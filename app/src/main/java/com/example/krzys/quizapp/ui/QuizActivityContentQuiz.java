@@ -25,7 +25,6 @@ import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.utils.Utils;
 import com.example.krzys.quizapp.viewmodel.QuizViewModelQuestion;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class QuizActivityContentQuiz extends QuizActivityContent {

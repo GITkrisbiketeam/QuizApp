@@ -85,14 +85,14 @@ public class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<Qu
                                                                        .Callback helperCallback) {
         return new Callback<QuizzesListData>() {
             @Override
-            public void onResponse(Call<QuizzesListData> call,
-                                   Response<QuizzesListData> response) {
+            public void onResponse(@NonNull Call<QuizzesListData> call,
+                                   @NonNull Response<QuizzesListData> response) {
                 Log.d(TAG, "sucessfull got Quizzes from webservice");
                 insertItemsIntoDb(response, helperCallback);
             }
 
             @Override
-            public void onFailure(Call<QuizzesListData> call, Throwable t) {
+            public void onFailure(@NonNull Call<QuizzesListData> call, @NonNull Throwable t) {
                 Log.w(TAG, "error getting Quizzes from webservice : " + t);
                 helperCallback.recordFailure(t);
             }

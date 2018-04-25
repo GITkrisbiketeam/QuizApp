@@ -144,11 +144,13 @@ public class QuizActivity extends AppCompatActivity {
             mQuizViewModel.getQuizzesItemLiveData().observe(this,
                     item -> {
                         Log.d(TAG, "processIntent quizzesItem changed: " + item);
-                        if (appBarProgressBar != null) {
-                            updateAppBarProgress(appBarProgressBar, item);
-                        }
-                        if (mQuizActivityContent != null) {
-                            mQuizActivityContent.updateUI();
+                        if (item != null) {
+                            if (appBarProgressBar != null) {
+                                updateAppBarProgress(appBarProgressBar, item);
+                            }
+                            if (mQuizActivityContent != null) {
+                                mQuizActivityContent.updateUI();
+                            }
                         }
                     });
         } else {

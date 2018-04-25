@@ -16,12 +16,9 @@
 
 package com.example.krzys.quizapp;
 
-import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-
-import com.example.krzys.quizapp.repository.QuizAppRepository;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -78,7 +75,7 @@ public class AppExecutors {
     }
 
     private static class MainThreadExecutor implements Executor {
-        private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+        private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
         @Override
         public void execute(@NonNull Runnable command) {
             mainThreadHandler.post(command);

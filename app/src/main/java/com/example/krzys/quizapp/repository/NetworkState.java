@@ -16,8 +16,8 @@ public class NetworkState {
     public static final NetworkState LOADING = new NetworkState(RUNNING);
 
     @NonNull
-    private Status status;
-    @NonNull
+    private final Status status;
+    @Nullable
     private String msg;
 
     enum Status {

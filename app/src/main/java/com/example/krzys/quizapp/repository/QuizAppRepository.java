@@ -1,8 +1,8 @@
 package com.example.krzys.quizapp.repository;
 
-import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Transformations;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
 import android.support.annotation.NonNull;
@@ -23,7 +23,6 @@ import com.example.krzys.quizapp.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -43,7 +42,7 @@ public class QuizAppRepository {
     private static final Object mLock = new Object();
     private static QuizAppRepository sInstance = null;
 
-    QuizAppRoomDatabase mDb;
+    private final QuizAppRoomDatabase mDb;
     private final QuizzesItemDao mQuizzesItemDao;
     private final QuizDataDao mQuizDataDao;
 
@@ -53,7 +52,7 @@ public class QuizAppRepository {
 
     private final PagingRequestHelper mPagingHelper;
 
-    private final MutableLiveData<PagingRequestHelper.Status> mPagingRequestHelperStatus = new MutableLiveData<>();
+    private MutableLiveData<Object> mRefreshTrigger;
 
     // should this be passe as constructor argument,  this should be bigger than the number of item that are visible on screen
     private final int mNetworkPageSize = DEFAULT_NETWORK_PAGE_SIZE;
@@ -91,10 +90,9 @@ public class QuizAppRepository {
      *
      * @return
      */
-    public LiveData<PagedList<QuizzesItem>> getAllQuizzesItems(int pageSize) {
+    public Listing<QuizzesItem> getAllQuizzesItems(int pageSize) {
         QuizzesPagingBoundaryCallback boundaryCallback = new QuizzesPagingBoundaryCallback
-                (mNetworkPageSize, mExecutor, mQuizApi, mPagingHelper, (QuizzesListData body) ->
-                        insertApiResultIntoDb(body));
+                (mNetworkPageSize, mExecutor, mQuizApi, mPagingHelper, this::insertApiResultIntoDb);
 
         LiveData<PagedList<QuizzesItem>> allQuizzesItems =
                 new LivePagedListBuilder<>(
@@ -104,7 +102,16 @@ public class QuizAppRepository {
                         .setBoundaryCallback(boundaryCallback)
                         .build();
 
-        return allQuizzesItems;
+        // we are using a mutable live data to trigger refresh requests which eventually calls
+        // refresh method and gets a new live data. Each refresh request by the user becomes a newly
+        // dispatched data in refreshTrigger
+        mRefreshTrigger = new MutableLiveData<>();
+        LiveData<NetworkState> refreshState = Transformations.switchMap(mRefreshTrigger, input -> {
+            Log.i(TAG, "getAllQuizzesItems switchMap apply");
+            return getQuizzesItemListFromApi(0, Constants.INITIAL_QUIZZES_GET_COUNT);
+
+        });
+        return new Listing<>(allQuizzesItems, mPagingHelper.createStatusLiveData(), refreshState);
     }
 
     /**
@@ -153,7 +160,7 @@ public class QuizAppRepository {
      *
      * @param offset    from which offset to start download new items from API
      */
-    public LiveData getQuizzesItemListFromApi(int offset, int count) {
+    public LiveData<NetworkState> getQuizzesItemListFromApi(int offset, int count) {
         final MutableLiveData<NetworkState> networkState = new MutableLiveData<>();
         networkState.setValue(NetworkState.LOADING);
         Log.i(TAG, "getQuizzesItemListFromApi");
@@ -194,7 +201,7 @@ public class QuizAppRepository {
      *
      * @param id    id of QuizData to download
      */
-    public LiveData getQuizDataFromApi(long id) {
+    public LiveData<NetworkState> getQuizDataFromApi(long id) {
         final MutableLiveData<NetworkState> networkState = new MutableLiveData<>();
         networkState.setValue(NetworkState.LOADING);
 
@@ -229,6 +236,10 @@ public class QuizAppRepository {
             }
         });
         return networkState;
+    }
+
+    public void refreshLoadAllQuizzes(){
+        mRefreshTrigger.setValue(null);
     }
 
     public void retryLoadQuizzes() {

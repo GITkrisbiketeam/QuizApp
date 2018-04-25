@@ -25,16 +25,16 @@ import java.util.List;
 abstract class QuizActivityContent {
     private static final String TAG = Utils.getLogTag(QuizActivityContent.class.getSimpleName());
 
-    protected AppCompatActivity mActivity;
+    protected final AppCompatActivity mActivity;
 
-    protected ViewGroup mQuizContentRoot;
+    protected final ViewGroup mQuizContentRoot;
 
-    private ViewFlipper mQuizContentViewFlipper;
+    private final ViewFlipper mQuizContentViewFlipper;
 
-    private QuizViewModel mQuizViewModel;
+    private final QuizViewModel mQuizViewModel;
 
-    private QuizData mQuizData;
-    private QuizzesItem mQuizzesItem;
+    private final QuizData mQuizData;
+    private final QuizzesItem mQuizzesItem;
 
     QuizActivityContent(@NonNull AppCompatActivity activity, @NonNull QuizData quizData, @NonNull QuizzesItem quizzesItem) {
         mQuizzesItem = quizzesItem;

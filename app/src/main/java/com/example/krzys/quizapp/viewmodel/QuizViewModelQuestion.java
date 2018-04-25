@@ -8,26 +8,25 @@ import com.example.krzys.quizapp.data.dto.quiz.Question;
 import com.example.krzys.quizapp.data.dto.quiz.QuizData;
 import com.example.krzys.quizapp.data.dto.quiz.Rate;
 import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
-import com.example.krzys.quizapp.utils.Utils;
 
 import java.util.List;
 
 public class QuizViewModelQuestion {
-    private int mCurrentQuestion;
+    private final int mCurrentQuestion;
 
-    private int mMyCorrectAnswers;
+    private final int mMyCorrectAnswers;
 
     private int mScore = -1;
 
     private int mAvgScore = -1;
 
-    private List<Question> mQuestions;
+    private final List<Question> mQuestions;
     private final int mQuestionsCount;
-    private List<Integer> mMyAnswers;
-    private List<Rate> mRates;
+    private final List<Integer> mMyAnswers;
+    private final List<Rate> mRates;
 
 
-    public QuizViewModelQuestion(@NonNull QuizData quizData, @NonNull QuizzesItem quizzesitem){
+    public QuizViewModelQuestion(@NonNull QuizData quizData, @NonNull QuizzesItem quizzesitem) {
         mQuestions = quizData.getQuestions();
         mRates = quizData.getRates();
         mMyAnswers = quizzesitem.getMyAnswers();
@@ -37,26 +36,26 @@ public class QuizViewModelQuestion {
         // Check previous answers and start from new question
         if (mMyAnswers != null && mMyAnswers.size() <= mQuestions.size()) {
             mCurrentQuestion = mMyAnswers.size();
+            // Count correct answers
+            int myCorrectAnswers = 0;
+            for (Integer b : mMyAnswers) {
+                if (b == 1) {
+                    myCorrectAnswers++;
+                }
+            }
+            mMyCorrectAnswers = myCorrectAnswers;
+
         } else {
             mCurrentQuestion = 0;
+            mMyCorrectAnswers = 0;
         }
 
-        // Count correct answers
-        int myCorrectAnswers = 0;
-        for (Integer b : mMyAnswers) {
-            if (b == 1) {
-                myCorrectAnswers++;
-            }
-        }
-        mMyCorrectAnswers = myCorrectAnswers;
 
-        if(isQuizSolved()) {
+        if (isQuizSolved()) {
             // Calculate and update User score
-            mScore = Math.round(myCorrectAnswers / (float) mQuestions.size() * 100);
+            mScore = Math.round(mMyCorrectAnswers / (float) mQuestions.size() * 100);
             // Calculate and update avarega user score
             mAvgScore = (int) Math.round(quizData.getAvgResult() * 100);
-        } else {
-
         }
 
     }
@@ -78,12 +77,13 @@ public class QuizViewModelQuestion {
     }
 
     public int getQuestionsCount() {
-        return mQuestions.size();
+        return mQuestionsCount;
     }
 
     @Nullable
     public Question getQuestion(@IntRange(from = 0) int questionNum) {
-        return questionNum>=0 && questionNum < mQuestions.size() ? mQuestions.get(questionNum) : null;
+        return questionNum >= 0 && questionNum < mQuestions.size() ? mQuestions.get(questionNum)
+                : null;
     }
 
     @Nullable
@@ -109,13 +109,15 @@ public class QuizViewModelQuestion {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "QuizViewModelQuestion: [mCurrentQuestion: " + mCurrentQuestion +
-        ", mMyCorrectAnswers: " + mMyCorrectAnswers +
-        ", mScore: " + mScore +
-        ", mAvgScore: " + mAvgScore +
-        ", mQuestions: " + (mQuestions != null? String.valueOf(mQuestions.size()) : "null") +
-        ", mMyAnswers: " + (mMyAnswers != null? String.valueOf(mMyAnswers.size()) : "null") +
-        ", mRates: " + (mRates != null? String.valueOf(mRates.size()) : "null") + "]";
+                ", mMyCorrectAnswers: " + mMyCorrectAnswers +
+                ", mScore: " + mScore +
+                ", mAvgScore: " + mAvgScore +
+                ", mQuestions: " + (mQuestions != null ? String.valueOf(mQuestions.size()) :
+                "null") +
+                ", mMyAnswers: " + (mMyAnswers != null ? String.valueOf(mMyAnswers.size()) :
+                "null") +
+                ", mRates: " + (mRates != null ? String.valueOf(mRates.size()) : "null") + "]";
     }
 }

@@ -2,7 +2,6 @@ package com.example.krzys.quizapp.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -11,7 +10,6 @@ import com.example.krzys.quizapp.data.db.QuizAppRoomDatabase;
 import com.example.krzys.quizapp.data.dto.quiz.QuizData;
 import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.repository.QuizAppRepository;
-import com.example.krzys.quizapp.repository.livedata.ConnectionLiveData;
 import com.example.krzys.quizapp.utils.Utils;
 
 public class QuizViewModel extends AndroidViewModel {
@@ -20,8 +18,6 @@ public class QuizViewModel extends AndroidViewModel {
     private static final String TAG = Utils.getLogTag(QuizViewModel.class.getSimpleName());
 
     private final QuizAppRepository mRepository;
-
-    private final ConnectionLiveData mConnectionLiveData;
 
     private LiveData<QuizData> mQuizData;
 
@@ -34,9 +30,6 @@ public class QuizViewModel extends AndroidViewModel {
         super(application);
         Log.d(TAG, "QuizViewModel");
         mRepository = QuizAppRepository.getInstance(QuizAppRoomDatabase.getDatabase(application));
-
-        //TODO: will be still needed???
-        mConnectionLiveData = new ConnectionLiveData(application);
     }
 
     public void init(@NonNull QuizzesItem item){
@@ -73,25 +66,4 @@ public class QuizViewModel extends AndroidViewModel {
     public void setQuizActivityCurrentQuestion(int quizActivityCurrentQuestion) {
         mQuizActivityCurrentQuestion = quizActivityCurrentQuestion;
     }
-
-
-    /*@Deprecated
-    public LiveData<QuizData> getQuizDataLiveData(@NonNull LifecycleOwner owner, final long quizId) {
-        mConnectionLiveData.observe(owner, isConnected -> {
-            if (isConnected != null && isConnected) {
-                mRepository.getQuizDataFromApi(quizId);
-            }
-        });
-        return mRepository.loadQuizData(quizId);
-    }*/
-
-    /*@Deprecated
-    public LiveData<QuizzesItem> loadQuizzesItem(@NonNull LifecycleOwner owner, final long quizId) {
-        mConnectionLiveData.observe(owner, isConnected -> {
-            if (isConnected != null && isConnected) {
-                mRepository.loadQuizzesItem(quizId);
-            }
-        });
-        return mRepository.loadQuizzesItem(quizId);
-    }*/
 }

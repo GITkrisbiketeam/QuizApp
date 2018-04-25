@@ -20,6 +20,7 @@ import android.widget.ProgressBar;
 
 import com.example.krzys.quizapp.R;
 import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
+import com.example.krzys.quizapp.repository.NetworkState;
 import com.example.krzys.quizapp.viewmodel.QuizzesListViewModel;
 import com.example.krzys.quizapp.utils.Utils;
 
@@ -28,6 +29,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.example.krzys.quizapp.repository.NetworkState.*;
+import static com.example.krzys.quizapp.repository.NetworkState.LOADING;
 
 public class QuizzesListActivity extends AppCompatActivity {
 
@@ -52,22 +56,14 @@ public class QuizzesListActivity extends AppCompatActivity {
 
         mRootView = findViewById(R.id.parentLayout);
 
+        mQuizzesListViewModel = ViewModelProviders.of(this).get(QuizzesListViewModel.class);
+
         initSwypeRefreshLayout();
 
         initRecyclerAdapter();
 
-        mQuizzesListViewModel = ViewModelProviders.of(this).get(QuizzesListViewModel.class);
-
-        mQuizzesListViewModel.getQuizzesItemsListLiveData().observe(this, quizzesItems -> {
-            Log.w(TAG, "QuizzesListViewModel observer onChanged quizzesItems.size():" +
-                    quizzesItems.size());
-            mQuizzesAdapter.submitList(quizzesItems);
-
-            mSwipeRefreshLayout.setRefreshing(false);
-        });
-
         // Just for Logging
-        mQuizzesListViewModel.getAllQuizzesListTypes().observe(this, quizzesTypes -> {
+        /*mQuizzesListViewModel.getAllQuizzesListTypes().observe(this, quizzesTypes -> {
             if (quizzesTypes != null) {
                 List<String> types;
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -78,19 +74,7 @@ public class QuizzesListActivity extends AppCompatActivity {
                 }
                 Log.e(TAG, "typeList: " + Arrays.toString(types.toArray()));
             }
-        });
-
-        mQuizzesListViewModel.getConnectionLiveData().observe(this, networkState -> {
-            Log.w(TAG, "QuizzesListViewModel network state changed:" + networkState);
-        });
-
-        //TODO: do sth with this
-        if (Utils.checkConnection(getApplicationContext())) {
-            // Show refreshing animation
-            mSwipeRefreshLayout.setRefreshing(true);
-        } else {
-            Utils.showSnackbar(mRootView, R.string.string_internet_connection_not_available);
-        }
+        });*/
     }
 
     @Override
@@ -106,9 +90,10 @@ public class QuizzesListActivity extends AppCompatActivity {
             case R.id.quizzes_menu_refresh:
                 // User chose the "Refresh" action
                 Log.w(TAG, "onOptionsItemSelected refresh called");
-                if (!mSwipeRefreshLayout.isRefreshing()) {
+                /*if (!mSwipeRefreshLayout.isRefreshing()) {
                     triggerSwypeRefresh(true);
-                }
+                }*/
+                mQuizzesListViewModel.refreshQuizzes();
                 return true;
 
             default:
@@ -121,8 +106,12 @@ public class QuizzesListActivity extends AppCompatActivity {
         mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright, android.R
                 .color.holo_green_light, android.R.color.holo_orange_light, android.R.color
                 .holo_red_light);
-        mSwipeRefreshLayout.setOnRefreshListener(() -> triggerSwypeRefresh(false));
+        mSwipeRefreshLayout.setOnRefreshListener(() -> mQuizzesListViewModel.refreshQuizzes()/*triggerSwypeRefresh(false)*/);
 
+        mQuizzesListViewModel.getRefreshStateLiveData().observe(this, networkState -> {
+            Log.w(TAG, "getRefreshStateLiveData observer onChanged networkState:" + networkState);
+            mSwipeRefreshLayout.setRefreshing(networkState == NetworkState.LOADING);
+        });
     }
 
     private void initRecyclerAdapter() {
@@ -158,6 +147,29 @@ public class QuizzesListActivity extends AppCompatActivity {
         });
 
         quizzesRecyclerView.setAdapter(mQuizzesAdapter);
+
+        mQuizzesListViewModel.getQuizzesItemsListLiveData().observe(this, quizzesItems -> {
+
+            Log.w(TAG, "getQuizzesItemsListLiveData observer onChanged quizzesItems.size():" +
+                    (quizzesItems != null ? quizzesItems.size(): "null"));
+            mQuizzesAdapter.submitList(quizzesItems);
+        });
+
+        mQuizzesListViewModel.getNetworkStateLiveData().observe(this, networkState -> {
+            Log.w(TAG, "getNetworkStateLiveData observer onChanged networkState:" + networkState);
+
+            if (networkState == LOADING){
+                Log.w(TAG, "getNetworkStateLiveData observer LOADING");
+                // Show refreshing animation
+                mSwipeRefreshLayout.setRefreshing(true);
+            } else if(networkState == LOADED){
+                Log.w(TAG, "getNetworkStateLiveData observer LOADED");
+                // Show refreshing animation
+                mSwipeRefreshLayout.setRefreshing(false);
+            } else {
+                Utils.showSnackbar(mRootView, R.string.string_internet_connection_not_available);
+            }
+        });
     }
 
     /**

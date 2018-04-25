@@ -64,10 +64,7 @@ public class QuizzesListViewHolder extends RecyclerView.ViewHolder implements Vi
     }
 
     public void bindTo(@NonNull QuizzesItem quizzesItem){
-        if (quizzesItem == null){
-            clear();
-        }
-        Log.w(TAG, "bindTo quizzesItem " + (quizzesItem != null? quizzesItem.getIndexInResponse() : "null"));
+        Log.w(TAG, "bindTo quizzesItem " + quizzesItem.getIndexInResponse());
 
         textViewTitle.setText(quizzesItem.getTitle());
 
@@ -129,11 +126,9 @@ public class QuizzesListViewHolder extends RecyclerView.ViewHolder implements Vi
 
     public void updateProgress(@NonNull QuizzesItem quizzesItem) {
         Log.w(TAG, "updateProgress quizzesItem");
-        if (quizzesItem != null) {
-            progressBar.setMax(quizzesItem.getQuestions());
-            progressBar.setProgress(quizzesItem.getMyAnswers() == null ? 0 : quizzesItem
-                    .getMyAnswers().size());
-        }
+        progressBar.setMax(quizzesItem.getQuestions());
+        progressBar.setProgress(quizzesItem.getMyAnswers() == null ? 0 : quizzesItem
+                .getMyAnswers().size());
     }
 
     public void clear() {
