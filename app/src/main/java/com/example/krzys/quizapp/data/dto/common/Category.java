@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class Category implements Parcelable {
 
-    @SerializedName("uid")
+    @SerializedName(value="uid", alternate = {"id"})
     @Expose
     private Long uid;
     @SerializedName("secondaryCid")
@@ -42,6 +42,13 @@ public class Category implements Parcelable {
     }
 
     public Category() {
+    }
+
+    public Category(Long uid, String secondaryCid, String name, String type) {
+        this.uid = uid;
+        this.secondaryCid = secondaryCid;
+        this.name = name;
+        this.type = type;
     }
 
     public Long getUid() {

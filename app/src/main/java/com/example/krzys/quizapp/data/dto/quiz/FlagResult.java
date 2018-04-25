@@ -48,6 +48,13 @@ public class FlagResult implements Parcelable
     public FlagResult() {
     }
 
+    public FlagResult(Image image, String flag, String title, String content) {
+        this.image = image;
+        this.flag = flag;
+        this.title = title;
+        this.content = content;
+    }
+
     public Image getImage() {
         return image;
     }

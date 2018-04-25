@@ -56,6 +56,17 @@ public class MainPhoto implements Parcelable {
     public MainPhoto() {
     }
 
+    public MainPhoto(String author, Integer width, String source, String title, String url,
+                     Integer height, Long mediaId) {
+        this.author = author;
+        this.width = width;
+        this.source = source;
+        this.title = title;
+        this.url = url;
+        this.height = height;
+        this.mediaId = mediaId;
+    }
+
     public String getAuthor() {
         return author;
     }

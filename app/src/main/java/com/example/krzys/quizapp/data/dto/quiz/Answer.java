@@ -61,6 +61,16 @@ public class Answer implements Parcelable {
     public Answer() {
     }
 
+    public Answer(Image image, Integer order, String text, Integer isCorrect, Integer votes,
+                  FlagAnswer flagAnswer) {
+        this.image = image;
+        this.order = order;
+        this.text = text;
+        this.isCorrect = isCorrect;
+        this.votes = votes;
+        this.flagAnswer = flagAnswer;
+    }
+
     public Image getImage() {
         return image;
     }

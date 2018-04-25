@@ -5,10 +5,10 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.krzys.quizapp.AppExecutors;
 import com.example.krzys.quizapp.data.db.QuizAppRoomDatabase;
 import com.example.krzys.quizapp.data.db.dao.QuizDataDao;
 import com.example.krzys.quizapp.data.db.dao.QuizzesItemDao;
@@ -43,6 +43,7 @@ public class QuizAppRepository {
     private static final Object mLock = new Object();
     private static QuizAppRepository sInstance = null;
 
+    QuizAppRoomDatabase mDb;
     private final QuizzesItemDao mQuizzesItemDao;
     private final QuizDataDao mQuizDataDao;
 
@@ -57,16 +58,16 @@ public class QuizAppRepository {
     // should this be passe as constructor argument,  this should be bigger than the number of item that are visible on screen
     private final int mNetworkPageSize = DEFAULT_NETWORK_PAGE_SIZE;
 
-    public QuizAppRepository(Application application) {
+    public QuizAppRepository(QuizAppRoomDatabase db) {
         Log.i(TAG, "QuizAppRepository created");
-        QuizAppRoomDatabase db = QuizAppRoomDatabase.getDatabase(application);
+        mDb = db;
         mQuizzesItemDao = db.quizzesItemDao();
         mQuizDataDao = db.quizDataDao();
 
         //Creating an object of our api interface
         mQuizApi = RetrofitClient.getApiService();
 
-        mExecutor = Executors.newSingleThreadExecutor();
+        mExecutor = AppExecutors.getInstance().diskIO();
 
         mPagingHelper =  new PagingRequestHelper(mExecutor);
 
@@ -74,11 +75,11 @@ public class QuizAppRepository {
         //mNetworkPageSize;
     }
 
-    public static QuizAppRepository getInstance(Application application){
+    public static QuizAppRepository getInstance(QuizAppRoomDatabase db){
         if(sInstance == null){
             synchronized (mLock) {
                 if (sInstance == null) {
-                    sInstance = new QuizAppRepository(application);
+                    sInstance = new QuizAppRepository(db);
                 }
             }
         }

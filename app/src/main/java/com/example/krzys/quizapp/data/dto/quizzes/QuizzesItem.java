@@ -129,6 +129,22 @@ public class QuizzesItem implements Parcelable {
     public QuizzesItem() {
     }
 
+    public QuizzesItem(Long id, Integer questions, String createdAt, String title, String type,
+                       String content, List<Category> categories, MainPhoto mainPhoto, Category category,
+                       List<Tag> tags, List<Integer> myAnswers) {
+        this.id = id;
+        this.questions = questions;
+        this.createdAt = createdAt;
+        this.title = title;
+        this.type = type;
+        this.content = content;
+        this.categories = categories;
+        this.mainPhoto = mainPhoto;
+        this.category = category;
+        this.tags = tags;
+        this.myAnswers = myAnswers;
+    }
+
     public String getButtonStart() {
         return buttonStart;
     }

@@ -14,8 +14,10 @@ import android.os.Parcelable;
 import com.example.krzys.quizapp.data.db.converter.FlagResultConverter;
 import com.example.krzys.quizapp.data.db.converter.QuestionConverter;
 import com.example.krzys.quizapp.data.db.converter.RateConverter;
+import com.example.krzys.quizapp.data.db.converter.TagsConverter;
 import com.example.krzys.quizapp.data.dto.common.Category;
 import com.example.krzys.quizapp.data.dto.common.MainPhoto;
+import com.example.krzys.quizapp.data.dto.quizzes.Tag;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -57,6 +59,11 @@ public class QuizData implements Parcelable {
     @SerializedName("content")
     @Expose
     private String content;
+
+    @TypeConverters(TagsConverter.class)
+    @SerializedName("tags")
+    @Expose
+    private List<Tag> tags = null;
 
     @Ignore
     @SerializedName("buttonStart")
@@ -194,9 +201,48 @@ public class QuizData implements Parcelable {
         this.userBattleDone = ((Boolean) in.readValue((Boolean.class.getClassLoader())));
         this.sponsoredResults = ((SponsoredResults) in.readValue((SponsoredResults.class
                 .getClassLoader())));
+        this.tags = new ArrayList<>();
+        in.readList(this.tags, (Tag.class.getClassLoader()));
+
     }
 
     public QuizData() {
+    }
+
+    public QuizData(Celebrity celebrity, List<Rate> rates, List<Question> questions, String
+            createdAt, Boolean sponsored, String title, String type, String content, String
+            buttonStart, String shareTitle, List<FlagResult> flagResults, List<Category>
+            categories, Long id, String scripts, MainPhoto mainPhoto, Category category, Boolean
+            isBattle, Long created, List<LatestResult> latestResults, Double avgResult, Long
+            resultCount, String cityAvg, String cityTime, String cityCount, Boolean
+            userBattleDone, SponsoredResults sponsoredResults, List<Tag> tags) {
+        this.celebrity = celebrity;
+        this.rates = rates;
+        this.questions = questions;
+        this.createdAt = createdAt;
+        this.sponsored = sponsored;
+        this.title = title;
+        this.type = type;
+        this.content = content;
+        this.buttonStart = buttonStart;
+        this.shareTitle = shareTitle;
+        this.flagResults = flagResults;
+        this.categories = categories;
+        this.id = id;
+        this.scripts = scripts;
+        this.mainPhoto = mainPhoto;
+        this.category = category;
+        this.isBattle = isBattle;
+        this.created = created;
+        this.latestResults = latestResults;
+        this.avgResult = avgResult;
+        this.resultCount = resultCount;
+        this.cityAvg = cityAvg;
+        this.cityTime = cityTime;
+        this.cityCount = cityCount;
+        this.userBattleDone = userBattleDone;
+        this.sponsoredResults = sponsoredResults;
+        this.tags = tags;
     }
 
     public Celebrity getCelebrity() {
@@ -407,6 +453,16 @@ public class QuizData implements Parcelable {
         this.sponsoredResults = sponsoredResults;
     }
 
+    public List<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
+    }
+
+
+
     @Override
     public String toString() {
         return "celebrity: " + celebrity + "; rates: " + rates + "; questions: " + questions +
@@ -417,7 +473,7 @@ public class QuizData implements Parcelable {
                 "; isBattle: " + isBattle + "; created: " + created + "; latestResults: " +
                 latestResults + "; avgResult: " + avgResult + "; resultCount: " + resultCount +
                 "; cityAvg: " + cityAvg + "; cityTime: " + cityTime + "; cityCount: " + cityCount +
-                "; userBattleDone: " + userBattleDone + "; sponsoredResults: " + sponsoredResults;
+                "; userBattleDone: " + userBattleDone + "; sponsoredResults: " + sponsoredResults + "; tags: " + tags;
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -447,6 +503,7 @@ public class QuizData implements Parcelable {
         dest.writeValue(cityCount);
         dest.writeValue(userBattleDone);
         dest.writeValue(sponsoredResults);
+        dest.writeList(tags);
     }
 
     public int describeContents() {

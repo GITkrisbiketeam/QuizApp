@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "acb139549a72544f8ad50ba72dcccec0",
+    "identityHash": "1cea0bb1e0a688945421d50088a6ba74",
     "entities": [
       {
         "tableName": "QuizzesItem",
@@ -140,7 +140,7 @@
       },
       {
         "tableName": "QuizData",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rates` TEXT, `questions` TEXT, `createdAt` TEXT, `title` TEXT, `type` TEXT, `content` TEXT, `flagResults` TEXT, `id` INTEGER, `avgResult` REAL, `mainPhoto_author` TEXT, `mainPhoto_width` INTEGER, `mainPhoto_source` TEXT, `mainPhoto_title` TEXT, `mainPhoto_url` TEXT, `mainPhoto_height` INTEGER, `mainPhoto_mediaId` INTEGER, `category_uid` INTEGER, `category_secondaryCid` TEXT, `category_name` TEXT, `category_type` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rates` TEXT, `questions` TEXT, `createdAt` TEXT, `title` TEXT, `type` TEXT, `content` TEXT, `tags` TEXT, `flagResults` TEXT, `id` INTEGER, `avgResult` REAL, `mainPhoto_author` TEXT, `mainPhoto_width` INTEGER, `mainPhoto_source` TEXT, `mainPhoto_title` TEXT, `mainPhoto_url` TEXT, `mainPhoto_height` INTEGER, `mainPhoto_mediaId` INTEGER, `category_uid` INTEGER, `category_secondaryCid` TEXT, `category_name` TEXT, `category_type` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "rates",
@@ -175,6 +175,12 @@
           {
             "fieldPath": "content",
             "columnName": "content",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "tags",
+            "columnName": "tags",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -275,7 +281,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"acb139549a72544f8ad50ba72dcccec0\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"1cea0bb1e0a688945421d50088a6ba74\")"
     ]
   }
 }

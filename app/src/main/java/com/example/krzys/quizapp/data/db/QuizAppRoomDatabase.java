@@ -13,7 +13,7 @@ import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
 @Database(entities = {QuizzesItem.class, QuizData.class}, version = 1)
 public abstract class QuizAppRoomDatabase extends RoomDatabase {
 
-    private static final String DATA_BASE_NAME = "quiz_db";
+    public static final String DATA_BASE_NAME = "quiz_db";
 
     public abstract QuizzesItemDao quizzesItemDao();
     public abstract QuizDataDao quizDataDao();

@@ -18,6 +18,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -104,8 +105,6 @@ public class QuizActivity extends AppCompatActivity {
                 updateAppBarContent(quizzesItem);
             }
 
-            mQuizActivityContent = new QuizActivityContentQuiz(this, quizzesItem);
-
             ImageView appBarQuizImage = findViewById(R.id.activity_quiz_toolbar_image_view);
 
             // Prepare/download Quiz Toolbar image
@@ -128,6 +127,18 @@ public class QuizActivity extends AppCompatActivity {
                 //updateAppBarProgress(appBarProgressBar, quizzesItem);
             }
 
+            ViewGroup quizContentRoot = findViewById(R.id.quiz_content_root);
+
+            mQuizViewModel.getQuizDataLiveData().observe(this, quizData -> {
+                Log.w(TAG, "QuizActivityContent observer onChanged quizData: " + quizData);
+                if (quizData != null) {
+                    mQuizActivityContent = new QuizActivityContentQuiz(this, quizData, quizzesItem);
+                } else if (!Utils.checkConnection(this.getApplicationContext())) {
+                    Utils.showSnackbar(quizContentRoot, R.string
+                            .string_internet_connection_not_available);
+                }
+            });
+
             // set observer for Progress changes, as progres is calculated form given user
             // answers which are stored in {@link QuizzesItem} entry in DB
             mQuizViewModel.getQuizzesItemLiveData().observe(this,
@@ -136,7 +147,9 @@ public class QuizActivity extends AppCompatActivity {
                         if (appBarProgressBar != null) {
                             updateAppBarProgress(appBarProgressBar, item);
                         }
-                        mQuizActivityContent.updateUI();
+                        if (mQuizActivityContent != null) {
+                            mQuizActivityContent.updateUI();
+                        }
                     });
         } else {
             // No QuizzesItem was provided in this intent so leave this Activity

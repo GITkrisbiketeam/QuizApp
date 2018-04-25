@@ -6,6 +6,7 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.paging.PagedList;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import com.example.krzys.quizapp.repository.QuizAppRepository;
@@ -43,6 +44,7 @@ public class QuizzesListViewModel extends AndroidViewModel {
         return mConnectionLiveData;
     }
 
+    @VisibleForTesting
     public LiveData<List<String>> getAllQuizzesListTypes() {
         return mRepository.getAllQuizzesItemsTypes();
     }

@@ -55,6 +55,15 @@ public class FlagAnswer implements Parcelable
     public FlagAnswer() {
     }
 
+    public FlagAnswer(Integer a, Integer b, Integer c, Integer d, Integer e, Integer f) {
+        this.a = a;
+        this.b = b;
+        this.c = c;
+        this.d = d;
+        this.e = e;
+        this.f = f;
+    }
+
     public Integer getA() {
         return a;
     }

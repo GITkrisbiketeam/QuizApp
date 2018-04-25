@@ -52,6 +52,16 @@ public class Image implements Parcelable {
     public Image() {
     }
 
+    public Image(String author, String width, String mediaId, String source, String url, String
+            height) {
+        this.author = author;
+        this.width = width;
+        this.mediaId = mediaId;
+        this.source = source;
+        this.url = url;
+        this.height = height;
+    }
+
     public String getAuthor() {
         return author;
     }

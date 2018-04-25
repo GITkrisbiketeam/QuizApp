@@ -40,6 +40,12 @@ public class Tag implements Parcelable {
     public Tag() {
     }
 
+    public Tag(Long uid, String name, String type) {
+        this.uid = uid;
+        this.name = name;
+        this.type = type;
+    }
+
     public Long getUid() {
         return uid;
     }

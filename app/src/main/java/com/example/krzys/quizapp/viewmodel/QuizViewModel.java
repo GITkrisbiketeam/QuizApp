@@ -7,6 +7,7 @@ import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.krzys.quizapp.data.db.QuizAppRoomDatabase;
 import com.example.krzys.quizapp.data.dto.quiz.QuizData;
 import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.repository.QuizAppRepository;
@@ -32,7 +33,7 @@ public class QuizViewModel extends AndroidViewModel {
     public QuizViewModel(Application application) {
         super(application);
         Log.d(TAG, "QuizViewModel");
-        mRepository = QuizAppRepository.getInstance(application);
+        mRepository = QuizAppRepository.getInstance(QuizAppRoomDatabase.getDatabase(application));
 
         //TODO: will be still needed???
         mConnectionLiveData = new ConnectionLiveData(application);
@@ -47,7 +48,7 @@ public class QuizViewModel extends AndroidViewModel {
         }
     }
 
-    public LiveData<QuizData> getQuizData() {
+    public LiveData<QuizData> getQuizDataLiveData() {
         return mQuizData;
     }
 
@@ -55,25 +56,9 @@ public class QuizViewModel extends AndroidViewModel {
         return mQuizzesItem;
     }
 
-    @Deprecated
-    public LiveData<QuizzesItem> loadQuizzesItem(@NonNull LifecycleOwner owner, final long quizId) {
-        mConnectionLiveData.observe(owner, isConnected -> {
-            if (isConnected != null && isConnected) {
-                mRepository.loadQuizzesItem(quizId);
-            }
-        });
-        return mRepository.loadQuizzesItem(quizId);
-    }
 
-    @Deprecated
-    public LiveData<QuizData> getQuizData(@NonNull LifecycleOwner owner, final long quizId) {
-        mConnectionLiveData.observe(owner, isConnected -> {
-            if (isConnected != null && isConnected) {
-                mRepository.getQuizDataFromApi(quizId);
-            }
-        });
-        return mRepository.loadQuizData(quizId);
-    }
+
+
 
     public void updateQuizzesItem(QuizzesItem quizzesItem) {
         mRepository.updateQuizzesItem(quizzesItem);
@@ -88,4 +73,25 @@ public class QuizViewModel extends AndroidViewModel {
     public void setQuizActivityCurrentQuestion(int quizActivityCurrentQuestion) {
         mQuizActivityCurrentQuestion = quizActivityCurrentQuestion;
     }
+
+
+    /*@Deprecated
+    public LiveData<QuizData> getQuizDataLiveData(@NonNull LifecycleOwner owner, final long quizId) {
+        mConnectionLiveData.observe(owner, isConnected -> {
+            if (isConnected != null && isConnected) {
+                mRepository.getQuizDataFromApi(quizId);
+            }
+        });
+        return mRepository.loadQuizData(quizId);
+    }*/
+
+    /*@Deprecated
+    public LiveData<QuizzesItem> loadQuizzesItem(@NonNull LifecycleOwner owner, final long quizId) {
+        mConnectionLiveData.observe(owner, isConnected -> {
+            if (isConnected != null && isConnected) {
+                mRepository.loadQuizzesItem(quizId);
+            }
+        });
+        return mRepository.loadQuizzesItem(quizId);
+    }*/
 }

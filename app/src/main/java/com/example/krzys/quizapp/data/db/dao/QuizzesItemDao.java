@@ -27,8 +27,16 @@ public interface QuizzesItemDao {
      *
      * @return {@link QuizzesItem) {@link List} of {@link LiveData} data holder to be observed
      */
-    @Query("select * from QuizzesItem ORDER BY createdAt DESC") //ORDER BY indexInResponse ASC
+    @Query("select * from QuizzesItem ORDER BY indexInResponse ASC") //ORDER BY indexInResponse ASC
     DataSource.Factory<Integer, QuizzesItem> getAllQuizzesItems();
+
+    /**
+     * Get {@link LiveData} holder for List of{@link QuizzesItem} to be observed
+     *
+     * @return {@link QuizzesItem) {@link List} of {@link LiveData} data holder to be observed
+     */
+    @Query("select * from QuizzesItem ORDER BY createdAt DESC")
+    LiveData<List<QuizzesItem>> getAllQuizzesItemsList();
 
     @Query("SELECT MAX(indexInResponse) + 1 FROM QuizzesItem")
     int getNextIndexInQuizzesItems();

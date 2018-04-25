@@ -53,7 +53,7 @@ public class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<Qu
         mHelper.runIfNotRunning(PagingRequestHelper.RequestType.BEFORE,
                 helperCallback -> {
                     Log.d(TAG, "onZeroItemsLoaded run");
-                    mQuizApi.getQuizListData(5, mNetworkPageSize).
+                    mQuizApi.getQuizListData(0, mNetworkPageSize).
                             enqueue(createWebserviceCallback(helperCallback));
                 });
     }

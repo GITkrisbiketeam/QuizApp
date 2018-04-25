@@ -40,6 +40,12 @@ public class Rate implements Parcelable {
     public Rate() {
     }
 
+    public Rate(Integer from, Integer to, String content) {
+        this.from = from;
+        this.to = to;
+        this.content = content;
+    }
+
     public Integer getFrom() {
         return from;
     }

@@ -11,9 +11,9 @@ import android.view.animation.AnimationUtils;
 import android.widget.ViewFlipper;
 
 import com.example.krzys.quizapp.R;
-import com.example.krzys.quizapp.data.dto.quiz.Question;
 import com.example.krzys.quizapp.data.dto.quiz.QuizData;
 import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
+import com.example.krzys.quizapp.viewmodel.QuizViewModelQuestion;
 import com.example.krzys.quizapp.viewmodel.QuizzesListViewModel;
 import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;
@@ -28,15 +28,17 @@ abstract class QuizActivityContent {
     protected AppCompatActivity mActivity;
 
     protected ViewGroup mQuizContentRoot;
-    protected ViewFlipper mQuizContentViewFlipper;
 
-    protected QuizViewModel mQuizViewModel;
+    private ViewFlipper mQuizContentViewFlipper;
 
-    protected QuizData mQuizData;
-    protected QuizzesItem mQuizzesItem;
+    private QuizViewModel mQuizViewModel;
 
-    QuizActivityContent(@NonNull AppCompatActivity activity, @NonNull QuizzesItem quizzesItem) {
+    private QuizData mQuizData;
+    private QuizzesItem mQuizzesItem;
+
+    QuizActivityContent(@NonNull AppCompatActivity activity, @NonNull QuizData quizData, @NonNull QuizzesItem quizzesItem) {
         mQuizzesItem = quizzesItem;
+        mQuizData = quizData;
 
         mQuizContentRoot = activity.findViewById(R.id.quiz_content_root);
 
@@ -51,76 +53,38 @@ abstract class QuizActivityContent {
         // Initialize ViewModel
         mQuizViewModel = ViewModelProviders.of(activity).get(QuizViewModel.class);
 
-        mQuizViewModel.getQuizData(activity, mQuizzesItem.getId()).observe(activity, quizData
-                -> {
-            Log.w(TAG, "QuizActivityContent observer onChanged quizData: " + quizData);
-            if (quizData != null) {
-                mQuizData = quizData;
-                updateUI();
-            } else if (!Utils.checkConnection(activity.getApplicationContext())) {
-                Utils.showSnackbar(mQuizContentRoot, R.string
-                        .string_internet_connection_not_available);
-            }
-        });
-
         mActivity = activity;
+        updateUI();
     }
 
-    /* package-private */
-    void updateUI() {
-        if (mQuizData == null) {
-            Log.w(TAG, "updateUI mQuizData is null");
+    protected final void updateUI() {
+        if (mQuizData == null || mQuizzesItem == null){
+            //No data to display yet do nothing;
             return;
         }
+        QuizViewModelQuestion quizViewModel = new QuizViewModelQuestion(mQuizData, mQuizzesItem);
 
-        final List<Question> questions = mQuizData.getQuestions();
-        if (questions == null || questions.isEmpty()) {
-            Log.e(TAG, "updateUI there are no answers in this quiz !!!");
-            // TODO show some error message to user
-            return;
-        }
-        final List<Integer> myAnswers = mQuizzesItem.getMyAnswers();
-
-        // Check previous answers and start from new question
-        final int currentQuestion;
-        if (myAnswers != null) {
-            if (myAnswers.size() <= questions.size()) {
-                currentQuestion = mQuizzesItem.getMyAnswers().size();
-            } else {
-                currentQuestion = questions.size();
-            }
-        } else {
-            currentQuestion = 0;
-        }
-        if (mQuizViewModel.getQuizActivityCurrentQuestion() == currentQuestion &&
-                mQuizContentViewFlipper.getChildCount() > 0) {
-            // there was no change in current question;
-            // do nothing more;
-            return;
-        }
-        Log.d(TAG, "mQuizData currentQuestion: " + currentQuestion);
-        Log.d(TAG, "mQuizData mQuizContentViewFlipper.getChildCount(): " +
-                mQuizContentViewFlipper.getChildCount());
-
+        Log.e(TAG, "updateUI quizViewModel: " + quizViewModel.toString());
         View newQuizContent;
-        if (currentQuestion < questions.size()) {
-            // prepare next question View
-            newQuizContent = getQuizQuestionsContentView(currentQuestion);
-        } else {
+        if (quizViewModel.isQuizSolved()) {
             Log.i(TAG, "updateUI, Quiz solved");
-            newQuizContent = getQuizResolvedContentView();
+            newQuizContent = getQuizResolvedContentView(quizViewModel);
+        } else {
+            // prepare next question View
+            newQuizContent = getQuizQuestionsContentView(quizViewModel);
         }
+
         if (newQuizContent != null) {
             mQuizContentViewFlipper.addView(newQuizContent);
             // Animate show next only when question changes or we initialize this Activity
-            if (mQuizViewModel.getQuizActivityCurrentQuestion() != currentQuestion) {
+            if (mQuizViewModel.getQuizActivityCurrentQuestion() != quizViewModel.getCurrentQuestionNum()) {
                 mQuizContentViewFlipper.showNext();
             }
             if (mQuizContentViewFlipper.getChildCount() > 2) {
                 mQuizContentViewFlipper.removeViewAt(0);
             }
         }
-        mQuizViewModel.setQuizActivityCurrentQuestion(currentQuestion);
+        mQuizViewModel.setQuizActivityCurrentQuestion(quizViewModel.getCurrentQuestionNum());
     }
 
     /**
@@ -131,7 +95,7 @@ abstract class QuizActivityContent {
      *
      * @param checkedId id of selected question answer
      */
-    protected void processAnswerSelected(int checkedId) {
+    protected final void processAnswerSelected(int checkedId) {
         Log.d(TAG, "processAnswerSelected checkedId: " + checkedId + mQuizData.getType());
         List<Integer> myAnswers = mQuizzesItem.getMyAnswers();
         if (myAnswers == null) {
@@ -169,9 +133,20 @@ abstract class QuizActivityContent {
         }
     }
 
+    protected final void resetQuestion() {
+        mQuizzesItem.setMyAnswers(new ArrayList<>());
+        // This will also call to refresh UI through DB LiveData observer
+        mQuizViewModel.updateQuizzesItem(mQuizzesItem);
+    }
+
+    protected final void returnFromQuestionActivity() {
+        // show back image share transition animation
+        mActivity.supportFinishAfterTransition();
+    }
+
     @Nullable
-    protected abstract View getQuizQuestionsContentView(int currentQuestion);
+    protected abstract View getQuizQuestionsContentView(@NonNull QuizViewModelQuestion quizViewModel);
 
     @NonNull
-    protected abstract View getQuizResolvedContentView();
+    protected abstract View getQuizResolvedContentView(@NonNull QuizViewModelQuestion quizViewModel);
 }

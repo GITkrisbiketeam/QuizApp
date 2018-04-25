@@ -35,4 +35,7 @@
     <string name="transition_name_shared_image">transitionNameForSharedImage</string>
     <string name="transition_name_shared_progress">transitionNameForSharedProgress</string>
     <string name="quizzes_item_title_loading">Loading…</string>
+
+
+    <string name="cd_quizzes_list">ContentDescriptionQuizzesItemsList</string>
 </resources>
