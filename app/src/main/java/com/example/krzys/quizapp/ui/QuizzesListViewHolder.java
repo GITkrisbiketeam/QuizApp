@@ -19,22 +19,22 @@ import com.example.krzys.quizapp.utils.Utils;
 import java.util.List;
 
 public class QuizzesListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-    private static final String TAG = Utils.getLogTag(QuizzesListViewHolder.class.getSimpleName());
+    private static final String TAG = Utils.getLogTag(QuizzesListViewHolder.class);
 
-    private final QuizItemHolderClickListener mListener;
+    private final QuizzesItemHolderClickListener mListener;
 
-    public final View rootView;
-    public final ImageView imageView;
-    public final TextView textViewTitle;
-    public final TextView textViewScore;
-    public final ProgressBar progressBar;
+    private final View rootView;
+    private final ImageView imageView;
+    private final TextView textViewTitle;
+    private final TextView textViewScore;
+    private final ProgressBar progressBar;
 
     @FunctionalInterface
-    public interface QuizItemHolderClickListener {
-        void onQuizItemClicked(ImageView imageView, ProgressBar progressBar, int position);
+    public interface QuizzesItemHolderClickListener {
+        void onQuizzesItemClicked(ImageView imageView, ProgressBar progressBar, int position);
     }
 
-    QuizzesListViewHolder(View rootView, QuizItemHolderClickListener clickListener) {
+    private QuizzesListViewHolder(View rootView, QuizzesItemHolderClickListener clickListener) {
         super(rootView);
         mListener = clickListener;
 
@@ -43,7 +43,7 @@ public class QuizzesListViewHolder extends RecyclerView.ViewHolder implements Vi
         this.textViewTitle = rootView.findViewById(R.id.quizzes_list_item_text_view_title);
         this.textViewScore = rootView.findViewById(R.id.quizzes_list_item_text_view_score);
         this.progressBar = rootView.findViewById(R.id.quizzes_list_item_progress);
-        // set ProgressBar color on pre Lolipop
+        // set ProgressBar color on pre Lollipop
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             progressBar.getProgressDrawable().setColorFilter(rootView.getContext().getResources()
                     .getColor(R.color.colorAccent), android.graphics.PorterDuff.Mode.SRC_IN);
@@ -53,13 +53,13 @@ public class QuizzesListViewHolder extends RecyclerView.ViewHolder implements Vi
 
     @Override
     public void onClick(View view) {
-        mListener.onQuizItemClicked(imageView, progressBar, getAdapterPosition());
+        mListener.onQuizzesItemClicked(imageView, progressBar, getAdapterPosition());
     }
 
     public static QuizzesListViewHolder create(@NonNull ViewGroup parent,
-                                               QuizItemHolderClickListener clickListener) {
+                                               QuizzesItemHolderClickListener clickListener) {
         View rootView = LayoutInflater.from(parent.getContext()).inflate(R.layout
-                .quizzes_list_row_item, parent, false);
+                .quizzes_list_row_item_quiz, parent, false);
         return new QuizzesListViewHolder(rootView, clickListener);
     }
 

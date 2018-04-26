@@ -15,9 +15,11 @@ import com.example.krzys.quizapp.repository.QuizAppRepository;
 import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;
 
+import java.util.List;
+
 public class QuizzesListViewModel extends AndroidViewModel {
 
-    private static final String TAG = Utils.getLogTag(QuizzesListViewModel.class.getSimpleName());
+    private static final String TAG = Utils.getLogTag(QuizzesListViewModel.class);
 
     private final QuizAppRepository mRepository;
 
@@ -54,5 +56,10 @@ public class QuizzesListViewModel extends AndroidViewModel {
 
     public void retryLoadQuizzes() {
         mRepository.retryLoadQuizzes();
+    }
+
+    // Currently only for logging issues
+    public LiveData<List<String>> getAllQuizzesListTypes() {
+        return mRepository.getAllQuizzesItemsTypes();
     }
 }

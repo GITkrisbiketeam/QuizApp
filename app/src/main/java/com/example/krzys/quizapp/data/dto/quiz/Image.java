@@ -1,5 +1,6 @@
 package com.example.krzys.quizapp.data.dto.quiz;
 
+import android.arch.persistence.room.Ignore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -40,7 +41,7 @@ public class Image implements Parcelable {
 
     };
 
-    protected Image(Parcel in) {
+    Image(Parcel in) {
         this.author = ((String) in.readValue((String.class.getClassLoader())));
         this.width = ((String) in.readValue((String.class.getClassLoader())));
         this.mediaId = ((String) in.readValue((String.class.getClassLoader())));
@@ -52,6 +53,7 @@ public class Image implements Parcelable {
     public Image() {
     }
 
+    @Ignore
     public Image(String author, String width, String mediaId, String source, String url, String
             height) {
         this.author = author;

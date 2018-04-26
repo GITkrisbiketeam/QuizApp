@@ -46,7 +46,7 @@ public class SponsoredResults implements Parcelable {
 
     };
 
-    protected SponsoredResults(Parcel in) {
+    SponsoredResults(Parcel in) {
         this.imageAuthor = ((String) in.readValue((String.class.getClassLoader())));
         this.imageHeight = ((String) in.readValue((String.class.getClassLoader())));
         this.imageUrl = ((String) in.readValue((String.class.getClassLoader())));

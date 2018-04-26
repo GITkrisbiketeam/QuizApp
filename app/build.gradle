@@ -51,7 +51,7 @@ dependencies {
     // Java8 support for Lifecycles
     implementation "android.arch.lifecycle:common-java8:1.1.1"
 
-    implementation 'android.arch.paging:runtime:1.0.0-beta1'
+    implementation 'android.arch.paging:runtime:1.0.0-rc1'
 
     // For swype refresh layout from Top and Bottom
     implementation 'com.github.orangegangsters:swipy:1.2.3@aar'

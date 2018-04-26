@@ -209,6 +209,7 @@ public class QuizData implements Parcelable {
     public QuizData() {
     }
 
+    @Ignore
     public QuizData(Celebrity celebrity, List<Rate> rates, List<Question> questions, String
             createdAt, Boolean sponsored, String title, String type, String content, String
             buttonStart, String shareTitle, List<FlagResult> flagResults, List<Category>

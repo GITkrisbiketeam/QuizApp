@@ -1,5 +1,6 @@
 package com.example.krzys.quizapp.data.dto.common;
 
+import android.arch.persistence.room.Ignore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -56,6 +57,7 @@ public class MainPhoto implements Parcelable {
     public MainPhoto() {
     }
 
+    @Ignore
     public MainPhoto(String author, Integer width, String source, String title, String url,
                      Integer height, Long mediaId) {
         this.author = author;

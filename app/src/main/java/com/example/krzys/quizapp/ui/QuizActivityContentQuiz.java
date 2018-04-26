@@ -28,8 +28,7 @@ import com.example.krzys.quizapp.viewmodel.QuizViewModelQuestion;
 import java.util.List;
 
 public class QuizActivityContentQuiz extends QuizActivityContent {
-    private static final String TAG = Utils.getLogTag(QuizActivityContentQuiz.class.getSimpleName
-            ());
+    private static final String TAG = Utils.getLogTag(QuizActivityContentQuiz.class);
 
     QuizActivityContentQuiz(@NonNull AppCompatActivity activity, @NonNull QuizData quizData, @NonNull QuizzesItem quizzesItem) {
         super(activity, quizData, quizzesItem);

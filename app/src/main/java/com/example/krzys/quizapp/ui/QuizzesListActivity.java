@@ -31,11 +31,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.example.krzys.quizapp.repository.NetworkState.*;
-import static com.example.krzys.quizapp.repository.NetworkState.LOADING;
 
 public class QuizzesListActivity extends AppCompatActivity {
 
-    private static final String TAG = Utils.getLogTag(QuizzesListActivity.class.getSimpleName());
+    private static final String TAG = Utils.getLogTag(QuizzesListActivity.class);
 
     private View mRootView;
 
@@ -63,7 +62,7 @@ public class QuizzesListActivity extends AppCompatActivity {
         initRecyclerAdapter();
 
         // Just for Logging
-        /*mQuizzesListViewModel.getAllQuizzesListTypes().observe(this, quizzesTypes -> {
+        mQuizzesListViewModel.getAllQuizzesListTypes().observe(this, quizzesTypes -> {
             if (quizzesTypes != null) {
                 List<String> types;
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -74,7 +73,7 @@ public class QuizzesListActivity extends AppCompatActivity {
                 }
                 Log.e(TAG, "typeList: " + Arrays.toString(types.toArray()));
             }
-        });*/
+        });
     }
 
     @Override
@@ -90,9 +89,6 @@ public class QuizzesListActivity extends AppCompatActivity {
             case R.id.quizzes_menu_refresh:
                 // User chose the "Refresh" action
                 Log.w(TAG, "onOptionsItemSelected refresh called");
-                /*if (!mSwipeRefreshLayout.isRefreshing()) {
-                    triggerSwypeRefresh(true);
-                }*/
                 mQuizzesListViewModel.refreshQuizzes();
                 return true;
 
@@ -106,11 +102,12 @@ public class QuizzesListActivity extends AppCompatActivity {
         mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright, android.R
                 .color.holo_green_light, android.R.color.holo_orange_light, android.R.color
                 .holo_red_light);
-        mSwipeRefreshLayout.setOnRefreshListener(() -> mQuizzesListViewModel.refreshQuizzes()/*triggerSwypeRefresh(false)*/);
+        mSwipeRefreshLayout.setOnRefreshListener(() -> mQuizzesListViewModel.refreshQuizzes());
 
         mQuizzesListViewModel.getRefreshStateLiveData().observe(this, networkState -> {
             Log.w(TAG, "getRefreshStateLiveData observer onChanged networkState:" + networkState);
             mSwipeRefreshLayout.setRefreshing(networkState == NetworkState.LOADING);
+            mQuizzesAdapter.setNetworkState(networkState);
         });
     }
 
@@ -128,23 +125,19 @@ public class QuizzesListActivity extends AppCompatActivity {
                 .VERTICAL);
         quizzesRecyclerView.addItemDecoration(itemDecor);
 
-        mQuizzesAdapter = new QuizzesListAdapter(this, (ImageView imageView, ProgressBar
-                progressBar, QuizzesItem item) -> {
-            Log.w(TAG, "onQuizItemClicked clicked item: " + item);
-            Intent intent = new Intent(this, QuizActivity.class);
+        mQuizzesAdapter = new QuizzesListAdapter(
+                new QuizzesListAdapter.QuizItemClickListener() {
+                    @Override
+                    public void onQuizItemClicked(ImageView imageView, ProgressBar progressBar,
+                                                  QuizzesItem item) {
+                        launchQuizActivity(imageView, progressBar, item);
+                    }
 
-            // Pass QuizzesItem in the bundle and populate details activity.
-            intent.putExtra(QuizActivity.EXTRA_QUIZ, item);
-            Pair<View, String> image = Pair.create(imageView, getString(R.string
-                    .transition_name_shared_image));
-            Pair<View, String> progress = Pair.create(progressBar, getString(R.string
-                    .transition_name_shared_progress));
-
-            //Start QuizActivity with
-            ActivityOptionsCompat options = ActivityOptionsCompat.
-                    makeSceneTransitionAnimation(this, image, progress);
-            startActivity(intent, options.toBundle());
-        });
+                    @Override
+                    public void onRefreshButtonClicked() {
+                        mQuizzesListViewModel.retryLoadQuizzes();
+                    }
+                });
 
         quizzesRecyclerView.setAdapter(mQuizzesAdapter);
 
@@ -157,41 +150,28 @@ public class QuizzesListActivity extends AppCompatActivity {
 
         mQuizzesListViewModel.getNetworkStateLiveData().observe(this, networkState -> {
             Log.w(TAG, "getNetworkStateLiveData observer onChanged networkState:" + networkState);
-
-            if (networkState == LOADING){
-                Log.w(TAG, "getNetworkStateLiveData observer LOADING");
-                // Show refreshing animation
-                mSwipeRefreshLayout.setRefreshing(true);
-            } else if(networkState == LOADED){
-                Log.w(TAG, "getNetworkStateLiveData observer LOADED");
-                // Show refreshing animation
-                mSwipeRefreshLayout.setRefreshing(false);
-            } else {
+            mQuizzesAdapter.setNetworkState(networkState);
+            if (networkState != LOADING && networkState != LOADED) {
                 Utils.showSnackbar(mRootView, R.string.string_internet_connection_not_available);
             }
         });
     }
 
-    /**
-     * Trigger refresh of QuizzesItems to download new items
-     * //TODO: we should probably use some sort of Refresh state LiveData in ViewModel
-     *
-     *
-     * @param animate should we show animate refresh circle
-     */
-    private void triggerSwypeRefresh(boolean animate) {
-        Log.w(TAG, "triggerSwypeRefresh");
-        if (Utils.checkConnection(this)) {
-            mQuizzesListViewModel.refreshQuizzes();
-            if (animate) {
-                mSwipeRefreshLayout.setRefreshing(true);
-            }
+    private void launchQuizActivity(ImageView imageView, ProgressBar progressBar, QuizzesItem item) {
+        Log.w(TAG, "launchQuizActivity clicked item: " + item);
+        Intent intent = new Intent(this, QuizActivity.class);
 
-        } else {
-            Utils.showSnackbar(mRootView, R.string.string_internet_connection_not_available);
-            // Stop refreshing animation
-            mSwipeRefreshLayout.setRefreshing(false);
-        }
+        // Pass QuizzesItem in the bundle and populate details activity.
+        intent.putExtra(QuizActivity.EXTRA_QUIZ, item);
+        Pair<View, String> image = Pair.create(imageView, getString(R.string
+                .transition_name_shared_image));
+        Pair<View, String> progress = Pair.create(progressBar, getString(R.string
+                .transition_name_shared_progress));
+
+        //Start QuizActivity with
+        @SuppressWarnings("unchecked")
+        ActivityOptionsCompat options = ActivityOptionsCompat.
+                makeSceneTransitionAnimation(this, image, progress);
+        startActivity(intent, options.toBundle());
     }
-
 }

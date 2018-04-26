@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.TypeConverters;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -54,7 +55,7 @@ public class Question implements Parcelable {
 
     };
 
-    protected Question(Parcel in) {
+    Question(Parcel in) {
         this.image = ((Image) in.readValue((Image.class.getClassLoader())));
         this.answers = new ArrayList<>();
         in.readList(this.answers, (Answer.class.getClassLoader()));
@@ -67,6 +68,7 @@ public class Question implements Parcelable {
     public Question() {
     }
 
+    @Ignore
     public Question(Image image, List<Answer> answers, String text, String answer, String type,
                     Integer order) {
         this.image = image;

@@ -51,8 +51,8 @@ public interface QuizzesItemDao {
     LiveData<QuizzesItem> getQuizzesItemById(long id);
 
     /**
-     * Get {@link QuizzesItem} from DB imediattely. This should not be run fro UI thread or error
-     * will occure
+     * Get {@link QuizzesItem} from DB immediately. This should not be run fro UI thread or error
+     * will occur
      *
      * @param id Long with id of QuizzesItem to get from DB
      * @return {@link QuizzesItem) object
@@ -79,7 +79,7 @@ public interface QuizzesItemDao {
 
     /**
      * Updates given {@link QuizzesItem} into DB performing default
-     * {@link OnConflictStrategy#ABORT} opeation on conflict
+     * {@link OnConflictStrategy#ABORT} operation on conflict
      *
      * @param quizzesItem {@link QuizzesItem} to be inserted into DB
      */

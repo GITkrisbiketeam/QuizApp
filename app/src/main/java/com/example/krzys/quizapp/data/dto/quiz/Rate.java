@@ -1,5 +1,6 @@
 package com.example.krzys.quizapp.data.dto.quiz;
 
+import android.arch.persistence.room.Ignore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -31,7 +32,7 @@ public class Rate implements Parcelable {
 
     };
 
-    protected Rate(Parcel in) {
+    Rate(Parcel in) {
         this.from = ((Integer) in.readValue((Integer.class.getClassLoader())));
         this.to = ((Integer) in.readValue((Integer.class.getClassLoader())));
         this.content = ((String) in.readValue((String.class.getClassLoader())));
@@ -40,6 +41,7 @@ public class Rate implements Parcelable {
     public Rate() {
     }
 
+    @Ignore
     public Rate(Integer from, Integer to, String content) {
         this.from = from;
         this.to = to;

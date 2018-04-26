@@ -2,7 +2,6 @@ package com.example.krzys.quizapp.data.db;
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule;
 import android.arch.persistence.room.Room;
-import android.database.sqlite.SQLiteConstraintException;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -21,12 +20,8 @@ import java.util.List;
 
 import static com.example.krzys.quizapp.data.db.TestData.QUIZZES_ITEM;
 import static com.example.krzys.quizapp.data.db.TestData.QUIZZES_ITEM_LIST;
-import static com.example.krzys.quizapp.data.db.TestData.QUIZ_DATA;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 /**
  * Test the implementation of {@link com.example.krzys.quizapp.data.db.dao.QuizDataDao}

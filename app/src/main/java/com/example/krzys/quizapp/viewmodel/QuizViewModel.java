@@ -15,7 +15,7 @@ import com.example.krzys.quizapp.utils.Utils;
 public class QuizViewModel extends AndroidViewModel {
 
     //TODO add model and logic to store current question etc. no logic in UI should be present
-    private static final String TAG = Utils.getLogTag(QuizViewModel.class.getSimpleName());
+    private static final String TAG = Utils.getLogTag(QuizViewModel.class);
 
     private final QuizAppRepository mRepository;
 

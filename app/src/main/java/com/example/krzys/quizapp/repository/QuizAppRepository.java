@@ -9,19 +9,20 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.krzys.quizapp.AppExecutors;
+import com.example.krzys.quizapp.data.api.ApiEndpointInterface;
+import com.example.krzys.quizapp.data.api.RetrofitClient;
 import com.example.krzys.quizapp.data.db.QuizAppRoomDatabase;
 import com.example.krzys.quizapp.data.db.dao.QuizDataDao;
 import com.example.krzys.quizapp.data.db.dao.QuizzesItemDao;
 import com.example.krzys.quizapp.data.dto.quiz.QuizData;
 import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
 import com.example.krzys.quizapp.data.dto.quizzes.QuizzesListData;
-import com.example.krzys.quizapp.data.api.ApiEndpointInterface;
-import com.example.krzys.quizapp.data.api.RetrofitClient;
 import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import retrofit2.Call;
@@ -31,18 +32,17 @@ import retrofit2.Response;
 /**
  * Repository for managing DB and Network object retrieval.
  *
- * TODO: Google Architecture suggest it to be Incection Dependency (Dagger2 is preferable)
+ * TODO: Google Architecture suggest it to be Injection Dependency (Dagger2 is preferable)
  * For now we are using singleton
  */
 public class QuizAppRepository {
-    private static final String TAG = Utils.getLogTag(QuizAppRepository.class.getSimpleName());
+    private static final String TAG = Utils.getLogTag(QuizAppRepository.class);
 
     private static final int DEFAULT_NETWORK_PAGE_SIZE = 10;
 
     private static final Object mLock = new Object();
     private static QuizAppRepository sInstance = null;
 
-    private final QuizAppRoomDatabase mDb;
     private final QuizzesItemDao mQuizzesItemDao;
     private final QuizDataDao mQuizDataDao;
 
@@ -57,9 +57,8 @@ public class QuizAppRepository {
     // should this be passe as constructor argument,  this should be bigger than the number of item that are visible on screen
     private final int mNetworkPageSize = DEFAULT_NETWORK_PAGE_SIZE;
 
-    public QuizAppRepository(QuizAppRoomDatabase db) {
+    private QuizAppRepository(QuizAppRoomDatabase db) {
         Log.i(TAG, "QuizAppRepository created");
-        mDb = db;
         mQuizzesItemDao = db.quizzesItemDao();
         mQuizDataDao = db.quizDataDao();
 
@@ -88,7 +87,6 @@ public class QuizAppRepository {
     /**
      * TODO:
      *
-     * @return
      */
     public Listing<QuizzesItem> getAllQuizzesItems(int pageSize) {
         QuizzesPagingBoundaryCallback boundaryCallback = new QuizzesPagingBoundaryCallback
@@ -117,7 +115,6 @@ public class QuizAppRepository {
     /**
      * See {@link QuizzesItemDao#getTypes()}
      *
-     * @return
      */
     public LiveData<List<String>> getAllQuizzesItemsTypes() {
         return mQuizzesItemDao.getTypes();
@@ -127,7 +124,6 @@ public class QuizAppRepository {
     /**
      * See {@link QuizzesItemDao#getQuizzesItemById(long)}
      *
-     * @return
      */
     public LiveData<QuizzesItem> loadQuizzesItem(final long quizId) {
         return mQuizzesItemDao.getQuizzesItemById(quizId);
@@ -137,7 +133,6 @@ public class QuizAppRepository {
      * See {@link QuizDataDao#getQuizDataById(long)}
      * Additionally performing download of given QuizData through Retorfit
      *
-     * @return
      */
     public LiveData<QuizData> loadQuizData(final long quizId) {
         getQuizDataFromApi(quizId);
@@ -160,7 +155,7 @@ public class QuizAppRepository {
      *
      * @param offset    from which offset to start download new items from API
      */
-    public LiveData<NetworkState> getQuizzesItemListFromApi(int offset, int count) {
+    private LiveData<NetworkState> getQuizzesItemListFromApi(int offset, int count) {
         final MutableLiveData<NetworkState> networkState = new MutableLiveData<>();
         networkState.setValue(NetworkState.LOADING);
         Log.i(TAG, "getQuizzesItemListFromApi");
@@ -171,18 +166,25 @@ public class QuizAppRepository {
                     @Override
                     public void onResponse(@NonNull Call<QuizzesListData> call, @NonNull
                             Response<QuizzesListData> response) {
-                        if (response.isSuccessful() && response.body() != null && response.body().getItems() != null) {
+                        if (response.isSuccessful()) {
                             //Got Successfully
-                            Log.i(TAG, "getQuizzesItemListFromApi RetrofitClient successful body: " + response.body());
+                            Log.i(TAG, "getQuizzesItemListFromApi RetrofitClient successful");
                             mExecutor.execute(() -> {
-                                insertApiResultIntoDb(response.body());
-                                networkState.postValue(NetworkState.LOADED);
+                                try {
+                                    insertApiResultIntoDb(Objects.requireNonNull(response.body()));
+                                    networkState.postValue(NetworkState.LOADED);
+                                } catch (NullPointerException e) {
+                                    networkState.postValue(
+                                            NetworkState.error("Response body is null: " +
+                                                    Utils.getApiResponseErrorMsg(response)));
+                                }
                             });
                         } else {
                             // Something went wrong
-                            Log.w(TAG, "getQuizzesItemListFromApi RetrofitClient failure response:" + response
-                                    .toString());
-                            networkState.postValue(NetworkState.error(response.message()));
+                            Log.w(TAG, "getQuizzesItemListFromApi RetrofitClient failure");
+
+                            networkState.postValue(NetworkState.error(Utils
+                                    .getApiResponseErrorMsg(response)));
                         }
                     }
 
@@ -201,7 +203,7 @@ public class QuizAppRepository {
      *
      * @param id    id of QuizData to download
      */
-    public LiveData<NetworkState> getQuizDataFromApi(long id) {
+    private LiveData<NetworkState> getQuizDataFromApi(long id) {
         final MutableLiveData<NetworkState> networkState = new MutableLiveData<>();
         networkState.setValue(NetworkState.LOADING);
 

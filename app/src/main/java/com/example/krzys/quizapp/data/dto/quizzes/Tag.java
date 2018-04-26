@@ -1,5 +1,6 @@
 package com.example.krzys.quizapp.data.dto.quizzes;
 
+import android.arch.persistence.room.Ignore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -40,6 +41,7 @@ public class Tag implements Parcelable {
     public Tag() {
     }
 
+    @Ignore
     public Tag(Long uid, String name, String type) {
         this.uid = uid;
         this.name = name;

@@ -1,7 +1,9 @@
 package com.example.krzys.quizapp.repository;
 
 import android.arch.paging.PagedList;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.WorkerThread;
 import android.util.Log;
 
 import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
@@ -9,15 +11,15 @@ import com.example.krzys.quizapp.data.dto.quizzes.QuizzesListData;
 import com.example.krzys.quizapp.data.api.ApiEndpointInterface;
 import com.example.krzys.quizapp.utils.Utils;
 
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<QuizzesItem> {
-    private static final String TAG = Utils.getLogTag(QuizzesPagingBoundaryCallback.class
-            .getSimpleName());
+class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<QuizzesItem> {
+    private static final String TAG = Utils.getLogTag(QuizzesPagingBoundaryCallback.class);
 
     private final Executor mExecutor;
 
@@ -47,6 +49,7 @@ public class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<Qu
     }
 
 
+    @MainThread
     @Override
     public void onZeroItemsLoaded() {
         Log.d(TAG, "onZeroItemsLoaded");
@@ -58,6 +61,7 @@ public class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<Qu
                 });
     }
 
+    @MainThread
     @Override
     public void onItemAtFrontLoaded(@NonNull QuizzesItem itemAtFront) {
         //Log.d(TAG, "onItemAtFrontLoaded itemAtFront: " + itemAtFront);
@@ -70,6 +74,7 @@ public class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<Qu
                 });*/
     }
 
+    @MainThread
     @Override
     public void onItemAtEndLoaded(@NonNull QuizzesItem itemAtEnd) {
         Log.d(TAG, "onItemAtEndLoaded itemAtEnd: " + itemAtEnd);
@@ -87,7 +92,7 @@ public class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<Qu
             @Override
             public void onResponse(@NonNull Call<QuizzesListData> call,
                                    @NonNull Response<QuizzesListData> response) {
-                Log.d(TAG, "sucessfull got Quizzes from webservice");
+                Log.d(TAG, "successful got Quizzes from webservice");
                 insertItemsIntoDb(response, helperCallback);
             }
 
@@ -103,12 +108,17 @@ public class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<Qu
      * every time it gets new items, boundary callback simply inserts them into the database and
      * paging library takes care of refreshing the list if necessary.
      */
+    @WorkerThread
     private void insertItemsIntoDb(@NonNull Response<QuizzesListData> response,
                                    @NonNull PagingRequestHelper.Request.Callback helperCallback) {
         mExecutor.execute(() -> {
-            if (response.isSuccessful() && response.body() != null && response.body().getItems() != null){
-                mApiResponseCallback.saveToDB(response.body());
-                helperCallback.recordSuccess();
+            if (response.isSuccessful()) {
+                try {
+                    mApiResponseCallback.saveToDB(Objects.requireNonNull(response.body()));
+                    helperCallback.recordSuccess();
+                } catch (NullPointerException e) {
+                    helperCallback.recordFailure(new Throwable(e));
+                }
             } else {
                 helperCallback.recordFailure(new Throwable());
             }

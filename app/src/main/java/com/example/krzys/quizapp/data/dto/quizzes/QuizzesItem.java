@@ -129,6 +129,7 @@ public class QuizzesItem implements Parcelable {
     public QuizzesItem() {
     }
 
+    @Ignore
     public QuizzesItem(Long id, Integer questions, String createdAt, String title, String type,
                        String content, List<Category> categories, MainPhoto mainPhoto, Category category,
                        List<Tag> tags, List<Integer> myAnswers) {
@@ -302,11 +303,11 @@ public class QuizzesItem implements Parcelable {
         if (!(o instanceof QuizzesItem))
             return false;
         QuizzesItem that = (QuizzesItem) o;
-        return sameExeptMyAnswers(o) &&
+        return sameExceptMyAnswers(o) &&
                 (myAnswers == null ? that.myAnswers == null : myAnswers.equals(that.myAnswers));
     }
 
-    public boolean sameExeptMyAnswers(Object o) {
+    public boolean sameExceptMyAnswers(Object o) {
         if (this == o)
             return true;
         if (!(o instanceof QuizzesItem))

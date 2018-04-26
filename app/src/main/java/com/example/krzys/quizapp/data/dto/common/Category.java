@@ -1,5 +1,6 @@
 package com.example.krzys.quizapp.data.dto.common;
 
+import android.arch.persistence.room.Ignore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -44,6 +45,7 @@ public class Category implements Parcelable {
     public Category() {
     }
 
+    @Ignore
     public Category(Long uid, String secondaryCid, String name, String type) {
         this.uid = uid;
         this.secondaryCid = secondaryCid;

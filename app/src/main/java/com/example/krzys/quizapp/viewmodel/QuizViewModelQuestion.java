@@ -54,7 +54,7 @@ public class QuizViewModelQuestion {
         if (isQuizSolved()) {
             // Calculate and update User score
             mScore = Math.round(mMyCorrectAnswers / (float) mQuestions.size() * 100);
-            // Calculate and update avarega user score
+            // Calculate and update average user score
             mAvgScore = (int) Math.round(quizData.getAvgResult() * 100);
         }
 

@@ -34,7 +34,7 @@ public class LatestResult implements Parcelable {
 
     };
 
-    protected LatestResult(Parcel in) {
+    LatestResult(Parcel in) {
         this.city = ((Long) in.readValue((Long.class.getClassLoader())));
         this.endDate = ((String) in.readValue((String.class.getClassLoader())));
         this.result = ((Double) in.readValue((Double.class.getClassLoader())));

@@ -1,6 +1,7 @@
 
 package com.example.krzys.quizapp.data.dto.quiz;
 
+import android.arch.persistence.room.Ignore;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
@@ -43,7 +44,7 @@ public class FlagAnswer implements Parcelable
     }
     ;
 
-    protected FlagAnswer(Parcel in) {
+    FlagAnswer(Parcel in) {
         this.a = ((Integer) in.readValue((Integer.class.getClassLoader())));
         this.b = ((Integer) in.readValue((Integer.class.getClassLoader())));
         this.c = ((Integer) in.readValue((Integer.class.getClassLoader())));
@@ -55,6 +56,7 @@ public class FlagAnswer implements Parcelable
     public FlagAnswer() {
     }
 
+    @Ignore
     public FlagAnswer(Integer a, Integer b, Integer c, Integer d, Integer e, Integer f) {
         this.a = a;
         this.b = b;

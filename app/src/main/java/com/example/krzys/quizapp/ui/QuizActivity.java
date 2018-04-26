@@ -39,12 +39,12 @@ import java.util.Date;
 import java.util.Locale;
 
 public class QuizActivity extends AppCompatActivity {
-    private static final String TAG = Utils.getLogTag(QuizActivity.class.getSimpleName());
+    private static final String TAG = Utils.getLogTag(QuizActivity.class);
     public static final String EXTRA_QUIZ = "extra_quiz";
 
     private QuizViewModel mQuizViewModel;
 
-    QuizActivityContent mQuizActivityContent;
+    private QuizActivityContent mQuizActivityContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,17 +87,18 @@ public class QuizActivity extends AppCompatActivity {
      * We will delay show of this Activity waiting for Quiz Item picture to downloaded
      *
      * @param intent Input {@link Intent} that should contain EXTRA_QUIZ with QuizzesItem
-     * @param postponeEnterTransition should we pospone enter transition waiting for image to
+     * @param postponeEnterTransition should we postpone enter transition waiting for image to
      *                                download
      */
     private void processIntent(@NonNull Intent intent, boolean postponeEnterTransition) {
         QuizzesItem quizzesItem = intent.getParcelableExtra(EXTRA_QUIZ);
 
-        // initalize QuizViewModel with initial data
-        mQuizViewModel.init(quizzesItem);
-
         Log.d(TAG, "processIntent quizzesItem: " + quizzesItem);
+        //noinspection ConstantConditions
         if (quizzesItem != null) {
+            // initialize QuizViewModel with initial data
+            mQuizViewModel.init(quizzesItem);
+
             if (postponeEnterTransition) {
                 // Delay Enter transition animation until Image is loaded
                 supportPostponeEnterTransition();
@@ -116,7 +117,7 @@ public class QuizActivity extends AppCompatActivity {
             ProgressBar appBarProgressBar = findViewById(R.id.activity_quiz_toolbar_progress);
 
             if (appBarProgressBar != null) {
-                // set ProgressBar color on pre Lolipop
+                // set ProgressBar color on pre Lollipop
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                     appBarProgressBar.getProgressDrawable().setColorFilter(getResources().getColor(R
                             .color.colorAccent), android.graphics.PorterDuff.Mode.SRC_IN);
@@ -139,7 +140,7 @@ public class QuizActivity extends AppCompatActivity {
                 }
             });
 
-            // set observer for Progress changes, as progres is calculated form given user
+            // set observer for Progress changes, as progress is calculated form given user
             // answers which are stored in {@link QuizzesItem} entry in DB
             mQuizViewModel.getQuizzesItemLiveData().observe(this,
                     item -> {

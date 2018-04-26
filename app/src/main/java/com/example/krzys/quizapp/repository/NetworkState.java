@@ -26,11 +26,11 @@ public class NetworkState {
         FAILED
     }
 
-    public NetworkState(@NonNull Status status) {
+    private NetworkState(@NonNull Status status) {
         this.status = status;
     }
 
-    public NetworkState(@NonNull Status status, @NonNull String msg) {
+    private NetworkState(@NonNull Status status, @NonNull String msg) {
         this.status = status;
         this.msg = msg;
     }
@@ -45,4 +45,11 @@ public class NetworkState {
         return new NetworkState(FAILED, msg);
     }
 
+    @Override
+    public String toString() {
+        return "NetworkState{" +
+                "status=" + status +
+                ", msg='" + msg + '\'' +
+                '}';
+    }
 }

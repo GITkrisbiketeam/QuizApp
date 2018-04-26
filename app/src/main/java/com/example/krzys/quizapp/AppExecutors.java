@@ -40,7 +40,7 @@ public class AppExecutors {
 
     private final Executor mainThread;
 
-    public AppExecutors(Executor diskIO, Executor networkIO, Executor mainThread) {
+    private AppExecutors(Executor diskIO, Executor networkIO, Executor mainThread) {
         this.diskIO = diskIO;
         this.networkIO = networkIO;
         this.mainThread = mainThread;
@@ -50,16 +50,12 @@ public class AppExecutors {
         if(sInstance == null){
             synchronized (mLock) {
                 if (sInstance == null) {
-                    sInstance = new AppExecutors();
+                    sInstance = new AppExecutors(Executors.newSingleThreadExecutor(),
+                            Executors.newFixedThreadPool(3), new MainThreadExecutor());
                 }
             }
         }
         return sInstance;
-    }
-
-    public AppExecutors() {
-        this(Executors.newSingleThreadExecutor(), Executors.newFixedThreadPool(3),
-                new MainThreadExecutor());
     }
 
     public Executor diskIO() {

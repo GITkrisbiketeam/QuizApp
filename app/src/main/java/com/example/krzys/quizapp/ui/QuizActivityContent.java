@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 abstract class QuizActivityContent {
-    private static final String TAG = Utils.getLogTag(QuizActivityContent.class.getSimpleName());
+    private static final String TAG = Utils.getLogTag(QuizActivityContent.class);
 
-    protected final AppCompatActivity mActivity;
+    final AppCompatActivity mActivity;
 
-    protected final ViewGroup mQuizContentRoot;
+    final ViewGroup mQuizContentRoot;
 
     private final ViewFlipper mQuizContentViewFlipper;
 
@@ -57,7 +57,7 @@ abstract class QuizActivityContent {
         updateUI();
     }
 
-    protected final void updateUI() {
+    final void updateUI() {
         if (mQuizData == null || mQuizzesItem == null){
             //No data to display yet do nothing;
             return;
@@ -90,12 +90,12 @@ abstract class QuizActivityContent {
     /**
      * Processes Selection of particular question answer.
      * checks if user selection is correct answer and stores  his answer in DB through
-     * {@link QuizzesListViewModel}. Input checkedId is an intiger of an answer as mapped in
+     * {@link QuizzesListViewModel}. Input checkedId is an integer of an answer as mapped in
      * getQuizQuestionsContentView() method.
      *
      * @param checkedId id of selected question answer
      */
-    protected final void processAnswerSelected(int checkedId) {
+    final void processAnswerSelected(int checkedId) {
         Log.d(TAG, "processAnswerSelected checkedId: " + checkedId + mQuizData.getType());
         List<Integer> myAnswers = mQuizzesItem.getMyAnswers();
         if (myAnswers == null) {
@@ -133,13 +133,13 @@ abstract class QuizActivityContent {
         }
     }
 
-    protected final void resetQuestion() {
+    final void resetQuestion() {
         mQuizzesItem.setMyAnswers(new ArrayList<>());
         // This will also call to refresh UI through DB LiveData observer
         mQuizViewModel.updateQuizzesItem(mQuizzesItem);
     }
 
-    protected final void returnFromQuestionActivity() {
+    final void returnFromQuestionActivity() {
         // show back image share transition animation
         mActivity.supportFinishAfterTransition();
     }

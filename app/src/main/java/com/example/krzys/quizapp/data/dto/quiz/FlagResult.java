@@ -1,6 +1,7 @@
 
 package com.example.krzys.quizapp.data.dto.quiz;
 
+import android.arch.persistence.room.Ignore;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
@@ -38,7 +39,7 @@ public class FlagResult implements Parcelable
     }
     ;
 
-    protected FlagResult(Parcel in) {
+    FlagResult(Parcel in) {
         this.image = ((Image) in.readValue((Image.class.getClassLoader())));
         this.flag = ((String) in.readValue((String.class.getClassLoader())));
         this.title = ((String) in.readValue((String.class.getClassLoader())));
@@ -48,6 +49,7 @@ public class FlagResult implements Parcelable
     public FlagResult() {
     }
 
+    @Ignore
     public FlagResult(Image image, String flag, String title, String content) {
         this.image = image;
         this.flag = flag;

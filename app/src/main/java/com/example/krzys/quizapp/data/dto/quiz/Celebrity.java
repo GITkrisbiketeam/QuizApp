@@ -52,7 +52,7 @@ public class Celebrity implements Parcelable {
 
     };
 
-    protected Celebrity(Parcel in) {
+    Celebrity(Parcel in) {
         this.result = ((String) in.readValue((String.class.getClassLoader())));
         this.imageAuthor = ((String) in.readValue((String.class.getClassLoader())));
         this.imageHeight = ((String) in.readValue((String.class.getClassLoader())));

@@ -110,6 +110,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 // THIS class is likely to be moved into the library in a future release. Feel free to copy it
 // from this sample.
+@SuppressWarnings("WeakerAccess")
 public class PagingRequestHelper {
     private final Object mLock = new Object();
     private final Executor mRetryService;
@@ -271,12 +272,7 @@ public class PagingRequestHelper {
             mRequest.run(new Request.Callback(this, mHelper));
         }
         void retry(Executor service) {
-            service.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mHelper.runIfNotRunning(mType, mRequest);
-                }
-            });
+            service.execute(() -> mHelper.runIfNotRunning(mType, mRequest));
         }
     }
     /**
@@ -323,7 +319,7 @@ public class PagingRequestHelper {
              * Call this method with the failure message and the request can be retried via
              * {@link #retryAllFailed()}.
              *
-             * @param throwable The error that occured while carrying out the request.
+             * @param throwable The error that occurred while carrying out the request.
              */
             @SuppressWarnings("unused")
             public final void recordFailure(@NonNull Throwable throwable) {
@@ -345,6 +341,7 @@ public class PagingRequestHelper {
      * Data class that holds the information about the current status of the ongoing requests
      * using this helper.
      */
+    @SuppressWarnings("WeakerAccess")
     public static final class StatusReport {
         /**
          * Status of the latest request that were submitted with {@link RequestType#INITIAL}.

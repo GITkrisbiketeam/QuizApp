@@ -1,6 +1,7 @@
 package com.example.krzys.quizapp.data.dto.quiz;
 
 import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.Ignore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -49,7 +50,7 @@ public class Answer implements Parcelable {
 
     };
 
-    protected Answer(Parcel in) {
+    Answer(Parcel in) {
         this.image = ((Image) in.readValue((Image.class.getClassLoader())));
         this.order = ((Integer) in.readValue((Integer.class.getClassLoader())));
         this.text = ((String) in.readValue((String.class.getClassLoader())));
@@ -61,6 +62,7 @@ public class Answer implements Parcelable {
     public Answer() {
     }
 
+    @Ignore
     public Answer(Image image, Integer order, String text, Integer isCorrect, Integer votes,
                   FlagAnswer flagAnswer) {
         this.image = image;
