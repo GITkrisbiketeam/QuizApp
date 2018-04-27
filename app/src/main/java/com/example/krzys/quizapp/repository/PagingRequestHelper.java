@@ -18,6 +18,7 @@ package com.example.krzys.quizapp.repository;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.paging.DataSource;
+import android.os.Build;
 import android.support.annotation.AnyThread;
 import android.support.annotation.GuardedBy;
 import android.support.annotation.NonNull;
@@ -27,6 +28,7 @@ import android.support.annotation.VisibleForTesting;
 import com.example.krzys.quizapp.repository.NetworkState;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -509,19 +511,22 @@ public class PagingRequestHelper {
         return liveData;
     }
 
-    private String getErrorMessage(StatusReport report) {
+    private String getErrorMessage(@NonNull StatusReport report) {
 
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            //TODO
-            return Arrays.stream(RequestType.values()).map(type -> report.getErrorFor(type)).findFirst().toString();
-        } else {*/
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return Arrays.stream(report.mErrors).
+                    filter(Objects::nonNull).
+                    map(Throwable::getMessage).
+                    collect(StringBuilder::new, StringBuilder::append,StringBuilder::append).
+                    toString();
+        } else {
             StringBuilder sb = new StringBuilder();
             Throwable[] errors = report.mErrors;
             for(Throwable t : errors){
                 sb.append(t!= null?t.getMessage():"");
             }
             return sb.toString();
-        //}
+        }
     }
 
 

@@ -3,6 +3,7 @@ package com.example.krzys.quizapp.repository;
 import android.arch.paging.PagedList;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
 
@@ -34,7 +35,7 @@ class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<QuizzesIt
 
     @FunctionalInterface
     public interface ApiResponseCallback {
-        void saveToDB(@NonNull QuizzesListData body);
+        void saveToDB(@NonNull QuizzesListData body, @Nullable QuizzesItem itemAtEnd);
     }
 
     public QuizzesPagingBoundaryCallback(int networkPageSize, Executor executor,
@@ -57,7 +58,7 @@ class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<QuizzesIt
                 helperCallback -> {
                     Log.d(TAG, "onZeroItemsLoaded run");
                     mQuizApi.getQuizListData(0, mNetworkPageSize).
-                            enqueue(createWebserviceCallback(helperCallback));
+                            enqueue(createWebserviceCallback(helperCallback, null));
                 });
     }
 
@@ -81,19 +82,21 @@ class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<QuizzesIt
         mHelper.runIfNotRunning(PagingRequestHelper.RequestType.BEFORE,
                 helperCallback -> {
                     Log.d(TAG, "onItemAtEndLoaded run");
-                    mQuizApi.getQuizListData(itemAtEnd.getIndexInResponse(), mNetworkPageSize).
-                            enqueue(createWebserviceCallback(helperCallback));
+                    mQuizApi.getQuizListData(itemAtEnd.getIndexInResponse() + 1, mNetworkPageSize).
+                            enqueue(createWebserviceCallback(helperCallback, itemAtEnd));
                 });
     }
 
-    private Callback<QuizzesListData> createWebserviceCallback(PagingRequestHelper.Request
-                                                                       .Callback helperCallback) {
+    @WorkerThread
+    @NonNull
+    private Callback<QuizzesListData> createWebserviceCallback(@NonNull PagingRequestHelper
+            .Request.Callback helperCallback, @Nullable QuizzesItem itemAtEnd) {
         return new Callback<QuizzesListData>() {
             @Override
             public void onResponse(@NonNull Call<QuizzesListData> call,
                                    @NonNull Response<QuizzesListData> response) {
                 Log.d(TAG, "successful got Quizzes from webservice");
-                insertItemsIntoDb(response, helperCallback);
+                insertItemsIntoDb(response, itemAtEnd, helperCallback);
             }
 
             @Override
@@ -109,12 +112,12 @@ class QuizzesPagingBoundaryCallback extends PagedList.BoundaryCallback<QuizzesIt
      * paging library takes care of refreshing the list if necessary.
      */
     @WorkerThread
-    private void insertItemsIntoDb(@NonNull Response<QuizzesListData> response,
-                                   @NonNull PagingRequestHelper.Request.Callback helperCallback) {
+    private void insertItemsIntoDb(@NonNull Response<QuizzesListData> response, @Nullable
+            QuizzesItem itemAtEnd, @NonNull PagingRequestHelper.Request.Callback helperCallback) {
         mExecutor.execute(() -> {
             if (response.isSuccessful()) {
                 try {
-                    mApiResponseCallback.saveToDB(Objects.requireNonNull(response.body()));
+                    mApiResponseCallback.saveToDB(Objects.requireNonNull(response.body()), itemAtEnd);
                     helperCallback.recordSuccess();
                 } catch (NullPointerException e) {
                     helperCallback.recordFailure(new Throwable(e));

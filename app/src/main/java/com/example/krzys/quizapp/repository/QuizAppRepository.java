@@ -5,7 +5,9 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.krzys.quizapp.AppExecutors;
@@ -21,9 +23,11 @@ import com.example.krzys.quizapp.utils.Constants;
 import com.example.krzys.quizapp.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -171,7 +175,7 @@ public class QuizAppRepository {
                             Log.i(TAG, "getQuizzesItemListFromApi RetrofitClient successful");
                             mExecutor.execute(() -> {
                                 try {
-                                    insertApiResultIntoDb(Objects.requireNonNull(response.body()));
+                                    insertApiResultIntoDb(Objects.requireNonNull(response.body()), null);
                                     networkState.postValue(NetworkState.LOADED);
                                 } catch (NullPointerException e) {
                                     networkState.postValue(
@@ -252,36 +256,42 @@ public class QuizAppRepository {
      * AsyncTask for inserting new {@link QuizzesItem}'s into DB restoring User previously given
      * myAnswers
      */
-    private void insertApiResultIntoDb(@NonNull QuizzesListData body) {
+    private void insertApiResultIntoDb(@NonNull QuizzesListData body, @Nullable QuizzesItem itemAtEnd) {
         List<QuizzesItem> items = body.getItems();
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            items.forEach(quizzesItem -> {
-                QuizzesItem oldItem = mQuizzesItemDao.getQuizzesItemByIdImmediate(quizzesItem
-                        .getId());
+        QuizzesItem[] toAdd;
+        //For testing only
+        List<Long> ignoreList = Arrays.asList(6245636871272577L, 6245344483329665L,
+                6245311326165121L, 6245091174381697L, 6244623695296641L, 6244363836683905L,
+                6244239181764737L, 6243959986935425L, 6243574662629505L);
+
+        AtomicInteger atomIdx = new AtomicInteger(itemAtEnd != null ? mQuizzesItemDao.getNextIndexInQuizzesItems() : 0);
+        Log.e(TAG, "insertApiResultIntoDb startIdx: " + atomIdx + " itemAtEnd: " + itemAtEnd);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            toAdd = items.stream().
+                    filter(item -> mQuizzesItemDao.getQuizzesItemByIdImmediate(item.getId()) == null).
+                    //filter(item -> !ignoreList.contains(item.getId())).
+                    peek(item -> item.setIndexInResponse(atomIdx.getAndIncrement())).
+                    toArray(QuizzesItem[]::new);
+        } else {
+            List<QuizzesItem> itemsToAdd = new ArrayList<>();
+            for (QuizzesItem item : items) {
+                QuizzesItem oldItem = mQuizzesItemDao.getQuizzesItemByIdImmediate(item.getId());
+                Log.e(TAG, "insertApiResultIntoDb startIdx: " + atomIdx + " old: " + (oldItem != null ? oldItem.getIndexInResponse() : "null") + " " + item.getId());
                 // restore my answers
-                if (oldItem != null) {
-                    quizzesItem.setMyAnswers(oldItem.getMyAnswers());
+                if (oldItem == null/* && !ignoreList.contains(item.getId())*/){
+                    item.setIndexInResponse(atomIdx.getAndIncrement());
+                    itemsToAdd.add(item);
                 }
-            });
-            mQuizzesItemDao.insertQuizzesItem(items.stream().toArray(QuizzesItem[]::new));
-        } else {*/
-        int startIdx = mQuizzesItemDao.getNextIndexInQuizzesItems();
-        List<QuizzesItem> itemsToAdd = new ArrayList<>();
-        for (QuizzesItem item : items) {
-            QuizzesItem oldItem = mQuizzesItemDao.getQuizzesItemByIdImmediate(item.getId());
-            Log.e(TAG, "insertApiResultIntoDb startIdx: " + startIdx + " old: " + (oldItem != null ? oldItem.getIndexInResponse() : "null") + " " + item.getId());
-            // restore my answers
-            if (oldItem != null) {
-                item.setMyAnswers(oldItem.getMyAnswers());
             }
-            if (oldItem == null || oldItem.getMyAnswers() != null || oldItem.getId() < startIdx){
-                item.setIndexInResponse(startIdx++);
-                itemsToAdd.add(item);
-            }
+            // new QuizzesItem[0]  is supposed to be faster but is it working on older devices???
+            toAdd = itemsToAdd.toArray(new QuizzesItem[itemsToAdd.size()]);
         }
-        Log.e(TAG, "insertApiResultIntoDb itemsToAdd.size(): " + itemsToAdd.size());
-        // new QuizzesItem[0]  is supposed to be faster but is it working on older devices???
-        mQuizzesItemDao.insertQuizzesItem(itemsToAdd.toArray(new QuizzesItem[itemsToAdd.size()]));
-        //}
+
+        Log.e(TAG, "insertApiResultIntoDb toAdd.size(): " + toAdd.length);
+        if (itemAtEnd == null) {
+            mQuizzesItemDao.addToQuizzesItemIdx(toAdd.length);
+        }
+
+        mQuizzesItemDao.insertQuizzesItem(toAdd);
     }
 }

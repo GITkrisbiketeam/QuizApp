@@ -15,8 +15,7 @@ import com.example.krzys.quizapp.data.dto.quizzes.QuizzesItem;
 
 import java.util.List;
 
-
-import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
+import static android.arch.persistence.room.OnConflictStrategy.IGNORE;
 
 @Dao
 @TypeConverters({TagsConverter.class, IntegerConverter.class})
@@ -27,7 +26,7 @@ public interface QuizzesItemDao {
      *
      * @return {@link QuizzesItem) {@link List} of {@link LiveData} data holder to be observed
      */
-    @Query("select * from QuizzesItem ORDER BY indexInResponse ASC") //ORDER BY indexInResponse ASC
+    @Query("select * from QuizzesItem ORDER BY  indexInResponse ASC") //ORDER BY indexInResponse ASC // createdAt DESC
     DataSource.Factory<Integer, QuizzesItem> getAllQuizzesItems();
 
     /**
@@ -40,6 +39,9 @@ public interface QuizzesItemDao {
 
     @Query("SELECT MAX(indexInResponse) + 1 FROM QuizzesItem")
     int getNextIndexInQuizzesItems();
+
+    @Query("update QuizzesItem set indexInResponse = indexInResponse + :count")
+    void addToQuizzesItemIdx(long count);
 
     /**
      * Get {@link LiveData} holder for {@link QuizzesItem} observer based on provided id of Quiz Item
@@ -74,7 +76,7 @@ public interface QuizzesItemDao {
      *
      * @param quizzesItems {@link QuizzesItem} to be inserted into DB
      */
-    @Insert(onConflict = REPLACE)
+    @Insert(onConflict = IGNORE)
     void insertQuizzesItem(QuizzesItem... quizzesItems);
 
     /**
