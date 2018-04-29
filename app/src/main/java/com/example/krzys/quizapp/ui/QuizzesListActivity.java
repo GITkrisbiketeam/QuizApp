@@ -146,6 +146,12 @@ public class QuizzesListActivity extends AppCompatActivity {
             Log.w(TAG, "getQuizzesItemsListLiveData observer onChanged quizzesItems.size():" +
                     (quizzesItems != null ? quizzesItems.size(): "null"));
             mQuizzesAdapter.submitList(quizzesItems);
+            quizzesRecyclerView.post(() -> {
+                Log.w(TAG, "getQuizzesItemsListLiveData scroll " + mQuizzesAdapter.getItemCount());
+                if (mQuizzesAdapter.getItemCount() <= 1) {
+                    quizzesRecyclerView.scrollToPosition(0);
+                }
+            });
         });
 
         mQuizzesListViewModel.getNetworkStateLiveData().observe(this, networkState -> {
